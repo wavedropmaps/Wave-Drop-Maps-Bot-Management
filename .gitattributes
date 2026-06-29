@@ -1,0 +1,5 @@
+weights/*.pt filter=lfs diff=lfs merge=lfs -text
+# Parked YOLO watermark detector weights (archived 2026-06 — see ai-hub/deprecated/yolo-watermark-detector/)
+ai-hub/deprecated/yolo-watermark-detector/weights/*.pt filter=lfs diff=lfs merge=lfs -text
+*.pt filter=lfs diff=lfs merge=lfs -text
+*.db filter=lfs diff=lfs merge=lfs -text

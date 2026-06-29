@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAG Hierarchy Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    background: #040b14;
+    margin: 0;
+    padding: 0;
+    font-family: 'JetBrains Mono', monospace;
+    color: #cdd9e8;
+  }
+  
+  .cyber-hierarchy {
+    padding: 60px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .cyber-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 3.5rem;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+    margin-bottom: 5px;
+  }
+  .cyber-subtitle {
+    font-size: 0.85rem;
+    color: #7a98b0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 60px;
+  }
+  
+  /* Node Styling */
+  .cyber-node {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    background: rgba(10, 16, 28, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px; 
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    z-index: 2;
+    min-width: 220px;
+    text-align: left;
+  }
+  .cyber-node:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+  }
+
+  .neon-purple { border-color: rgba(186, 85, 211, 0.5); box-shadow: 0 0 15px rgba(186, 85, 211, 0.2) inset; }
+  .neon-green  { border-color: rgba(0, 255, 128, 0.5);  box-shadow: 0 0 15px rgba(0, 255, 128, 0.2) inset; }
+  .neon-orange { border-color: rgba(255, 140, 0, 0.5);  box-shadow: 0 0 15px rgba(255, 140, 0, 0.2) inset; }
+  .neon-cyan   { border-color: rgba(0, 212, 255, 0.5);  box-shadow: 0 0 15px rgba(0, 212, 255, 0.2) inset; }
+  
+  .node-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #1a2235;
+    border: 2px solid;
+    flex-shrink: 0;
+  }
+  .neon-purple .node-avatar { border-color: #ba55d3; }
+  .neon-green .node-avatar  { border-color: #00ff80; }
+  .neon-orange .node-avatar { border-color: #ff8c00; }
+  .neon-cyan .node-avatar   { border-color: #00d4ff; }
+  
+  .node-role { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #fff; }
+  .node-name { font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-top: 2px; }
+
+  /* Tree Container */
+  .tree-level {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    position: relative;
+    padding-top: 40px;
+  }
+  
+  /* Lines going UP */
+  .tree-level::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    width: 2px; height: 40px;
+    background: rgba(0, 212, 255, 0.3);
+    transform: translateX(-50%);
+  }
+  
+  /* Horizontal bracket for siblings */
+  .tree-level.has-siblings::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    width: calc(100% - 220px); /* rough width to connect outer nodes */
+    height: 2px;
+    background: rgba(0, 212, 255, 0.3);
+    transform: translateX(-50%);
+  }
+
+  /* Specific individual lines going UP to the horizontal bracket */
+  .tree-level.has-siblings > .node-wrapper {
+    position: relative;
+    padding-top: 40px;
+    margin-top: -40px; /* Offset to connect to top bracket */
+  }
+  .tree-level.has-siblings > .node-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    width: 2px; height: 40px;
+    background: rgba(0, 212, 255, 0.3);
+    transform: translateX(-50%);
+  }
+  
+  /* Management Merge Bracket (Lines going DOWN from 3 heads to 1 management) */
+  .merge-level {
+    position: relative;
+    padding-top: 60px; /* Space for the merging lines */
+  }
+  .merge-level::before {
+    content: '';
+    position: absolute;
+    top: -20px; left: 50%;
+    width: calc(100% - 220px); /* bracket across the 3 heads */
+    height: 2px;
+    background: rgba(0, 212, 255, 0.3);
+    transform: translateX(-50%);
+  }
+  .merge-level::after {
+    content: '';
+    position: absolute;
+    top: -20px; left: 50%;
+    width: 2px; height: 60px; /* down to management */
+    background: rgba(0, 212, 255, 0.3);
+    transform: translateX(-50%);
+  }
+  
+  /* For each head, draw a line dropping down to the merge bracket */
+  .head-drop-line {
+    position: absolute;
+    bottom: -20px; left: 50%;
+    width: 2px; height: 20px;
+    background: rgba(0, 212, 255, 0.3);
+    transform: translateX(-50%);
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 900px) {
+    .tree-level {
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    /* Disable horizontal brackets on mobile */
+    .tree-level.has-siblings::after, 
+    .merge-level::before {
+      display: none;
+    }
+    /* Disable extra spacing */
+    .tree-level.has-siblings > .node-wrapper {
+      padding-top: 20px; margin-top: 0;
+    }
+    .merge-level { padding-top: 20px; }
+    
+    /* Make all lines just simple vertical connecting lines */
+    .tree-level::before,
+    .tree-level.has-siblings > .node-wrapper::before,
+    .merge-level::after,
+    .head-drop-line {
+      height: 20px;
+      top: -20px; bottom: auto;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="cyber-hierarchy">
+  <h1 class="cyber-title">Team Hierarchy</h1>
+  <div class="cyber-subtitle">Wave Staff Roles & Structure</div>
+  
+  <!-- LEVEL 1: Executive -->
+  <div style="display:flex; justify-content:center;">
+    <div class="cyber-node neon-cyan">
+      <div class="node-avatar"></div>
+      <div>
+        <div class="node-role">Executive Director</div>
+        <div class="node-name">Owner / Founder</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- LEVEL 2: The 3 Heads -->
+  <div class="tree-level has-siblings">
+    <div class="node-wrapper" style="position:relative;">
+      <div class="cyber-node neon-purple">
+        <div class="node-avatar"></div>
+        <div><div class="node-role">Head Staff</div><div class="node-name">HR Branch</div></div>
+      </div>
+      <div class="head-drop-line"></div>
+    </div>
+    
+    <div class="node-wrapper" style="position:relative;">
+      <div class="cyber-node neon-green">
+        <div class="node-avatar"></div>
+        <div><div class="node-role">Head Operations</div><div class="node-name">Ops Branch</div></div>
+      </div>
+      <div class="head-drop-line"></div>
+    </div>
+    
+    <div class="node-wrapper" style="position:relative;">
+      <div class="cyber-node neon-orange">
+        <div class="node-avatar"></div>
+        <div><div class="node-role">Head Marketing</div><div class="node-name">Marketing Branch</div></div>
+      </div>
+      <div class="head-drop-line"></div>
+    </div>
+  </div>
+  
+  <!-- LEVEL 3: Management Core (The DAG Merge) -->
+  <div class="tree-level merge-level" style="display:flex; flex-direction:column; align-items:center; gap: 15px;">
+    <!-- Management uniting node -->
+    <div class="cyber-node neon-cyan" style="border-width:2px;">
+      <div class="node-avatar"></div>
+      <div><div class="node-role">Management</div><div class="node-name">Core Leadership</div></div>
+    </div>
+    
+    <!-- Admin Ladder -->
+    <div class="tree-level" style="padding-top: 20px; gap: 15px; flex-direction:column; align-items:center;">
+      <div class="cyber-node neon-cyan">
+        <div class="node-avatar" style="width:30px;height:30px;"></div>
+        <div><div class="node-role" style="font-size:0.65rem;">Head Admin</div><div class="node-name" style="font-size:0.7rem;">[User Name]</div></div>
+      </div>
+      <div class="tree-level" style="padding-top: 15px;">
+        <div class="cyber-node neon-cyan">
+          <div class="node-avatar" style="width:30px;height:30px;"></div>
+          <div><div class="node-role" style="font-size:0.65rem;">Senior Admin</div></div>
+        </div>
+      </div>
+      <div class="tree-level" style="padding-top: 15px;">
+        <div class="cyber-node neon-cyan">
+          <div class="node-avatar" style="width:30px;height:30px;"></div>
+          <div><div class="node-role" style="font-size:0.65rem;">Admin</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL 4: Staff Roles -->
+  <div class="tree-level has-siblings" style="margin-top:20px;">
+    <div class="node-wrapper">
+      <div class="cyber-node neon-purple">
+        <div class="node-avatar"></div>
+        <div><div class="node-role">Drop Map Roles</div><div class="node-name">Reviewer, Tester</div></div>
+      </div>
+    </div>
+    <div class="node-wrapper">
+      <div class="cyber-node neon-green">
+        <div class="node-avatar"></div>
+        <div><div class="node-role">Route Makers</div><div class="node-name">Loot, Surge, Tips</div></div>
+      </div>
+    </div>
+    <div class="node-wrapper">
+      <div class="cyber-node neon-orange">
+        <div class="node-avatar"></div>
+        <div><div class="node-role">Promoters</div><div class="node-name">Marketing Squad</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
+

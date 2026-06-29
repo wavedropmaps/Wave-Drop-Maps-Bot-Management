@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Duty Needs</title>
+<style>
+  /* Base page wrapper */
+  #duty-needs-page {
+    padding: clamp(16px, 4vw, 32px) clamp(12px, 4vw, 24px); max-width: 800px; margin: 0 auto;
+    font-family: 'JetBrains Mono', monospace;
+    color: #cdd9e8;
+    animation: fadeRise 0.6s ease-out both;
+  }
+  @keyframes fadeRise {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Header */
+  .duty-header {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(28px, 7vw, 52px);
+    color: #fff;
+    margin-bottom: 32px;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    text-align: center;
+  }
+
+  /* Container */
+  .duty-container {
+    background: rgba(4,11,20,0.5);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: clamp(16px, 4vw, 32px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  /* Items */
+  .duty-item {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .duty-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .duty-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .duty-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+  }
+  .duty-desc {
+    font-size: 13px;
+    color: rgba(205,217,232,0.7);
+  }
+  
+  /* Difficulty Tag */
+  .diff-tag {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 2px 6px; border-radius: 4px; border: 1px solid;
+  }
+  .diff-Easy { color: #00d4ff; border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.05); }
+  .diff-Medium { color: #ff0080; border-color: rgba(255,0,128,0.4); background: rgba(255,0,128,0.05); }
+  .diff-Hard, .diff-Pre-existing { color: #a855f7; border-color: rgba(168,85,247,0.4); background: rgba(168,85,247,0.05); }
+
+  /* Spectrum Line */
+  .spectrum-container {
+    margin-top: 20px;
+    margin-bottom: 8px;
+    width: 100%;
+    padding: 0 8px;
+    box-sizing: border-box;
+  }
+  .spectrum-track-wrapper {
+    position: relative;
+    padding: 8px 0;
+  }
+  .spectrum-track {
+    height: 6px;
+    background: linear-gradient(to right, #00ff00, #ffcc00, #a855f7, #ef4444);
+    border-radius: 3px;
+    position: relative;
+  }
+  .spectrum-point {
+    position: absolute;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    background: #040b14;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
+  .spectrum-point.point-0 { left: 0%; border-color: rgba(0,255,0,0.4); }
+  .spectrum-point.point-1 { left: 33.33%; border-color: rgba(255,204,0,0.4); }
+  .spectrum-point.point-2 { left: 66.66%; border-color: rgba(168,85,247,0.4); }
+  .spectrum-point.point-3 { left: 100%; border-color: rgba(239,68,68,0.4); }
+  
+  .spectrum-marker {
+    position: absolute;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #000;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    transition: left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  .status-marker-0 { box-shadow: 0 0 12px #00ff00, inset 0 0 4px #00ff00; border-color: #00ff00; }
+  .status-marker-1 { box-shadow: 0 0 12px #ffcc00, inset 0 0 4px #ffcc00; border-color: #ffcc00; }
+  .status-marker-2 { box-shadow: 0 0 12px #a855f7, inset 0 0 4px #a855f7; border-color: #a855f7; }
+  .status-marker-3 { box-shadow: none; border-color: #ef4444; background: #222; }
+
+  .spectrum-labels {
+    position: relative;
+    height: 16px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: rgba(205,217,232,0.5);
+  }
+  .spectrum-labels span {
+    position: absolute;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+  }
+  .spectrum-labels span.active {
+    font-weight: bold;
+  }
+  .active-0 { color: #00ff00 !important; text-shadow: 0 0 8px rgba(0,255,0,0.4); }
+  .active-1 { color: #ffcc00 !important; text-shadow: 0 0 8px rgba(255,204,0,0.4); }
+  .active-2 { color: #a855f7 !important; text-shadow: 0 0 8px rgba(168,85,247,0.4); }
+  .active-3 { color: #ef4444 !important; text-shadow: none; }
+
+  @media (max-width: 600px) {
+    .spectrum-labels {
+      font-size: 9px;
+    }
+  }
+
+  /* Key Dots */
+  
+  .status-0 { color: #00ff00; background: #00ff00; }
+  .status-1 { color: #ffcc00; background: #ffcc00; }
+  .status-2 { color: #a855f7; background: #a855f7; }
+  .status-3 { color: #ef4444; background: #ef4444; }
+
+  /* Info / Key section */
+  .duty-key-section {
+    margin-top: 40px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+  }
+  .key-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 32px;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  .key-item {
+    display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px;
+    font-size: 12px; color: rgba(205,217,232,0.8);
+  }
+  .key-item:last-child { margin-bottom: 0; }
+  .key-dot {
+    width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+  }
+  @media (max-width: 560px) {
+    .duty-key-section {
+      flex-direction: column !important;
+      gap: 24px !important;
+      padding: 20px !important;
+    }
+    .duty-key-section > div:last-child {
+      border-left: none !important;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-left: 0 !important;
+      padding-top: 20px;
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="duty-needs-page">
+  <div class="duty-header">Available Duties</div>
+  
+  <div class="duty-container" id="duty-list-container">
+    <div style="text-align:center; padding: 40px; color:rgba(255,255,255,0.3);">Loading duties...</div>
+  </div>
+
+  <div class="duty-key-section" style="display:flex; justify-content:space-between; align-items:center; text-align:left; gap: 40px; padding: 24px 40px;">
+    
+    <div style="flex: 1;">
+      <div class="key-title" style="margin-bottom: 8px;">INFO</div>
+      <p style="font-size:13px; color:rgba(205,217,232,0.8); line-height: 1.6; margin: 0;">
+        <strong style="color:#fff;">No prior experience needed—full training provided.</strong>
+      </p>
+    </div>
+
+    <div style="flex: 1; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 40px;">
+      <div class="key-title" style="font-size: 20px; margin-bottom: 12px;">Key</div>
+      <div class="key-item" style="justify-content:flex-start;"><div class="key-dot status-3"></div> <span>Closed/Full</span></div>
+      <div class="key-item" style="justify-content:flex-start;"><div class="key-dot status-2"></div> <span>Almost Full</span></div>
+      <div class="key-item" style="justify-content:flex-start;"><div class="key-dot status-1"></div> <span>Open (DM Fruss to apply)</span></div>
+      <div class="key-item" style="justify-content:flex-start;"><div class="key-dot status-0"></div> <span>High Priority / Needed ASAP</span></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  const container = document.getElementById('duty-list-container');
+  
+  const fallbackData = [
+    { id: "surge-route-maker", name: "Surge Route Maker", description: "Makes surge routes for wave", difficulty: "", status: 1 },
+    { id: "loot-route-maker", name: "Loot Route Maker", description: "Makes loot routes for wave", difficulty: "Easy", status: 0 },
+    { id: "tips-tricks-helper", name: "Tips and Tricks Helper", description: "Adds tips & tricks in improvement for fn", difficulty: "Medium", status: 0 },
+    { id: "map-request-helper", name: "Map Request Helper", description: "Helps members find the maps", difficulty: "Medium", status: 1 },
+    { id: "promoters", name: "Promoters", description: "Makes vfx or gfx or gets partnerships", difficulty: "Pre-existing skill set needed", status: 0 }
+  ];
+
+  function renderData(data) {
+    let html = '';
+    data.forEach(item => {
+      let diffHtml = '';
+      if (item.difficulty) {
+        const diffBase = item.difficulty.split(' ')[0];
+        diffHtml = `<span class="diff-tag diff-${diffBase}">${item.difficulty}</span>`;
+      }
+      let descHtml = item.description ? `<span class="duty-desc">(${item.description})</span>` : '';
+      
+      let pos = 0;
+      if (item.status === 1) pos = 33.33;
+      if (item.status === 2) pos = 66.66;
+      if (item.status === 3) pos = 100;
+      
+      html += `
+        <div class="duty-item">
+          <div class="duty-title-row">
+            <span style="color: #a855f7; display: inline-flex; align-items: center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </span>
+            <span class="duty-name">${item.name}</span>
+            ${descHtml}
+            ${diffHtml}
+          </div>
+          <div class="spectrum-container">
+            <div class="spectrum-track-wrapper">
+              <div class="spectrum-track">
+                <div class="spectrum-point point-0"></div>
+                <div class="spectrum-point point-1"></div>
+                <div class="spectrum-point point-2"></div>
+                <div class="spectrum-point point-3"></div>
+                <div class="spectrum-marker status-marker-${item.status}" style="left: ${pos}%"></div>
+              </div>
+            </div>
+            <div class="spectrum-labels">
+              <span class="${item.status === 0 ? 'active active-0' : ''}" style="left: 0%; transform: translateX(0%);">Needed ASAP</span>
+              <span class="${item.status === 1 ? 'active active-1' : ''}" style="left: 33.33%; transform: translateX(-50%);">Open</span>
+              <span class="${item.status === 2 ? 'active active-2' : ''}" style="left: 66.66%; transform: translateX(-50%);">Almost Full</span>
+              <span class="${item.status === 3 ? 'active active-3' : ''}" style="left: 100%; transform: translateX(-100%);">Closed</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  }
+
+  fetch('/api/duty_needs')
+    .then(res => res.json())
+    .then(data => {
+      if (!data || !data.length || data.error) {
+        renderData(fallbackData);
+        return;
+      }
+      renderData(data);
+    })
+    .catch(err => {
+      renderData(fallbackData);
+      console.warn("Failed to load live duties, showing mock UI:", err);
+    });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Wave Staff — Events</title>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://wavedropmaps.pages.dev/#events"/>
+<meta property="og:title" content="Wave Staff — Events"/>
+<meta property="og:description" content="Live weekly events dashboard — challenges, power hours, and leaderboard."/>
+<meta name="theme-color" content="#00d4ff"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800;900&family=Exo+2:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+  body { color: #e0eaff; font-family: 'Exo 2', sans-serif; }
+  h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
+
+  .ev-page { max-width: 960px; margin: 0 auto; padding: 40px 20px 120px; }
+
+  .ev-title {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, #00d4ff, #00ff88);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+  }
+  .ev-subtitle {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    color: rgba(0,212,255,0.45);
+    margin-bottom: 40px;
+  }
+
+  .ev-section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #00d4ff;
+    border-bottom: 1px solid rgba(0,212,255,0.2);
+    padding-bottom: 8px;
+    margin: 36px 0 16px;
+  }
+
+  .ev-card {
+    background: rgba(17,25,40,0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+  }
+
+  /* ── Challenge cards ── */
+  .ev-ch-card {
+    position: relative;
+    display: flex;
+    background: linear-gradient(135deg, rgba(17,25,40,0.92), rgba(10,16,28,0.88));
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .ev-ch-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.35); }
+  .ev-ch-card.ev-ch-completed {
+    border-color: rgba(255,215,0,0.28);
+    box-shadow: 0 0 22px rgba(255,215,0,0.10), inset 0 0 40px rgba(255,215,0,0.03);
+  }
+  .ev-ch-card.ev-ch-completed .ev-ch-accent {
+    background: linear-gradient(180deg, #ffd700, #ff8c00);
+    box-shadow: 0 0 14px rgba(255,215,0,0.6);
+  }
+  /* diagonal ribbon */
+  .ev-ch-card.ev-ch-completed::before {
+    content: 'COMPLETED';
+    position: absolute;
+    top: 16px;
+    right: -28px;
+    width: 110px;
+    padding: 5px 0;
+    background: linear-gradient(90deg, #c8960c, #ffd700, #c8960c);
+    background-size: 200% 100%;
+    color: #1a1000;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.52rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-align: center;
+    transform: rotate(35deg);
+    animation: ev-ribbon-shine 2.8s ease-in-out infinite;
+    z-index: 2;
+  }
+  @keyframes ev-ribbon-shine {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .ev-ch-accent {
+    width: 4px;
+    flex-shrink: 0;
+    background: var(--ch-accent, #00d4ff);
+    box-shadow: 0 0 12px var(--ch-accent, #00d4ff);
+  }
+  .ev-ch-duty-message { --ch-accent: #00d4ff; }
+  .ev-ch-duty-req     { --ch-accent: #ffaa00; }
+  .ev-ch-duty-modlog  { --ch-accent: #ff6b9d; }
+  .ev-ch-duty-reviews { --ch-accent: #64ffda; }
+  .ev-ch-duty-role    { --ch-accent: #b388ff; }
+  .ev-ch-body { flex: 1; padding: 18px 20px 16px; min-width: 0; }
+  .ev-ch-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .ev-ch-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    filter: drop-shadow(0 0 8px var(--ch-accent, #00d4ff));
+  }
+  .ev-ch-meta { flex: 1; min-width: 0; }
+  .ev-ch-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #e8f4ff;
+  }
+  .ev-ch-sub {
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(0,212,255,0.45);
+    margin-top: 2px;
+  }
+  .ev-ch-flair {
+    margin-top: 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: rgba(220,235,255,0.9);
+    line-height: 1.45;
+  }
+  .ev-ch-stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: rgba(160,185,220,0.75);
+  }
+  .ev-ch-diff {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ev-ch-diff-bar {
+    width: 72px;
+    height: 5px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .ev-ch-diff-bar span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--ch-accent, #00d4ff), #00ff88);
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+  .ev-ch-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .ev-ch-reward {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #00ff88;
+    background: rgba(0,255,136,0.1);
+    border: 1px solid rgba(0,255,136,0.3);
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+  .ev-ch-winner {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #1a1000;
+    background: linear-gradient(90deg, #c8960c, #ffd700, #ffaa00);
+    border-radius: 20px;
+    padding: 5px 12px 5px 8px;
+    box-shadow: 0 0 14px rgba(255,215,0,0.35);
+  }
+  .ev-ch-winner .ev-ch-winner-trophy {
+    font-size: 1rem;
+    line-height: 1;
+  }
+  .ev-ch-winner-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(0,0,0,0.3);
+    flex-shrink: 0;
+  }
+  .ev-ch-my-progress {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(0,212,255,0.05);
+    border: 1px solid rgba(0,212,255,0.14);
+    border-radius: 10px;
+  }
+  .ev-ch-my-progress.ev-ch-not-eligible {
+    font-size: 0.72rem;
+    color: rgba(160,185,220,0.55);
+    font-style: italic;
+    padding: 10px 14px;
+  }
+  .ev-ch-prog-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .ev-ch-prog-label {
+    font-size: 0.62rem;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: rgba(0,212,255,0.55);
+    font-weight: 700;
+  }
+  .ev-ch-prog-nums {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #c8e4ff;
+  }
+  .ev-ch-prog-nums.ev-ch-prog-done { color: #00ff88; }
+  .ev-ch-prog-bar {
+    height: 8px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .ev-ch-prog-fill {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--ch-accent, #00d4ff), #00ff88);
+    border-radius: 6px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 10px rgba(0,212,255,0.35);
+  }
+  .ev-ch-prog-hit {
+    margin-top: 8px;
+    font-size: 0.68rem;
+    color: rgba(0,255,136,0.75);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Power hour roll machine ── */
+  .ev-roll-card {
+    background: linear-gradient(160deg, rgba(12,18,32,0.95), rgba(8,12,22,0.98));
+    border: 1px solid rgba(0,212,255,0.22);
+    box-shadow: 0 0 40px rgba(0,212,255,0.06), inset 0 1px 0 rgba(255,255,255,0.04);
+    padding: 22px 24px 20px;
+  }
+  .ev-roll-card.ev-roll-spinning {
+    border-color: rgba(255,170,0,0.45);
+    box-shadow: 0 0 48px rgba(255,170,0,0.12);
+    animation: ev-roll-pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes ev-roll-pulse {
+    0%, 100% { box-shadow: 0 0 32px rgba(255,170,0,0.1); }
+    50% { box-shadow: 0 0 56px rgba(255,170,0,0.22); }
+  }
+  .ev-roll-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .ev-roll-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #00d4ff;
+    text-transform: uppercase;
+  }
+  .ev-roll-countdown {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #ffaa00;
+    margin-bottom: 4px;
+  }
+  .ev-roll-countdown.ev-rolling { color: #ff6644; animation: ev-text-flash 0.5s ease-in-out infinite; }
+  @keyframes ev-text-flash { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .ev-roll-at {
+    font-size: 0.72rem;
+    color: rgba(160,185,220,0.55);
+    margin-bottom: 16px;
+  }
+  .ev-roll-machine {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 18px 16px 14px;
+    text-align: center;
+  }
+  .ev-roll-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 3px;
+    color: rgba(0,212,255,0.5);
+    margin-bottom: 8px;
+  }
+  .ev-roll-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #e8f4ff;
+    letter-spacing: 4px;
+    line-height: 1.1;
+    text-shadow: 0 0 20px rgba(0,212,255,0.35);
+    transition: color 0.3s, text-shadow 0.3s;
+  }
+  .ev-roll-display.ev-spin { color: #ffaa00; text-shadow: 0 0 24px rgba(255,170,0,0.5); }
+  .ev-roll-display.ev-hit  { color: #00ff88; text-shadow: 0 0 28px rgba(0,255,136,0.55); }
+  .ev-roll-display.ev-miss { color: rgba(180,200,230,0.7); }
+  .ev-roll-need {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(160,185,220,0.6);
+    margin-top: 8px;
+  }
+  .ev-roll-meter {
+    position: relative;
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    margin: 12px 0 4px;
+    overflow: hidden;
+  }
+  .ev-roll-meter-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    background: linear-gradient(90deg, rgba(0,255,136,0.15), rgba(0,255,136,0.45));
+    border-right: 2px solid #00ff88;
+    transition: width 0.4s ease;
+  }
+  .ev-roll-result {
+    margin-top: 12px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    min-height: 1.2em;
+  }
+  .ev-roll-result.ev-hit  { color: #00ff88; animation: ev-pop-in 0.45s ease; }
+  .ev-roll-result.ev-miss { color: rgba(140,160,190,0.65); animation: ev-pop-in 0.45s ease; }
+  @keyframes ev-pop-in {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* ── Live power hour ── */
+  .ev-ph-live-card {
+    background: linear-gradient(135deg, rgba(0,40,28,0.5), rgba(10,20,35,0.9));
+    border: 1px solid rgba(0,255,136,0.4);
+    box-shadow: 0 0 32px rgba(0,255,136,0.12);
+    animation: ev-live-glow 2.5s ease-in-out infinite;
+    margin-bottom: 14px;
+    border-radius: 14px;
+    padding: 20px 22px;
+  }
+  @keyframes ev-live-glow {
+    0%, 100% { box-shadow: 0 0 24px rgba(0,255,136,0.1); }
+    50% { box-shadow: 0 0 40px rgba(0,255,136,0.22); }
+  }
+  .ev-ph-live-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .ev-ph-live-icon { font-size: 1.5rem; animation: ev-zap 1s ease-in-out infinite; }
+  @keyframes ev-zap { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+  .ev-ph-mult-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #00ff88;
+    background: rgba(0,255,136,0.15);
+    border: 1px solid rgba(0,255,136,0.4);
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+
+  /* ── PH history ── */
+  .ev-ph-hist-card {
+    display: flex;
+    gap: 14px;
+    background: rgba(14,20,34,0.8);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+  }
+  .ev-ph-hist-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(100,130,170,0.4);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .ev-ph-hist-dot.ev-double { background: #00ff88; box-shadow: 0 0 8px rgba(0,255,136,0.5); }
+  .ev-ph-hist-body { flex: 1; min-width: 0; }
+  .ev-ph-hist-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .ev-ph-earners-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .ev-ph-earner-chip {
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    color: rgba(200,220,255,0.85);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  .ev-subsection {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(0,212,255,0.45);
+    margin: 20px 0 12px;
+  }
+
+  .ev-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .ev-card-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #e0eaff;
+  }
+  .ev-card-desc {
+    font-size: 0.85rem;
+    color: rgba(180,200,230,0.65);
+    margin-top: 4px;
+  }
+  .ev-badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .ev-badge-active  { background: rgba(0,255,136,0.15); color: #00ff88; border: 1px solid rgba(0,255,136,0.35); }
+  .ev-badge-ended   { background: rgba(100,100,120,0.15); color: rgba(180,180,200,0.45); border: 1px solid rgba(100,100,120,0.2); }
+  .ev-badge-upcoming{ background: rgba(0,212,255,0.1); color: #00d4ff; border: 1px solid rgba(0,212,255,0.3); }
+
+  /* Power hour card */
+  .ev-ph-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .ev-ph-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #ffaa00;
+    font-weight: 700;
+  }
+  .ev-ph-mult {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #00ff88;
+  }
+  .ev-ph-roll {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(180,200,230,0.7);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+  .ev-ph-countdown {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #ffaa00;
+    font-weight: 700;
+    margin-top: 6px;
+  }
+  .ev-ph-live {
+    border-color: rgba(0,255,136,0.35);
+    box-shadow: 0 0 20px rgba(0,255,136,0.08);
+  }
+  .ev-ph-earners {
+    font-size: 0.78rem;
+    color: rgba(180,200,230,0.6);
+    margin-top: 8px;
+    line-height: 1.45;
+  }
+  .ev-winner {
+    margin-top: 8px;
+    font-size: 0.82rem;
+    color: #00ff88;
+  }
+
+  /* Leaderboard */
+  .ev-lb-table { width: 100%; border-collapse: collapse; }
+  .ev-lb-table th {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: rgba(0,212,255,0.55);
+    text-transform: uppercase;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0,212,255,0.12);
+  }
+  .ev-lb-table td {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    color: rgba(220,235,255,0.85);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .ev-lb-rank {
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: rgba(0,212,255,0.6);
+  }
+  .ev-lb-rank-1 { color: #ffd700; }
+  .ev-lb-rank-2 { color: #c0c0c0; }
+  .ev-lb-rank-3 { color: #cd7f32; }
+  .ev-pts {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #00ff88;
+  }
+
+  .ev-empty {
+    text-align: center;
+    padding: 32px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    color: rgba(100,130,170,0.45);
+  }
+
+  .ev-meta {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 1.5px;
+    color: rgba(0,212,255,0.25);
+    margin-top: 48px;
+  }
+
+  /* Loading state */
+  .ev-loading {
+    text-align: center;
+    padding: 80px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    color: rgba(0,212,255,0.4);
+  }
+  .ev-loading-dot {
+    display: inline-block;
+    animation: ev-blink 1.2s ease-in-out infinite;
+  }
+  .ev-loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .ev-loading-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes ev-blink { 0%,100%{opacity:0.2} 50%{opacity:1} }
+  /* Mobile (placed in <head> so the SPA shell keeps it; !important to beat later body rules) */
+  @media(max-width:600px){
+    .ev-page{padding:28px 12px 110px!important;}
+    .pr-admin-grid{grid-template-columns:1fr!important;}
+    .pr-amt{flex:1!important;width:auto!important;min-width:0!important;}
+    .ev-title{font-size:1.6rem!important;}
+    .ev-card{padding:16px!important;}
+    .ev-ch-body{padding:14px 14px 12px!important;}
+  }
+  @media(max-width:420px){
+    .ev-title{font-size:1.35rem!important;}
+    .ev-ch-card.ev-ch-completed::before{display:none;}
+  }
+</style>
+<style>.wave-logo-inline { width: 1.1em !important; height: 1.1em !important; vertical-align: -0.15em !important; display: inline-block !important; object-fit: contain !important; }</style>
+</head>
+<body>
+<!-- ── Back-to-Hub Button ─────────────────────────────────────────── -->
+<style>
+.wsh-back{position:fixed;top:14px;left:14px;z-index:9999;
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(5,12,22,0.92);backdrop-filter:blur(10px);
+  border:1px solid rgba(0,212,255,0.4);border-radius:24px;
+  padding:8px 16px;color:#00d4ff;
+  font-family:'Orbitron',monospace;font-size:10px;font-weight:700;
+  letter-spacing:2.5px;text-transform:uppercase;text-decoration:none;
+  box-shadow:0 0 14px rgba(0,212,255,0.25),0 4px 18px rgba(0,0,0,0.55);
+  transition:all 0.25s;}
+.wsh-back:hover{background:rgba(0,212,255,0.15);color:#fff;
+  transform:translateY(-2px);
+  box-shadow:0 0 24px rgba(0,212,255,0.55),0 6px 22px rgba(0,0,0,0.65);}
+.wsh-back::before{content:'←';font-size:13px;line-height:1;}
+@media(max-width:520px){.wsh-back{padding:6px 12px;font-size:9px;letter-spacing:2px;top:10px;left:10px;}}
+</style>
+<a href="index.html" class="wsh-back" title="Back to Wave Staff Hub">Hub</a>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="scanlines"></div>
+
+<div id="ev-root">
+  <div class="ev-loading">
+    Loading<span class="ev-loading-dot">.</span><span class="ev-loading-dot">.</span><span class="ev-loading-dot">.</span>
+  </div>
+</div>
+
+<style>
+.ucf-ticker-wrap{position:fixed;bottom:0;left:0;right:0;z-index:9999;overflow:hidden;background:rgba(5,12,22,0.97);border-top:1px solid rgba(0,212,255,0.2);height:36px;display:flex;align-items:center;box-shadow:0 -8px 24px rgba(0,0,0,0.6);backdrop-filter:blur(16px);}
+.ucf-ticker-label{flex-shrink:0;display:flex;align-items:center;gap:7px;padding:0 16px;height:100%;background:rgba(0,212,255,0.07);border-right:1px solid rgba(0,212,255,0.18);font-family:'Orbitron',monospace;font-size:0.56rem;font-weight:700;letter-spacing:2.5px;color:#00d4ff;text-transform:uppercase;white-space:nowrap;}
+.ucf-ticker-dot{width:5px;height:5px;border-radius:50%;background:#00d4ff;box-shadow:0 0 6px #00d4ff;animation:ucf-pulse 1.8s ease-in-out infinite;}
+@keyframes ucf-pulse{0%,100%{opacity:1}50%{opacity:0.25}}
+.ucf-ticker-scroll{flex:1;overflow:hidden;height:100%;display:flex;align-items:center;}
+.ucf-ticker{display:inline-flex;align-items:center;white-space:nowrap;animation:ucf-scroll 30s linear infinite;font-family:'JetBrains Mono',monospace;font-size:0.68rem;letter-spacing:2px;color:#00d4ff;font-weight:700;padding:0 60px;}
+.ucf-ticker:hover{animation-play-state:paused;}
+@keyframes ucf-scroll{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+.ucf-ticker-code{text-shadow:0 0 8px rgba(0,212,255,0.55);}
+</style>
+<div class="ucf-ticker-wrap">
+  <div class="ucf-ticker-label"><div class="ucf-ticker-dot"></div>LIVE</div>
+  <div class="ucf-ticker-scroll"><div class="ucf-ticker">Use code &nbsp;<span class="ucf-ticker-code">Wavedropmaps</span>&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;in the Fortnite item shop&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;Use code &nbsp;<span class="ucf-ticker-code">Wavedropmaps</span>&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;in the Fortnite item shop</div></div>
+</div>
+
+<style>
+/* ── Predictions — Wave Staff Hub neon ── */
+.pr-balance{display:flex;align-items:center;gap:10px;background:linear-gradient(100deg,rgba(0,212,255,0.10),rgba(168,85,247,0.06));border:1px solid rgba(0,212,255,0.28);border-radius:12px;padding:12px 16px;margin-bottom:18px;font-size:0.82rem;color:#bcd;box-shadow:0 0 22px rgba(0,212,255,0.08) inset;}
+.pr-balance .pr-diamond{font-size:1rem;filter:drop-shadow(0 0 6px rgba(0,212,255,.6));}
+.pr-balance b{color:#00d4ff;font-family:'Orbitron',monospace;font-size:1rem;text-shadow:0 0 10px rgba(0,212,255,.5);}
+.pr-balance-sub{color:#6a87a0;font-size:0.7rem;}
+
+.pr-card{position:relative;background:linear-gradient(180deg,rgba(12,24,44,0.92),rgba(8,16,30,0.92));border:1px solid rgba(0,212,255,0.16);border-radius:16px;padding:18px 20px;margin-bottom:16px;overflow:hidden;transition:border-color .25s,transform .25s,box-shadow .25s;}
+.pr-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#00d4ff,#a855f7,transparent);opacity:.7;}
+.pr-card:hover{border-color:rgba(0,212,255,0.34);box-shadow:0 10px 34px rgba(0,0,0,.45),0 0 24px rgba(0,212,255,.07);}
+.pr-card.pr-settled{opacity:.78;}
+.pr-card-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px;}
+.pr-card-title{font-family:'Orbitron',monospace;font-weight:800;font-size:1.02rem;color:#fff;line-height:1.2;letter-spacing:.3px;}
+.pr-desc{font-size:0.8rem;color:#8aa3bb;margin:2px 0 10px;}
+.pr-pool{display:inline-flex;align-items:center;gap:6px;font-size:0.72rem;color:#7fa;background:rgba(0,255,136,0.07);border:1px solid rgba(0,255,136,0.2);border-radius:20px;padding:3px 12px;margin-bottom:14px;}
+.pr-pool b{color:#00ff88;font-family:'JetBrains Mono',monospace;}
+
+.pr-badge{font-family:'Orbitron',monospace;font-size:0.55rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.pr-badge-open{background:rgba(0,255,136,0.12);border:1px solid rgba(0,255,136,0.4);color:#00ff88;}
+.pr-badge-locked{background:rgba(255,217,61,0.12);border:1px solid rgba(255,217,61,0.4);color:#ffd93d;}
+.pr-badge-done{background:rgba(120,140,160,0.12);border:1px solid rgba(120,140,160,0.35);color:#9fb3c8;}
+
+/* outcome tiles (click to select) */
+.pr-tiles{display:flex;flex-direction:column;gap:8px;margin-bottom:4px;}
+.pr-tile{position:relative;text-align:left;width:100%;cursor:pointer;background:rgba(255,255,255,0.025);border:1.5px solid rgba(255,255,255,0.08);border-radius:11px;padding:11px 13px;transition:border-color .18s,background .18s,transform .12s;overflow:hidden;}
+.pr-tile:hover{border-color:rgba(0,212,255,0.4);background:rgba(0,212,255,0.05);}
+.pr-tile.pr-tile-sel{border-color:#00d4ff;background:rgba(0,212,255,0.10);box-shadow:0 0 18px rgba(0,212,255,0.18);}
+.pr-tile.pr-tile-locked{cursor:default;}
+.pr-tile.pr-tile-locked:hover{border-color:rgba(255,255,255,0.08);background:rgba(255,255,255,0.025);}
+.pr-tile-won{border-color:#00ff88!important;background:rgba(0,255,136,0.08)!important;}
+.pr-tile-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px;}
+.pr-tile-name{font-weight:700;font-size:0.9rem;color:#e6eef7;display:flex;align-items:center;gap:8px;}
+.pr-tile-stat{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#8aa3bb;}
+.pr-tile-stat b{color:#cde;}
+.pr-radio{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;display:inline-block;transition:.18s;}
+.pr-tile-sel .pr-radio{border-color:#00d4ff;background:radial-gradient(circle,#00d4ff 0 42%,transparent 46%);box-shadow:0 0 8px rgba(0,212,255,.6);}
+.pr-bar{height:7px;background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden;}
+.pr-bar-fill{height:100%;width:0;background:linear-gradient(90deg,#00d4ff,#a855f7);transition:width .5s cubic-bezier(.2,.8,.2,1);}
+.pr-tile-won .pr-bar-fill{background:linear-gradient(90deg,#00ff88,#00d4ff);}
+.pr-tag{font-size:0.52rem;font-weight:800;letter-spacing:1px;padding:2px 7px;border-radius:5px;}
+.pr-tag-you{background:rgba(255,217,61,0.16);color:#ffd93d;}
+.pr-tag-won{background:rgba(0,255,136,0.16);color:#00ff88;}
+
+/* predict bar */
+.pr-make{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06);}
+.pr-amtrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.pr-amt{width:130px;background:#070f1c;border:1.5px solid rgba(0,212,255,0.25);color:#fff;border-radius:9px;padding:9px 12px;font-size:1rem;font-family:'JetBrains Mono',monospace;outline:none;transition:border-color .18s;}
+.pr-amt:focus{border-color:#00d4ff;}
+.pr-chip{cursor:pointer;background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.22);color:#9fe6ff;border-radius:7px;padding:7px 11px;font-size:0.72rem;font-family:'JetBrains Mono',monospace;transition:.15s;}
+.pr-chip:hover{background:rgba(0,212,255,0.18);}
+.pr-confirm{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.pr-summary{font-size:0.78rem;color:#8aa3bb;}
+.pr-summary b{color:#00d4ff;}
+.pr-btn{cursor:pointer;border-radius:9px;padding:10px 18px;font-size:0.8rem;font-weight:700;border:1.5px solid;font-family:'Exo 2',sans-serif;transition:.18s;letter-spacing:.3px;}
+.pr-btn:disabled{opacity:.4;cursor:not-allowed;}
+.pr-btn-go{background:rgba(0,255,136,0.12);border-color:rgba(0,255,136,0.45);color:#00ff88;}
+.pr-btn-go:hover:not(:disabled){background:rgba(0,255,136,0.22);box-shadow:0 0 18px rgba(0,255,136,.18);}
+.pr-btn-ghost{background:transparent;border-color:rgba(0,212,255,0.3);color:#9fe6ff;padding:8px 14px;font-size:0.74rem;}
+.pr-btn-ghost:hover{background:rgba(0,212,255,0.1);}
+
+/* locked banner (you've predicted) */
+.pr-locked{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px;background:rgba(255,217,61,0.07);border:1px solid rgba(255,217,61,0.28);border-radius:11px;padding:10px 14px;}
+.pr-locked-txt{font-size:0.82rem;color:#ffe28a;}
+.pr-locked-txt b{color:#ffd93d;}
+
+/* admin create */
+.pr-admin{position:relative;background:linear-gradient(180deg,rgba(168,85,247,0.08),rgba(20,12,34,0.6));border:1px solid rgba(168,85,247,0.28);border-radius:16px;padding:18px 20px;margin-bottom:22px;}
+.pr-admin::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#a855f7,#ff0080,transparent);opacity:.7;}
+.pr-admin-h{display:flex;align-items:center;gap:8px;font-family:'Orbitron',monospace;font-size:0.82rem;font-weight:700;color:#c89bff;margin-bottom:14px;letter-spacing:1px;}
+.pr-admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pr-field{display:flex;flex-direction:column;gap:5px;}
+.pr-field.pr-col2{grid-column:1/-1;}
+.pr-label{font-size:0.62rem;letter-spacing:1.2px;text-transform:uppercase;color:#9a7fc0;font-weight:700;}
+.pr-in{width:100%;background:#0b0716;border:1.5px solid rgba(168,85,247,0.28);color:#fff;border-radius:9px;padding:10px 12px;font-size:1rem;font-family:'Exo 2',sans-serif;outline:none;transition:border-color .18s;}
+.pr-in:focus{border-color:#a855f7;}
+.pr-outbuild{display:flex;flex-wrap:wrap;gap:7px;align-items:center;}
+.pr-outchip{display:inline-flex;align-items:center;gap:6px;background:rgba(168,85,247,0.14);border:1px solid rgba(168,85,247,0.4);color:#dcc6ff;border-radius:8px;padding:5px 8px 5px 11px;font-size:0.78rem;}
+.pr-outchip button{background:none;border:none;color:#c89bff;cursor:pointer;font-size:0.95rem;line-height:1;padding:0;}
+.pr-outchip button:hover{color:#ff0080;}
+.pr-preview{margin-top:14px;}
+.pr-preview-l{font-size:0.6rem;letter-spacing:1.5px;text-transform:uppercase;color:#6a87a0;margin-bottom:8px;}
+.pr-admin-actions{display:flex;align-items:center;gap:12px;margin-top:14px;}
+.pr-btn-create{background:rgba(168,85,247,0.16);border-color:rgba(168,85,247,0.5);color:#dcc6ff;}
+.pr-btn-create:hover:not(:disabled){background:rgba(168,85,247,0.28);box-shadow:0 0 18px rgba(168,85,247,.22);}
+
+/* admin resolve row */
+.pr-adminrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px dashed rgba(255,255,255,0.08);align-items:center;}
+.pr-adminrow .pr-admin-lbl{font-size:0.6rem;letter-spacing:1px;text-transform:uppercase;color:#9a7fc0;margin-right:2px;}
+.pr-btn-resolve{background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.4);color:#c89bff;padding:7px 12px;font-size:0.72rem;}
+.pr-btn-resolve:hover{background:rgba(168,85,247,0.22);}
+.pr-btn-cancel{background:rgba(255,80,80,0.08);border-color:rgba(255,80,80,0.35);color:#ff8a8a;padding:7px 12px;font-size:0.72rem;}
+.pr-btn-cancel:hover{background:rgba(255,80,80,0.18);}
+
+.pr-msg{font-size:0.74rem;margin-top:8px;min-height:1em;}
+.pr-ok{color:#00ff88;}.pr-err{color:#ff8a8a;}
+.pr-sec-h{display:flex;align-items:center;gap:10px;font-size:0.66rem;letter-spacing:2.5px;text-transform:uppercase;color:#6a87a0;margin:24px 0 12px;}
+.pr-sec-h::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(122,152,176,0.3),transparent);}
+.pr-empty{text-align:center;color:#5a7088;font-size:0.82rem;padding:26px 0;border:1px dashed rgba(122,152,176,0.18);border-radius:12px;}
+</style>
+
+<script>
+(function () {
+  var DATA_URL = '/api/events';
+  var EV = {
+    data: null, me: null, duties: null,
+    tickTimer: null, pollTimer: null, fastPollTimer: null,
+    rollTimer: null, rollPhase: 'idle', lastRollKey: null, spinChance: 0.1
+  };
+
+  var DUTY_ICON = { message: '💬', req: '📋', modlog: '📝', reviews: '🔍', role: '🎭' };
+  var DUTY_LABEL = { message: 'Messages', req: 'Map Requests', modlog: 'Modlog Actions', reviews: 'Proof Reviews', role: 'Role Actions' };
+  var TYPE_LABEL = { week_start: 'Week Start', mid_week: 'Mid-Week Mayhem' };
+
+  function splitDesc(desc) {
+    if (!desc) return { flair: '', stats: '' };
+    var parts = String(desc).split('\n');
+    return { flair: parts[0] || '', stats: parts.slice(1).join(' ') || '' };
+  }
+
+  function challengeTitle(name) {
+    var n = name || 'Challenge';
+    return n.replace(/^[\u{1F300}-\u{1FAFF}\u2600-\u27BF]\s*/u, '').trim() || n;
+  }
+
+  function challengeEmoji(c) {
+    if (c.name && /^[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/u.test(c.name)) {
+      return c.name.match(/^[\u{1F300}-\u{1FAFF}\u2600-\u27BF]+/u)[0];
+    }
+    return DUTY_ICON[c.duty] || '🎯';
+  }
+
+  function fetchMe() {
+    return fetch('/api/me')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { EV.me = (d && d.user_id) ? d : null; })
+      .catch(function () { EV.me = null; });
+  }
+
+  function fetchDuties() {
+    if (!EV.me) return Promise.resolve();
+    return fetch('/api/duties')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { if (d) EV.duties = d; })
+      .catch(function () {});
+  }
+
+  function getDutyCount(uid, duty) {
+    if (!EV.duties || !uid) return null;
+    var u = EV.duties.users && EV.duties.users[String(uid)];
+    if (duty === 'message') {
+      return (u && u.engagement) ? (Number(u.engagement.messages) || 0) : 0;
+    }
+    if (duty === 'modlog') {
+      return (u && u.engagement) ? (Number(u.engagement.mod_commands) || 0) : 0;
+    }
+    if (duty === 'reviews') {
+      return (u && u.engagement) ? (Number(u.engagement.reviews) || 0) : 0;
+    }
+    if (duty === 'req') {
+      if (!u || !u.duties || !u.duties.req) return null;
+      return Number(u.duties.req.count) || 0;
+    }
+    if (duty === 'role') {
+      if (!u || !u.duties || !u.duties.role) return null;
+      return Number(u.duties.role.count) || 0;
+    }
+    return 0;
+  }
+
+  function renderMyProgressHtml(c) {
+    if (!EV.me || !EV.me.user_id) return '';
+    if ((c.status || 'active') === 'completed') return '';
+    var duty = c.duty || 'message';
+    var target = Number(c.target_count) || 0;
+    if (!target) return '';
+    var count = getDutyCount(EV.me.user_id, duty);
+    if (count === null) {
+      var note = duty === 'req' ? 'Map Request Helper role required' : 'Not eligible for this challenge';
+      return '<div class="ev-ch-my-progress ev-ch-not-eligible">' + esc(note) + '</div>';
+    }
+    var pct = Math.min(100, Math.round(count / target * 100));
+    var lbl = DUTY_LABEL[duty] || duty;
+    var done = count >= target;
+    return '<div class="ev-ch-my-progress">' +
+      '<div class="ev-ch-prog-meta">' +
+        '<span class="ev-ch-prog-label">Your progress</span>' +
+        '<span class="ev-ch-prog-nums' + (done ? ' ev-ch-prog-done' : '') + '">' +
+          count + ' / ' + target + ' ' + esc(lbl) +
+        '</span>' +
+      '</div>' +
+      '<div class="ev-ch-prog-bar"><span class="ev-ch-prog-fill" style="width:' + pct + '%"></span></div>' +
+      (done ? '<div class="ev-ch-prog-hit">Target reached — winner confirmed on next scan</div>' : '') +
+    '</div>';
+  }
+
+  function updateChallengeProgress() {
+    if (!EV.data || !EV.me) return;
+    (EV.data.challenges || []).forEach(function (c) {
+      var card = document.querySelector('.ev-ch-card[data-challenge-id="' + c.id + '"]');
+      if (!card) return;
+      var wrap = card.querySelector('.ev-ch-my-progress-wrap');
+      if (wrap) wrap.innerHTML = renderMyProgressHtml(c);
+    });
+  }
+
+  function renderChallenges(challenges) {
+    if (!challenges || !challenges.length) {
+      return '<div class="ev-empty">No challenges this week</div>';
+    }
+    return challenges.map(function (c) {
+      var status = c.status || 'active';
+      var completed = status === 'completed';
+      var parts = splitDesc(c.description);
+      var diff = Number(c.difficulty) || 0;
+      var diffPct = Math.min(100, Math.max(0, diff * 10));
+      var duty = c.duty || 'message';
+      var statsText = parts.stats || ('Target ' + (c.target_count || '—'));
+      return '<div class="ev-ch-card ev-ch-duty-' + esc(duty) + (completed ? ' ev-ch-completed' : '') + '" data-challenge-id="' + esc(String(c.id || '')) + '">' +
+        '<div class="ev-ch-accent"></div>' +
+        '<div class="ev-ch-body">' +
+          '<div class="ev-ch-top">' +
+            '<span class="ev-ch-icon">' + challengeEmoji(c) + '</span>' +
+            '<div class="ev-ch-meta">' +
+              '<div class="ev-ch-title">' + esc(challengeTitle(c.name)) + '</div>' +
+              '<div class="ev-ch-sub">' + esc(TYPE_LABEL[c.challenge_type] || c.challenge_type || 'Challenge') + '</div>' +
+            '</div>' +
+            '<span class="' + badgeClass(status) + '">' + esc(status) + '</span>' +
+          '</div>' +
+          (parts.flair ? '<div class="ev-ch-flair">' + esc(parts.flair) + '</div>' : '') +
+          '<div class="ev-ch-stats">' +
+            '<span>' + esc(statsText) + '</span>' +
+            (diff ? '<span class="ev-ch-diff"><span class="ev-ch-diff-bar"><span style="width:' + diffPct + '%"></span></span>' + diff + '/10</span>' : '') +
+          '</div>' +
+          '<div class="ev-ch-my-progress-wrap">' + renderMyProgressHtml(c) + '</div>' +
+          '<div class="ev-ch-footer">' +
+            (c.reward ? '<span class="ev-ch-reward">💎 ' + esc(String(c.reward)) + ' WP</span>' : '<span></span>') +
+            (c.winner ? '<span class="ev-ch-winner">' + (c.winner_avatar ? '<img class="ev-ch-winner-avatar" src="' + esc(c.winner_avatar) + '" alt="">' : '<span class="ev-ch-winner-trophy">🏆</span>') + esc(c.winner) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function rollMeterPct(chance) {
+    return Math.min(100, Math.max(1, Number(chance || 0.1) * 100));
+  }
+
+  function rollResultHtml(lastRoll) {
+    if (!lastRoll || lastRoll.roll === undefined || lastRoll.roll === null) {
+      return '<span style="opacity:0.45">Awaiting first roll…</span>';
+    }
+    if (lastRoll.triggered) {
+      return (lastRoll.is_double ? '⚡⚡ DOUBLE POWER HOUR!' : '⚡ POWER HOUR TRIGGERED!');
+    }
+    return 'No Power Hour this hour';
+  }
+
+  function rollResultClass(lastRoll) {
+    if (!lastRoll || lastRoll.roll === undefined) return '';
+    return lastRoll.triggered ? 'ev-hit' : 'ev-miss';
+  }
+
+  function renderPowerHourRollCard(data) {
+    var meta = data.power_hour_meta || {};
+    var chanceLbl = meta.is_peak ? (pctChance(meta.trigger_chance) + ' peak') : (pctChance(meta.trigger_chance) + ' off-peak');
+    var nextAt = meta.next_roll_at || '';
+    var lr = data.last_roll;
+    var rollVal = (lr && lr.roll !== undefined && lr.roll !== null) ? Number(lr.roll).toFixed(4) : '—';
+    var chance = lr && lr.chance !== undefined ? Number(lr.chance) : (meta.trigger_chance || 0.1);
+    var dispClass = EV.rollPhase === 'spinning' ? 'ev-spin' : rollResultClass(lr);
+    return '<div class="ev-card ev-roll-card' + (EV.rollPhase === 'spinning' ? ' ev-roll-spinning' : '') + '" id="ev-ph-roll-card">' +
+      '<div class="ev-roll-header">' +
+        '<span class="ev-roll-title">Hourly Roll</span>' +
+        '<span class="ev-badge ev-badge-upcoming">' + esc(chanceLbl) + '</span>' +
+      '</div>' +
+      '<div class="ev-roll-countdown' + (EV.rollPhase === 'spinning' ? ' ev-rolling' : '') + '" id="ev-ph-next-cd">' +
+        (EV.rollPhase === 'spinning' ? 'Rolling…' : ('Next roll in ' + esc(fmtCountdown(nextAt)))) +
+      '</div>' +
+      '<div class="ev-roll-at">At ' + esc(fmtDual(nextAt)) + '</div>' +
+      '<div class="ev-roll-meter"><div class="ev-roll-meter-fill" id="ev-roll-meter" style="width:' + rollMeterPct(chance) + '%"></div></div>' +
+      '<div class="ev-roll-machine">' +
+        '<div class="ev-roll-label">Roll result</div>' +
+        '<div class="ev-roll-display ' + dispClass + '" id="ev-roll-display">' + esc(rollVal) + '</div>' +
+        '<div class="ev-roll-need" id="ev-roll-need">need &lt; ' + esc(Number(chance).toFixed(2)) + ' to trigger</div>' +
+        '<div class="ev-roll-result ' + rollResultClass(lr) + '" id="ev-roll-result">' + rollResultHtml(lr) + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderActivePowerHour(active) {
+    if (!active) return '';
+    var mult = active.multiplier || (active.is_double ? 2 : 1);
+    return '<div class="ev-ph-live-card" id="ev-ph-live-card">' +
+      '<div class="ev-ph-live-top">' +
+        '<span class="ev-ph-live-icon">⚡</span>' +
+        '<div style="flex:1">' +
+          '<div class="ev-ch-title">' + esc(active.name || 'Power Hour') + '</div>' +
+          '<div class="ev-ph-countdown" id="ev-ph-end-cd" style="margin-top:6px">Ends in ' + esc(fmtCountdown(active.end_time)) + '</div>' +
+        '</div>' +
+        '<span class="ev-badge ev-badge-active">LIVE</span>' +
+        (mult > 1 ? '<span class="ev-ph-mult-badge">' + esc(String(mult)) + '×</span>' : '') +
+      '</div>' +
+      '<div class="ev-card-desc">' + esc(active.description || 'Points awarded automatically when the hour ends') + '</div>' +
+      '<div class="ev-card-desc" style="margin-top:4px;opacity:0.65;font-size:0.75rem">Until ' + esc(fmtDual(active.end_time)) + '</div>' +
+    '</div>';
+  }
+
+  function renderPhHistory(powerHours) {
+    if (!powerHours || !powerHours.length) {
+      return '<div class="ev-empty">No completed power hours yet</div>';
+    }
+    return powerHours.map(function (ph) {
+      var mult = ph.multiplier || (ph.is_double ? 2 : 1);
+      var earners = ph.top_earners || [];
+      var earnersHtml = '';
+      if (earners.length) {
+        earnersHtml = '<div class="ev-ph-earners-list">' +
+          earners.map(function (e) {
+            return '<span class="ev-ph-earner-chip">' + esc(e.username || e.name || '?') + ' · ' + esc(String(e.points)) + ' WP</span>';
+          }).join('') + '</div>';
+      }
+      return '<div class="ev-ph-hist-card">' +
+        '<div class="ev-ph-hist-dot' + (mult > 1 ? ' ev-double' : '') + '"></div>' +
+        '<div class="ev-ph-hist-body">' +
+          '<div class="ev-ph-hist-top">' +
+            '<span class="ev-ph-time">' + esc(fmtDual(ph.start_time)) + '</span>' +
+            (mult > 1 ? '<span class="ev-ph-mult-badge">' + esc(String(mult)) + '×</span>' : '') +
+            '<span class="' + badgeClass(ph.status || 'ended') + '">' + esc(ph.status || 'ended') + '</span>' +
+          '</div>' +
+          '<div class="ev-card-name" style="font-size:0.85rem">' + esc(ph.name || ph.label || 'Power Hour') + '</div>' +
+          (ph.description ? '<div class="ev-card-desc" style="margin-top:4px">' + esc(ph.description) + '</div>' : '') +
+          earnersHtml +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderPowerHoursSection(data) {
+    return renderPowerHourRollCard(data) +
+      renderActivePowerHour(data.active_power_hour) +
+      '<div class="ev-subsection">Recent Power Hours</div>' +
+      renderPhHistory(data.power_hours);
+  }
+
+  function stopRollSpin() {
+    if (EV.rollTimer) { clearInterval(EV.rollTimer); EV.rollTimer = null; }
+    if (EV.fastPollTimer) { clearInterval(EV.fastPollTimer); EV.fastPollTimer = null; }
+    var card = document.getElementById('ev-ph-roll-card');
+    if (card) card.classList.remove('ev-roll-spinning');
+    var cd = document.getElementById('ev-ph-next-cd');
+    if (cd) cd.classList.remove('ev-rolling');
+  }
+
+  function revealRoll(lastRoll) {
+    stopRollSpin();
+    EV.rollPhase = 'revealed';
+    if (lastRoll && lastRoll.hour_key) EV.lastRollKey = lastRoll.hour_key;
+    var disp = document.getElementById('ev-roll-display');
+    var need = document.getElementById('ev-roll-need');
+    var result = document.getElementById('ev-roll-result');
+    if (!disp) return;
+    var finalVal = Number(lastRoll.roll).toFixed(4);
+    var steps = 12;
+    var step = 0;
+    var tick = setInterval(function () {
+      step++;
+      if (step < steps) {
+        disp.textContent = (Math.random()).toFixed(4);
+        disp.className = 'ev-roll-display ev-spin';
+      } else {
+        clearInterval(tick);
+        disp.textContent = finalVal;
+        disp.className = 'ev-roll-display ' + rollResultClass(lastRoll);
+        if (need && lastRoll.chance !== undefined) {
+          need.textContent = 'need < ' + Number(lastRoll.chance).toFixed(2) + ' to trigger';
+        }
+        if (result) {
+          result.className = 'ev-roll-result ' + rollResultClass(lastRoll);
+          result.innerHTML = rollResultHtml(lastRoll);
+        }
+        var meter = document.getElementById('ev-roll-meter');
+        if (meter && lastRoll.chance !== undefined) {
+          meter.style.width = rollMeterPct(lastRoll.chance) + '%';
+        }
+        setTimeout(function () { EV.rollPhase = 'idle'; }, 3000);
+      }
+    }, 55);
+  }
+
+  function startRollSpin(chance) {
+    if (EV.rollPhase === 'spinning') return;
+    EV.rollPhase = 'spinning';
+    EV.spinChance = chance || 0.1;
+    var card = document.getElementById('ev-ph-roll-card');
+    if (card) card.classList.add('ev-roll-spinning');
+    var cd = document.getElementById('ev-ph-next-cd');
+    if (cd) { cd.textContent = 'Rolling…'; cd.classList.add('ev-rolling'); }
+    var disp = document.getElementById('ev-roll-display');
+    var result = document.getElementById('ev-roll-result');
+    if (result) { result.className = 'ev-roll-result'; result.textContent = ''; }
+    if (EV.rollTimer) clearInterval(EV.rollTimer);
+    EV.rollTimer = setInterval(function () {
+      if (disp) {
+        disp.textContent = (Math.random()).toFixed(4);
+        disp.className = 'ev-roll-display ev-spin';
+      }
+    }, 45);
+    if (EV.fastPollTimer) clearInterval(EV.fastPollTimer);
+    EV.fastPollTimer = setInterval(function () { fetchEvents(true); }, 2000);
+    fetchEvents(true);
+  }
+
+  function onRollDataUpdate(data) {
+    var lr = data.last_roll;
+    if (!lr || lr.roll === undefined || lr.roll === null) return;
+    var key = lr.hour_key || lr.rolled_at;
+    if (EV.rollPhase === 'spinning' && key && key !== EV.lastRollKey) {
+      revealRoll(lr);
+      return;
+    }
+    if (EV.rollPhase !== 'spinning' && key && key !== EV.lastRollKey) {
+      EV.lastRollKey = key;
+      var disp = document.getElementById('ev-roll-display');
+      var result = document.getElementById('ev-roll-result');
+      if (disp) {
+        disp.textContent = Number(lr.roll).toFixed(4);
+        disp.className = 'ev-roll-display ' + rollResultClass(lr);
+      }
+      if (result) {
+        result.className = 'ev-roll-result ' + rollResultClass(lr);
+        result.innerHTML = rollResultHtml(lr);
+      }
+    }
+  }
+  function fmt(ts) {
+    if (!ts) return '—';
+    try { return new Date(ts).toLocaleString('en-AU', { timeZone: 'UTC', hour12: false }); }
+    catch (e) { return ts; }
+  }
+
+  function fmtDual(ts) {
+    if (!ts) return '—';
+    try {
+      var d = new Date(ts);
+      var utc = d.toLocaleString('en-AU', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', hour12: false }) + ' UTC';
+      var local = d.toLocaleString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true });
+      return utc + ' · ' + local;
+    } catch (e) { return ts; }
+  }
+
+  function fmtCountdown(targetIso) {
+    if (!targetIso) return '—';
+    var ms = new Date(targetIso).getTime() - Date.now();
+    if (ms <= 0) return 'rolling now…';
+    var s = Math.floor(ms / 1000);
+    var h = Math.floor(s / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    var sec = s % 60;
+    if (h > 0) return h + 'h ' + m + 'm ' + sec + 's';
+    if (m > 0) return m + 'm ' + sec + 's';
+    return sec + 's';
+  }
+
+  function pctChance(chance) {
+    if (chance === undefined || chance === null) return '';
+    return Math.round(Number(chance) * 100) + '%';
+  }
+
+  function badgeClass(status) {
+    if (!status) return 'ev-badge ev-badge-upcoming';
+    var s = status.toLowerCase();
+    if (s === 'active' || s === 'live') return 'ev-badge ev-badge-active';
+    if (s === 'ended' || s === 'completed') return 'ev-badge ev-badge-ended';
+    return 'ev-badge ev-badge-upcoming';
+  }
+
+  function renderLeaderboard(leaderboard) {
+    if (!leaderboard || !leaderboard.length) {
+      return '<div class="ev-empty">No challenge wins this week yet</div>';
+    }
+    var rows = leaderboard.map(function (entry, i) {
+      var rank = entry.rank || (i + 1);
+      var rankClass = rank === 1 ? 'ev-lb-rank ev-lb-rank-1' :
+                      rank === 2 ? 'ev-lb-rank ev-lb-rank-2' :
+                      rank === 3 ? 'ev-lb-rank ev-lb-rank-3' : 'ev-lb-rank';
+      return '<tr>' +
+        '<td class="' + rankClass + '">#' + rank + '</td>' +
+        '<td>' + esc(entry.name || entry.username || String(entry.user_id || '—')) + '</td>' +
+        '<td class="ev-pts">' + esc(String(entry.points !== undefined ? entry.points : entry.score !== undefined ? entry.score : '—')) + '</td>' +
+      '</tr>';
+    }).join('');
+    return '<div class="ev-card" style="padding:0;overflow:hidden">' +
+      '<table class="ev-lb-table">' +
+        '<thead><tr>' +
+          '<th style="width:52px">Rank</th>' +
+          '<th>Player</th>' +
+          '<th>Points</th>' +
+        '</tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table>' +
+    '</div>';
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function updateCountdowns() {
+    if (!EV.data) return;
+    var meta = EV.data.power_hour_meta || {};
+    var nextEl = document.getElementById('ev-ph-next-cd');
+    if (nextEl && meta.next_roll_at && EV.rollPhase !== 'spinning') {
+      var cd = fmtCountdown(meta.next_roll_at);
+      if (cd === 'rolling now…') {
+        startRollSpin(meta.trigger_chance || 0.1);
+      } else {
+        nextEl.textContent = 'Next roll in ' + cd;
+      }
+    }
+    var endEl = document.getElementById('ev-ph-end-cd');
+    var active = EV.data.active_power_hour;
+    if (endEl && active && active.end_time) {
+      var endCd = fmtCountdown(active.end_time);
+      endEl.textContent = endCd === 'rolling now…' ? 'Ending now…' : ('Ends in ' + endCd);
+    }
+  }
+
+  function startTimers() {
+    if (EV.tickTimer) clearInterval(EV.tickTimer);
+    if (EV.pollTimer) clearInterval(EV.pollTimer);
+    EV.tickTimer = setInterval(updateCountdowns, 1000);
+    EV.pollTimer = setInterval(function () { fetchEvents(true); }, 60000);
+  }
+
+  function render(data) {
+    EV.data = data;
+    if (data.last_roll && data.last_roll.hour_key) {
+      EV.lastRollKey = data.last_roll.hour_key;
+    }
+    var weekLabel = data.week_start ? 'Week of ' + data.week_start : 'This Week';
+    var html = '<div class="ev-page">' +
+      '<div class="ev-title">Events</div>' +
+      '<div class="ev-subtitle">' + esc(weekLabel) + '</div>' +
+      '<div class="ev-section-title">Challenges</div>' +
+      renderChallenges(data.challenges) +
+      '<div class="ev-section-title">Power Hours</div>' +
+      renderPowerHoursSection(data) +
+      '<div class="ev-section-title">Leaderboard</div>' +
+      '<div class="ev-card-desc" style="margin:-8px 0 12px;opacity:0.55;font-size:0.75rem">This week\'s challenge wins</div>' +
+      renderLeaderboard(data.leaderboard) +
+      '<div class="ev-section-title" id="ev-pred-title">🔮 Predictions</div>' +
+      '<div id="ev-predictions"><div class="ev-empty">Loading predictions…</div></div>' +
+      (data.generated_at ? '<div class="ev-meta">Updated ' + esc(fmt(data.generated_at)) + ' UTC</div>' : '') +
+    '</div>';
+    var predEl = document.getElementById('ev-predictions');
+    var predHtml = predEl ? predEl.innerHTML : null;
+    document.getElementById('ev-root').innerHTML = html;
+    if (!predHtml || predHtml.indexOf('Loading predictions') !== -1) {
+      loadPredictions();
+    } else {
+      document.getElementById('ev-predictions').innerHTML = predHtml;
+    }
+    startTimers();
+    var meta = data.power_hour_meta || {};
+    if (meta.next_roll_at && fmtCountdown(meta.next_roll_at) === 'rolling now…' && EV.rollPhase === 'idle') {
+      startRollSpin(meta.trigger_chance || 0.1);
+    }
+  }
+
+  function fetchEvents(silent) {
+    var boot = silent ? Promise.resolve() : fetchMe();
+    boot.then(function () {
+      var reqs = [fetch(DATA_URL).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })];
+      if (EV.me) reqs.push(fetchDuties());
+      return Promise.all(reqs);
+    }).then(function (results) {
+        var data = results[0];
+        if (silent && EV.data) {
+          EV.data = data;
+          onRollDataUpdate(data);
+          updateCountdowns();
+          updateChallengeProgress();
+          if (EV.rollPhase !== 'spinning') {
+            var rollCard = document.getElementById('ev-ph-roll-card');
+            if (rollCard) {
+              var tmp = document.createElement('div');
+              tmp.innerHTML = renderPowerHourRollCard(data);
+              var newCard = tmp.firstChild;
+              if (newCard) rollCard.replaceWith(newCard);
+            }
+          }
+          var liveCard = document.getElementById('ev-ph-live-card');
+          var newLiveHtml = renderActivePowerHour(data.active_power_hour);
+          if (liveCard && !newLiveHtml) liveCard.remove();
+          else if (!liveCard && newLiveHtml) {
+            var rollEl = document.getElementById('ev-ph-roll-card');
+            if (rollEl) rollEl.insertAdjacentHTML('afterend', newLiveHtml);
+          } else if (liveCard && newLiveHtml) {
+            var tmp2 = document.createElement('div');
+            tmp2.innerHTML = newLiveHtml;
+            if (tmp2.firstChild) liveCard.replaceWith(tmp2.firstChild);
+          }
+        } else {
+          render(data);
+        }
+      })
+      .catch(function (err) {
+        if (!silent) {
+          document.getElementById('ev-root').innerHTML =
+            '<div class="ev-loading" style="color:rgba(255,80,80,0.5)">Failed to load events data<br><span style="font-size:0.6rem;opacity:0.6">' + err.message + '</span></div>';
+        }
+      });
+  }
+
+  fetchEvents(false);
+
+  // ── Predictions (live, via bot admin API) ─────────────────────────────────
+  var PRED = { data: null, mgmt: false, busy: false, interacting: false,
+               sel: {}, amt: {}, raising: {}, create: { title: '', desc: '', end: '', outcomes: [] } };
+
+  function money(n) { return Number(n || 0).toLocaleString(); }
+  function pct(part, total) { return total > 0 ? Math.round(part / total * 100) : 0; }
+  function findPred(pid) { return (PRED.data && PRED.data.predictions || []).filter(function (p) { return String(p.id) === String(pid); })[0]; }
+  function setMsg(el, txt, ok) { if (el) { el.innerHTML = txt; el.className = 'pr-msg ' + (ok ? 'pr-ok' : 'pr-err'); } }
+
+  function loadPredictions(force) {
+    fetch('/api/admin/predictions/data', { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.error) { renderPredError(d.error); return; }
+        PRED.data = d; PRED.mgmt = !!d.is_management;
+        if (force || !PRED.interacting) renderPredictions(d);
+      })
+      .catch(function () { renderPredError('offline'); });
+  }
+
+  function renderPredError(msg) {
+    var box = document.getElementById('ev-predictions');
+    if (!box) return;
+    var txt = (msg === 'bot_offline' || msg === 'offline')
+      ? 'Predictions are temporarily unavailable (bot offline).'
+      : 'Could not load predictions.';
+    box.innerHTML = '<div class="pr-empty">' + esc(txt) + '</div>';
+  }
+
+  // Capture in-progress input values so a background refresh never wipes them.
+  function captureState() {
+    (PRED.data && PRED.data.predictions || []).forEach(function (p) {
+      var a = document.getElementById('pr-amt-' + p.id);
+      if (a) PRED.amt[p.id] = a.value;
+    });
+    ['title', 'desc', 'end'].forEach(function (k) {
+      var el = document.getElementById('pr-new-' + k);
+      if (el) PRED.create[k] = el.value;
+    });
+  }
+
+  function renderPredictions(d) {
+    var box = document.getElementById('ev-predictions');
+    if (!box) return;
+    captureState();
+    var preds = d.predictions || [];
+    var active = preds.filter(function (p) { return p.status === 'active'; });
+    var awaiting = preds.filter(function (p) { return p.status === 'voting_closed'; });
+    var settled = preds.filter(function (p) { return p.status === 'ended' || p.status === 'cancelled'; });
+
+    var html = '<div class="pr-balance"><span class="pr-diamond">💎</span> Available to predict: <b>' +
+      money(d.your_available) + '</b> Wave Points <span class="pr-balance-sub">of ' + money(d.your_balance) + ' total</span></div>';
+
+    if (d.is_management) html += adminCreate();
+
+    if (active.length) {
+      html += '<div class="pr-sec-h">Open</div>';
+      active.forEach(function (p) { html += predCard(p, d.is_management); });
+    } else if (!d.is_management) {
+      html += '<div class="pr-empty">No predictions open right now — check back soon.</div>';
+    }
+    if (awaiting.length) {
+      html += '<div class="pr-sec-h">Awaiting result</div>';
+      awaiting.forEach(function (p) { html += predCard(p, d.is_management); });
+    }
+    if (settled.length) {
+      html += '<div class="pr-sec-h">History</div>';
+      settled.forEach(function (p) { html += predCard(p, d.is_management); });
+    }
+    box.innerHTML = html;
+  }
+
+  function predCard(p, mgmt) {
+    var open = p.status === 'active';
+    var canAdmin = mgmt && (open || p.status === 'voting_closed');
+    var pool = p.pool || 0;
+    var mine = p.your_bet;
+    var sel = PRED.sel[p.id] || (mine ? mine.choice : '');
+
+    var tiles = (p.outcomes || []).map(function (o) {
+      var key = o.toLowerCase();
+      var s = (p.summary && p.summary[key]) || { count: 0, total: 0 };
+      var w = pct(s.total, pool);
+      var isSel = open && sel && sel.toLowerCase() === key;
+      var mineOn = mine && mine.choice.toLowerCase() === key;
+      var won = p.result && p.result.toLowerCase() === key;
+      var cls = 'pr-tile' + (isSel ? ' pr-tile-sel' : '') + (open ? '' : ' pr-tile-locked') + (won ? ' pr-tile-won' : '');
+      var attrs = open ? ' data-act="pick" data-pid="' + p.id + '" data-choice="' + esc(o) + '"' : '';
+      return '<button class="' + cls + '"' + attrs + '>' +
+        '<div class="pr-tile-row"><span class="pr-tile-name">' +
+          (open ? '<span class="pr-radio"></span>' : '') + esc(o) +
+          (mineOn ? ' <span class="pr-tag pr-tag-you">YOUR PICK</span>' : '') +
+          (won ? ' <span class="pr-tag pr-tag-won">WINNER</span>' : '') +
+        '</span><span class="pr-tile-stat"><b>' + money(s.total) + '</b> VB · ' + s.count + '</span></div>' +
+        '<div class="pr-bar"><div class="pr-bar-fill" style="width:' + w + '%"></div></div>' +
+      '</button>';
+    }).join('');
+
+    var makeUI = '';
+    if (open) {
+      var raising = !!PRED.raising[p.id];
+      if (mine && !raising) {
+        makeUI = '<div class="pr-locked"><span class="pr-locked-txt">🔒 Your prediction: <b>' +
+          money(mine.amount) + '</b> Wave Points on <b>' + esc(mine.choice.toUpperCase()) + '</b></span>' +
+          '<button class="pr-btn pr-btn-ghost" data-act="raise" data-pid="' + p.id + '">Raise ▲</button></div>';
+      } else {
+        var cur = mine ? mine.amount : 0;
+        var amtVal = (PRED.amt[p.id] != null && PRED.amt[p.id] !== '') ? PRED.amt[p.id] : (cur || '');
+        var maxTotal = cur + (PRED.data.your_available || 0);
+        makeUI = '<div class="pr-make"><div class="pr-amtrow">' +
+          '<input id="pr-amt-' + p.id + '" class="pr-amt" type="number" min="10" placeholder="Wave Points" value="' + esc(String(amtVal)) + '">' +
+          '<button class="pr-chip" data-act="chip" data-pid="' + p.id + '" data-add="50">+50</button>' +
+          '<button class="pr-chip" data-act="chip" data-pid="' + p.id + '" data-add="100">+100</button>' +
+          '<button class="pr-chip" data-act="chip" data-pid="' + p.id + '" data-add="250">+250</button>' +
+          '<button class="pr-chip" data-act="chip" data-pid="' + p.id + '" data-max="' + maxTotal + '">Max</button>' +
+          '</div><div class="pr-confirm"><span class="pr-summary" id="pr-sum-' + p.id + '">' + summaryText(p) + '</span>' +
+          '<button class="pr-btn pr-btn-go" data-act="bet" data-pid="' + p.id + '">' + (mine ? 'Raise Prediction' : 'Place Prediction') + '</button>' +
+          '</div><div id="pr-msg-' + p.id + '" class="pr-msg"></div></div>';
+      }
+    }
+
+    var adminUI = canAdmin
+      ? '<div class="pr-adminrow"><span class="pr-admin-lbl">Resolve as:</span>' +
+          (p.outcomes || []).map(function (o) {
+            return '<button class="pr-btn pr-btn-resolve" data-act="resolve" data-pid="' + p.id + '" data-choice="' + esc(o) + '">' + esc(o) + '</button>';
+          }).join('') +
+          '<button class="pr-btn pr-btn-cancel" data-act="cancel" data-pid="' + p.id + '">Cancel & refund</button></div>'
+      : '';
+
+    var badge = open ? '<span class="pr-badge pr-badge-open">open</span>'
+      : (p.status === 'voting_closed' ? '<span class="pr-badge pr-badge-locked">awaiting result</span>'
+        : (p.status === 'cancelled' ? '<span class="pr-badge pr-badge-done">cancelled</span>'
+          : '<span class="pr-badge pr-badge-done">resolved</span>'));
+
+    return '<div class="pr-card' + (open ? '' : ' pr-settled') + '">' +
+      '<div class="pr-card-h"><span class="pr-card-title">' + esc(p.title) + '</span>' + badge + '</div>' +
+      (p.description ? '<div class="pr-desc">' + esc(p.description) + '</div>' : '') +
+      '<div class="pr-pool">💰 Pool: <b>' + money(pool) + '</b> Wave Points' +
+        (open && p.end_date ? ' · ends ' + esc(p.end_date) : '') +
+        (p.result ? ' · winner: ' + esc(p.result.toUpperCase()) : '') + '</div>' +
+      '<div class="pr-tiles">' + tiles + '</div>' + makeUI + adminUI +
+    '</div>';
+  }
+
+  function summaryText(p) {
+    var mine = p.your_bet;
+    var sel = PRED.sel[p.id] || (mine ? mine.choice : '');
+    var amt = parseInt(PRED.amt[p.id], 10);
+    if (!sel) return 'Select an outcome above ↑';
+    var SEL = '<b>' + esc(sel.toUpperCase()) + '</b>';
+    if (!amt || amt < 10) return 'Enter Wave Points (min 10) for ' + SEL;
+    var cur = mine ? mine.amount : 0, delta = amt - cur;
+    if (mine && delta <= 0) return 'Enter a total above ' + money(cur) + ' to raise on ' + SEL;
+    if (mine) return 'Raise to <b>' + money(amt) + '</b> on ' + SEL + ' — locks ' + money(delta) + ' more';
+    return 'Predict <b>' + money(amt) + '</b> Wave Points on ' + SEL;
+  }
+
+  function updateSummary(pid) {
+    var el = document.getElementById('pr-sum-' + pid);
+    var p = findPred(pid);
+    if (el && p) el.innerHTML = summaryText(p);
+  }
+
+  function adminCreate() {
+    var c = PRED.create;
+    var chips = c.outcomes.length
+      ? c.outcomes.map(function (o, i) { return '<span class="pr-outchip">' + esc(o) + '<button data-act="rmoutcome" data-idx="' + i + '">×</button></span>'; }).join('')
+      : '<span style="color:#6a87a0;font-size:0.74rem;">No outcomes yet — add at least 2.</span>';
+    return '<div class="pr-admin"><div class="pr-admin-h">🛠️ Management · Create Prediction</div>' +
+      '<div class="pr-admin-grid">' +
+        '<div class="pr-field pr-col2"><label class="pr-label">Title</label>' +
+          '<input id="pr-new-title" class="pr-in" maxlength="120" placeholder="e.g. Who wins tonight\'s scrim?" value="' + esc(c.title) + '"></div>' +
+        '<div class="pr-field pr-col2"><label class="pr-label">Description (optional)</label>' +
+          '<input id="pr-new-desc" class="pr-in" maxlength="240" placeholder="Add a little context…" value="' + esc(c.desc) + '"></div>' +
+        '<div class="pr-field"><label class="pr-label">Ends (optional)</label>' +
+          '<input id="pr-new-end" class="pr-in" placeholder="DD/MM/YYYY HH:MM UTC" value="' + esc(c.end) + '"></div>' +
+        '<div class="pr-field"><label class="pr-label">Add outcome</label>' +
+          '<input id="pr-new-draft" class="pr-in" placeholder="Type & press Enter"></div>' +
+        '<div class="pr-field pr-col2"><label class="pr-label">Outcomes (' + c.outcomes.length + ')</label>' +
+          '<div class="pr-outbuild">' + chips + '</div></div>' +
+      '</div>' +
+      '<div class="pr-preview"><div class="pr-preview-l">Live preview</div>' + previewCard(c) + '</div>' +
+      '<div class="pr-admin-actions"><button class="pr-btn pr-btn-create" data-act="create">Create Prediction</button>' +
+        '<span id="pr-new-msg" class="pr-msg"></span></div>' +
+    '</div>';
+  }
+
+  function previewCard(c) {
+    var outs = c.outcomes.length ? c.outcomes : ['Outcome A', 'Outcome B'];
+    var tiles = outs.map(function (o) {
+      return '<div class="pr-tile pr-tile-locked"><div class="pr-tile-row">' +
+        '<span class="pr-tile-name">' + esc(o) + '</span><span class="pr-tile-stat"><b>0</b> VB · 0</span></div>' +
+        '<div class="pr-bar"><div class="pr-bar-fill" style="width:0%"></div></div></div>';
+    }).join('');
+    return '<div class="pr-card" style="margin-bottom:0;"><div class="pr-card-h">' +
+      '<span class="pr-card-title">' + (esc(c.title) || 'Your prediction title') + '</span>' +
+      '<span class="pr-badge pr-badge-open">open</span></div>' +
+      (c.desc ? '<div class="pr-desc">' + esc(c.desc) + '</div>' : '') +
+      '<div class="pr-pool">💰 Pool: <b>0</b> Wave Points' + (c.end ? ' · ends ' + esc(c.end) : '') + '</div>' +
+      '<div class="pr-tiles">' + tiles + '</div></div>';
+  }
+
+  function predPost(path, body, msgEl, onDone) {
+    if (PRED.busy) return;
+    PRED.busy = true;
+    if (msgEl) setMsg(msgEl, 'Working…', true);
+    fetch('/api/admin/predictions/' + path, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        PRED.busy = false;
+        var j = res.j || {}, good = res.ok && (j.success || j.ok);
+        if (msgEl) setMsg(msgEl, j.message || (good ? 'Done.' : (j.error || 'Failed.')), good);
+        if (good && onDone) onDone();
+        PRED.interacting = false;
+        loadPredictions(true);
+      }).catch(function () {
+        PRED.busy = false;
+        if (msgEl) setMsg(msgEl, 'Network error — try again.', false);
+      });
+  }
+
+  function doBet(pid) {
+    var p = findPred(pid); if (!p) return;
+    var mine = p.your_bet;
+    var sel = PRED.sel[pid] || (mine ? mine.choice : '');
+    var amt = parseInt((document.getElementById('pr-amt-' + pid) || {}).value, 10);
+    var msg = document.getElementById('pr-msg-' + pid);
+    if (!sel) { setMsg(msg, 'Select an outcome first.', false); return; }
+    if (!amt || amt < 10) { setMsg(msg, 'Enter at least 10 Wave Points.', false); return; }
+    predPost('vote', { prediction_id: Number(pid), choice: sel, amount: amt }, msg, function () {
+      PRED.raising[pid] = false; PRED.amt[pid] = ''; PRED.sel[pid] = '';
+    });
+  }
+
+  function doCreate() {
+    captureState();
+    var c = PRED.create;
+    var msg = document.getElementById('pr-new-msg');
+    if (!c.title.trim() || c.outcomes.length < 2) { setMsg(msg, 'Need a title and at least 2 outcomes.', false); return; }
+    predPost('create', { title: c.title, description: c.desc, end_date: c.end, outcomes: c.outcomes }, msg, function () {
+      PRED.create = { title: '', desc: '', end: '', outcomes: [] };
+    });
+  }
+
+  // ── Delegated events (robust against re-render) ──
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest && e.target.closest('[data-act]');
+    if (!el || !el.closest('#ev-predictions')) return;
+    var act = el.dataset.act, pid = el.dataset.pid;
+    if (act === 'pick') { captureState(); PRED.sel[pid] = el.dataset.choice; renderPredictions(PRED.data); }
+    else if (act === 'raise') { captureState(); PRED.raising[pid] = true; renderPredictions(PRED.data); }
+    else if (act === 'chip') {
+      var inp = document.getElementById('pr-amt-' + pid); if (!inp) return;
+      if (el.dataset.max != null) inp.value = el.dataset.max;
+      else inp.value = (parseInt(inp.value, 10) || 0) + parseInt(el.dataset.add, 10);
+      PRED.amt[pid] = inp.value; updateSummary(pid);
+    }
+    else if (act === 'bet') doBet(pid);
+    else if (act === 'resolve') {
+      if (confirm('Resolve "' + (findPred(pid) || {}).title + '" with winner: ' + el.dataset.choice + '?\nThis pays out and cannot be undone.'))
+        predPost('resolve', { prediction_id: Number(pid), winning_choice: el.dataset.choice }, null);
+    }
+    else if (act === 'cancel') {
+      if (confirm('Cancel this prediction? All stakes are refunded.'))
+        predPost('cancel', { prediction_id: Number(pid) }, null);
+    }
+    else if (act === 'create') doCreate();
+    else if (act === 'rmoutcome') { captureState(); PRED.create.outcomes.splice(parseInt(el.dataset.idx, 10), 1); renderPredictions(PRED.data); }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.target && e.target.id === 'pr-new-draft' && (e.key === 'Enter' || e.key === ',')) {
+      e.preventDefault();
+      var v = e.target.value.replace(/,/g, '').trim();
+      if (v) { captureState(); PRED.create.outcomes.push(v); renderPredictions(PRED.data); var f = document.getElementById('pr-new-draft'); if (f) f.focus(); }
+    }
+  });
+
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    if (el && el.id && el.id.indexOf('pr-amt-') === 0) { var pid = el.id.slice(7); PRED.amt[pid] = el.value; updateSummary(pid); }
+  });
+
+  document.addEventListener('focusin', function (e) {
+    if (e.target.closest && e.target.closest('#ev-predictions')) PRED.interacting = true;
+  });
+  document.addEventListener('focusout', function (e) {
+    if (e.target.closest && e.target.closest('#ev-predictions'))
+      setTimeout(function () {
+        var a = document.activeElement;
+        if (!a || !a.closest || !a.closest('#ev-predictions')) PRED.interacting = false;
+      }, 60);
+  });
+
+  setInterval(function () { loadPredictions(false); }, 12000);
+})();
+</script>
+
+<script src="wave-nav.js"></script>
+<script src="wave-guide.js"></script>
+</body>
+</html>

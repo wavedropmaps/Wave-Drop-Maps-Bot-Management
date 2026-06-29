@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Market Research — Improvement Cord Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0A0E14;--panel:#0F1419;--panel-2:#131922;
+  --border:#1F2630;--border-2:#283040;
+  --text:#E6EDF3;--muted:#8B98A6;--muted-2:#5A6573;
+  --accent:#4A9EFF;--accent-2:#7C5CFF;
+  --good:#3FB68B;--warn:#E8A23B;--bad:#E5484D;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Consolas,monospace;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
+header.topbar{display:flex;align-items:center;gap:16px;padding:10px 20px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--panel) 0%,var(--bg) 100%);position:sticky;top:0;z-index:10;backdrop-filter:saturate(180%) blur(8px)}
+.topbar .brand{font-weight:600;letter-spacing:-0.01em;font-size:14px;display:flex;align-items:center;gap:8px}
+.topbar .brand::before{content:"";display:inline-block;width:8px;height:8px;background:var(--accent);border-radius:2px;box-shadow:0 0 12px var(--accent)}
+.topbar .pill{padding:4px 10px;border-radius:6px;background:var(--panel-2);border:1px solid var(--border);color:var(--muted);font-size:12px;font-family:var(--mono);margin-left:auto}
+main{padding:24px 20px;max-width:1500px;margin:0 auto}
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px}
+.kpi{padding:16px;min-width:0}
+.kpi .label{color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:.08em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .value{font-family:var(--mono);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;margin-top:6px;line-height:1.1;color:var(--accent)}
+.kpi .sub{color:var(--muted);font-size:11px;margin-top:4px}
+.row{display:grid;gap:16px;margin-bottom:16px}
+.row.cols-2{grid-template-columns:1fr 1fr}
+.row.full{grid-template-columns:1fr}
+.card h2{margin:0 0 14px;font-size:13px;font-weight:600;color:var(--text)}
+.card h3{margin:0 0 10px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.chart-wrap{position:relative;height:280px}
+.chart-tall{position:relative;height:360px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.06em;cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{color:var(--text)}
+th .arr{margin-left:3px;opacity:.3;font-size:.65em}
+th.sort-asc .arr,th.sort-desc .arr{opacity:1;color:var(--accent)}
+tbody tr{transition:background 100ms}
+tbody tr:hover{background:var(--panel-2)}
+td{color:var(--text);white-space:nowrap}
+.pos{color:var(--good)}.neg{color:var(--bad)}.dim{color:var(--muted-2)}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-family:var(--mono);font-weight:500}
+.badge-you{background:rgba(74,158,255,0.08);color:var(--accent);border:1px solid rgba(74,158,255,0.3)}
+.badge-hit{background:rgba(63,182,139,0.1);color:var(--good);border:1px solid rgba(63,182,139,0.3)}
+.badge-miss{background:rgba(229,72,77,0.1);color:var(--bad);border:1px solid rgba(229,72,77,0.3)}
+.badge-pend{background:rgba(74,158,255,0.08);color:var(--muted);border:1px solid var(--border)}
+.heatmap{overflow-x:auto;padding-top:4px}
+.hm-row{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.hm-label{width:200px;min-width:200px;color:var(--muted);text-align:right;padding-right:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.hm-cells{display:flex;gap:2px}
+.hm-cell{width:13px;height:13px;border-radius:3px;cursor:default;flex-shrink:0}
+.hm-dates{display:flex;gap:2px;margin-left:210px;margin-bottom:6px}
+.hm-date{width:13px;text-align:center;font-size:9px;color:var(--muted-2);transform:rotate(-60deg);transform-origin:bottom left;height:18px}
+.conv-grid{display:grid;gap:10px}
+.conv-card{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:8px;border:1px solid var(--border)}
+.conv-card.threat-ahead{background:rgba(229,72,77,0.06);border-color:rgba(229,72,77,0.25)}
+.conv-card.threat-catching{background:rgba(232,162,59,0.06);border-color:rgba(232,162,59,0.25)}
+.conv-card.threat-safe{background:rgba(63,182,139,0.06);border-color:rgba(63,182,139,0.2)}
+.conv-icon{font-size:18px;line-height:1;padding-top:2px;flex-shrink:0}
+.conv-name{font-weight:600;margin-bottom:4px}
+.conv-detail{color:var(--muted);font-size:12px;line-height:1.5}
+a.inv{color:var(--accent);text-decoration:none;opacity:.6;font-size:11px}
+a.inv:hover{opacity:1}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.row.cols-2{grid-template-columns:1fr}}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr}}
+
+.alert-bar{background:rgba(229,72,77,0.08);border:1px solid rgba(229,72,77,0.3);border-radius:8px;padding:12px 16px;margin-bottom:16px}
+.alert-bar ul{margin:6px 0 0 18px;color:var(--text);font-size:12px}
+.alert-bar .title{color:var(--bad);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.threat-banner{background:rgba(232,162,59,0.08);border-bottom:1px solid rgba(232,162,59,0.25);padding:10px 20px;font-size:13px;color:var(--text)}
+.threat-banner b{color:var(--warn)}
+.guild-banner{background:rgba(63,182,139,0.06);border-bottom:1px solid rgba(63,182,139,0.2);padding:10px 20px;font-size:13px;color:var(--text)}
+.col-advanced{display:none}
+.table-toolbar{display:flex;justify-content:flex-end;margin-bottom:10px}
+.table-toolbar button{background:var(--panel-2);border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px}
+.table-toolbar button:hover{color:var(--text);border-color:var(--border-2)}
+.multiples-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.multiple-card{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:10px}
+.multiple-card h4{font-size:11px;color:var(--muted);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.multiple-card canvas{width:100%!important;height:100px!important}
+.norm-note{color:var(--muted-2);font-size:11px;margin-top:8px}
+.coverage-banner{background:rgba(232,162,59,0.08);border:1px solid rgba(232,162,59,0.28);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text)}
+.coverage-banner .title{color:var(--warn);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.coverage-banner ul{margin:4px 0 0 18px;color:var(--muted)}
+.entrant-badge{display:inline-block;font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(124,92,255,0.15);color:var(--accent-2);margin-left:6px;vertical-align:middle}
+.entrant-note{background:rgba(124,92,255,0.06);border:1px solid rgba(124,92,255,0.2);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--muted)}
+.cross-card{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px}
+.cross-card .label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+.cross-card .val{font-family:var(--mono);font-size:16px;margin-top:4px;color:var(--accent)}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">Improvement Cord Market</div>
+  <div class="pill">2026-06-24 15:25 UTC</div>
+</header>
+
+<main>
+<div class="coverage-banner"><div class="title">Data coverage</div><ul><li><b>Wave Improvement Cord</b> tracked since 2026-06-23 — prior days used smaller market roster.</li><li><b>Cloud Improvement</b> tracked since 2026-06-23 — prior days used smaller market roster.</li><li><b>Improvement HUB</b> tracked since 2026-06-23 — prior days used smaller market roster.</li><li><b>The Pro Reality</b> tracked since 2026-06-23 — prior days used smaller market roster.</li><li><b>Titan Improvement & Analytics</b> tracked since 2026-06-23 — prior days used smaller market roster.</li></ul></div>
+
+
+<div class="kpi-row">
+  <div class="card kpi">
+    <div class="label">Wave Members</div>
+    <div class="value">30,464</div>
+    <div class="sub">tracked market leader</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Competitor Total</div>
+    <div class="value" style="color:var(--accent-2)">20,277</div>
+    <div class="sub">across 5 competitor servers</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Wave Market Rank</div>
+    <div class="value" style="color:var(--good)">#1</div>
+    <div class="sub">not enough history</div>
+  </div>
+</div>
+
+<div class="kpi-row">
+  <div class="card kpi">
+    <div class="label">Online Now (all)</div>
+    <div class="value" style="color:var(--good)">9,381</div>
+    <div class="sub">18.5% avg online rate</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Competitive Position</div>
+    <div class="value" style="font-size:14px;color:var(--good)">
+      All clear</div>
+    <div class="sub">No competitors catching up</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Fastest Accelerating Competitor</div>
+    <div class="value" style="font-size:14px;color:var(--warn)">—</div>
+    <div class="sub">Not enough history</div>
+  </div>
+</div>
+
+<div class="kpi-row">
+  <div class="card kpi">
+    <div class="label">Wave Share Δ (7d)</div>
+    <div class="value" style="color:var(--good)">—</div>
+    <div class="sub">share points vs 7 days ago</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Market HHI</div>
+    <div class="value" style="font-size:16px">4068.0</div>
+    <div class="sub">Moderately concentrated</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Growth Capture (7d)</div>
+    <div class="value" style="font-size:12px;line-height:1.3;padding-top:4px">—</div>
+    <div class="sub">who won incremental growth</div>
+  </div>
+</div>
+
+<div class="kpi-row">
+  <div class="card kpi">
+    <div class="label">Prediction Scorecard</div>
+    <div class="value" style="font-size:14px">—</div>
+    <div class="sub">Wave 30-day targets</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Wave Boost Health</div>
+    <div class="value" style="font-size:13px">Tier 3 · 21 boosts · 437 ch</div>
+    <div class="sub">from guild-dash snapshot</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Online Metrics</div>
+    <div class="value" style="font-size:12px;color:var(--muted)">Online metrics partially time-adjusted toward 14:00 UTC (2/7 canonical days — accuracy improves as 14:05 UTC collects accumulate).</div>
+    <div class="sub">avg raw 18.5% online now</div>
+  </div>
+</div>
+
+<div class="row cols-2">
+  <div class="card">
+    <h2>Market Share (current)</h2>
+    <h3>Share of total members by server</h3>
+    <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Online Engagement %</h2>
+    <h3>Online members as % of total — sorted by ratio</h3>
+    <div class="chart-wrap"><canvas id="ratioChart"></canvas></div>
+  </div>
+</div>
+
+<div class="row full">
+  <div class="card">
+    <h2>Member Growth Over Time</h2>
+    <h3>Per-server mini charts (shared scale)</h3>
+    <div class="multiples-grid" id="mcMultiples"></div>
+  </div>
+</div>
+
+<div class="row cols-2">
+  <div class="card">
+    <h2>Online Activity Over Time</h2>
+    <h3>Concurrent online members per server</h3>
+    <div class="chart-tall"><canvas id="ocChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Market Share Over Time</h2>
+    <h3>Each server's % of total tracked members</h3>
+    <div class="chart-tall"><canvas id="stackedChart"></canvas></div>
+  </div>
+</div>
+
+<div class="row cols-2">
+  <div class="card">
+    <h2>Growth Velocity</h2>
+    <h3>Week-over-week % growth rate per server</h3>
+    <div class="chart-wrap"><canvas id="velChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Engagement Trend Over Time</h2>
+    <h3>Online % per server — rising = growing community health</h3>
+    <div class="chart-wrap"><canvas id="engChart"></canvas></div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:16px">
+  <h2>Server Comparison</h2>
+  <h3 style="margin-bottom:14px">Click column headers to sort · Accel = growth acceleration (members/day/day)</h3>
+  <div class="table-toolbar"><button type="button" id="expandBtn">Show all columns</button></div>
+  <div style="overflow-x:auto">
+  <table id="mainTable" style="min-width:1200px">
+    <thead><tr>
+      <th data-col="name"       data-type="str">Server<span class="arr">↕</span></th>
+      <th data-col="members"    data-type="num">Members<span class="arr">↕</span></th>
+      <th data-col="share"      data-type="num">Share %<span class="arr">↕</span></th>
+      <th data-col="s7"         data-type="num">Share Δ 7d<span class="arr">↕</span></th>
+      <th data-col="d7"         data-type="num">7d Δ<span class="arr">↕</span></th>
+      <th data-col="mpd"        data-type="num">Mem/Day<span class="arr">↕</span></th>
+      <th data-col="online"     data-type="num" class="col-advanced">Online<span class="arr">↕</span></th>
+      <th data-col="online_pct" data-type="num" class="col-advanced">Online %<span class="arr">↕</span></th>
+      <th data-col="eng_trend"  data-type="num" class="col-advanced">Eng. Trend<span class="arr">↕</span></th>
+      <th data-col="accel"      data-type="num" class="col-advanced">Accel<span class="arr">↕</span></th>
+      <th data-col="p7"         data-type="num" class="col-advanced">7d %<span class="arr">↕</span></th>
+      <th data-col="d30"        data-type="num" class="col-advanced">30d Δ<span class="arr">↕</span></th>
+      <th data-col="p30"        data-type="num" class="col-advanced">30d %<span class="arr">↕</span></th>
+      <th data-col="s30"        data-type="num" class="col-advanced">Share Δ 30d<span class="arr">↕</span></th>
+      <th data-col="ratio"      data-type="num" class="col-advanced">vs Wave<span class="arr">↕</span></th>
+      <th data-col="proj"       data-type="num" class="col-advanced">Proj 30d<span class="arr">↕</span></th>
+      <th data-col="last_seen"  data-type="str" class="col-advanced">Last Seen<span class="arr">↕</span></th>
+    </tr></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:16px">
+  <h2>Online Activity Heatmap</h2>
+  <h3 style="margin-bottom:12px">Darker = more concurrent online members</h3>
+  <div class="heatmap" id="heatmap"></div>
+</div>
+
+<div class="card" style="margin-bottom:16px">
+  <h2>Convergence Analysis</h2>
+  <h3 style="margin-bottom:14px">Wave vs each competitor at current growth rates</h3>
+  <div class="conv-grid">
+    <div class="conv-card threat-safe"><span class="conv-icon">✅</span><div><div class="conv-name">The Pro Reality</div><div class="conv-detail">Gap: <b>22,040</b> members · Wave pulling ahead at <b>+0.0/day</b></div></div></div>
+<div class="conv-card threat-safe"><span class="conv-icon">✅</span><div><div class="conv-name">Cloud Improvement</div><div class="conv-detail">Gap: <b>24,601</b> members · Wave pulling ahead at <b>+0.0/day</b></div></div></div>
+<div class="conv-card threat-safe"><span class="conv-icon">✅</span><div><div class="conv-name">XR Improvement Cord</div><div class="conv-detail">Gap: <b>27,831</b> members · Wave pulling ahead at <b>+0.0/day</b></div></div></div>
+<div class="conv-card threat-safe"><span class="conv-icon">✅</span><div><div class="conv-name">Titan Improvement & Analytics</div><div class="conv-detail">Gap: <b>27,983</b> members · Wave pulling ahead at <b>+0.0/day</b></div></div></div>
+<div class="conv-card threat-safe"><span class="conv-icon">✅</span><div><div class="conv-name">Improvement HUB</div><div class="conv-detail">Gap: <b>29,588</b> members · Wave pulling ahead at <b>+0.0/day</b></div></div></div>
+
+  </div>
+</div>
+
+<div class="card">
+  <h2>30-Day Predictions</h2>
+  <h3 style="margin-bottom:14px">Auto-generated member count targets</h3>
+  <div style="overflow-x:auto">
+  <table style="min-width:700px">
+    <thead><tr>
+      <th>Server</th><th>Made On</th><th>Target Date</th>
+      <th>Baseline</th><th>Predicted</th><th>Actual</th><th>Result</th>
+    </tr></thead>
+    <tbody id="predBody"></tbody>
+  </table>
+  </div>
+</div>
+
+</main>
+
+<script>
+const COLORS       = ["#4A9EFF", "#7C5CFF", "#3FB68B", "#E8A23B", "#E5484D", "#5BCEDA", "#F472B6"];
+const PIE_LABELS   = ["Wave Improvement Cord", "The Pro Reality", "Cloud Improvement", "XR Improvement Cord", "Titan Improvement & Analytics", "Improvement HUB"];
+const PIE_VALUES   = [30464, 8424, 5863, 2633, 2481, 876];
+const PIE_COLORS   = ["#4A9EFF", "#7C5CFF", "#3FB68B", "#E8A23B", "#E5484D", "#5BCEDA"];
+const DATES        = ["2026-06-23", "2026-06-24"];
+const MC_DS        = [{"label": "Wave Improvement Cord", "data": [30469, 30464], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF1f", "borderWidth": 2.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4}, {"label": "The Pro Reality", "data": [8434, 8424], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF1f", "borderWidth": 2, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4}, {"label": "Cloud Improvement", "data": [5874, 5863], "borderColor": "#3FB68B", "backgroundColor": "#3FB68B1f", "borderWidth": 2, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4}, {"label": "XR Improvement Cord", "data": [2633, 2633], "borderColor": "#E8A23B", "backgroundColor": "#E8A23B1f", "borderWidth": 2, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4}, {"label": "Titan Improvement & Analytics", "data": [2482, 2481], "borderColor": "#E5484D", "backgroundColor": "#E5484D1f", "borderWidth": 2, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4}, {"label": "Improvement HUB", "data": [877, 876], "borderColor": "#5BCEDA", "backgroundColor": "#5BCEDA1f", "borderWidth": 2, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4}];
+const OC_DS        = [{"label": "Wave Improvement Cord", "data": [5512, 6201], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF1f", "borderWidth": 2.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4}, {"label": "The Pro Reality", "data": [1010, 1118], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF1f", "borderWidth": 2, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4}, {"label": "Cloud Improvement", "data": [1200, 1304], "borderColor": "#3FB68B", "backgroundColor": "#3FB68B1f", "borderWidth": 2, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4}, {"label": "XR Improvement Cord", "data": [125, 150], "borderColor": "#E8A23B", "backgroundColor": "#E8A23B1f", "borderWidth": 2, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4}, {"label": "Titan Improvement & Analytics", "data": [399, 508], "borderColor": "#E5484D", "backgroundColor": "#E5484D1f", "borderWidth": 2, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4}, {"label": "Improvement HUB", "data": [97, 100], "borderColor": "#5BCEDA", "backgroundColor": "#5BCEDA1f", "borderWidth": 2, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4}];
+const STACK_DS     = [{"label": "Wave Improvement Cord", "data": [60.01, 60.04], "_raw": [30469, 30464], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF55", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "The Pro Reality", "data": [16.61, 16.6], "_raw": [8434, 8424], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF55", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "Cloud Improvement", "data": [11.57, 11.55], "_raw": [5874, 5863], "borderColor": "#3FB68B", "backgroundColor": "#3FB68B55", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "XR Improvement Cord", "data": [5.19, 5.19], "_raw": [2633, 2633], "borderColor": "#E8A23B", "backgroundColor": "#E8A23B55", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "Titan Improvement & Analytics", "data": [4.89, 4.89], "_raw": [2482, 2481], "borderColor": "#E5484D", "backgroundColor": "#E5484D55", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "Improvement HUB", "data": [1.73, 1.73], "_raw": [877, 876], "borderColor": "#5BCEDA", "backgroundColor": "#5BCEDA55", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}];
+const VEL_DS       = [{"label": "Wave Improvement Cord", "data": [null, null], "borderColor": "#4A9EFF", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "The Pro Reality", "data": [null, null], "borderColor": "#7C5CFF", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Cloud Improvement", "data": [null, null], "borderColor": "#3FB68B", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "XR Improvement Cord", "data": [null, null], "borderColor": "#E8A23B", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Titan Improvement & Analytics", "data": [null, null], "borderColor": "#E5484D", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Improvement HUB", "data": [null, null], "borderColor": "#5BCEDA", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}];
+const ENG_DS       = [{"label": "Wave Improvement Cord", "data": [18.1, 20.4], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "The Pro Reality", "data": [12.0, 13.3], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Cloud Improvement", "data": [20.4, 22.2], "borderColor": "#3FB68B", "backgroundColor": "#3FB68B1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "XR Improvement Cord", "data": [4.7, 5.7], "borderColor": "#E8A23B", "backgroundColor": "#E8A23B1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Titan Improvement & Analytics", "data": [16.1, 20.5], "borderColor": "#E5484D", "backgroundColor": "#E5484D1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Improvement HUB", "data": [11.1, 11.4], "borderColor": "#5BCEDA", "backgroundColor": "#5BCEDA1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}];
+const RATIO_DATA   = [{"name": "Cloud Improvement", "ratio": 22.2}, {"name": "Titan Improvement & Analytics", "ratio": 20.5}, {"name": "Wave Improvement Cord", "ratio": 20.4}, {"name": "The Pro Reality", "ratio": 13.3}, {"name": "Improvement HUB", "ratio": 11.4}, {"name": "XR Improvement Cord", "ratio": 5.7}];
+const HM_DATA      = [{"name": "Wave Improvement Cord", "vals": [5515, 5179], "raw_vals": [5512, 6201], "max": 5515}, {"name": "The Pro Reality", "vals": [1012, 935], "raw_vals": [1010, 1118], "max": 1012}, {"name": "Cloud Improvement", "vals": [1198, 1091], "raw_vals": [1200, 1304], "max": 1198}, {"name": "XR Improvement Cord", "vals": [124, 126], "raw_vals": [125, 150], "max": 126}, {"name": "Titan Improvement & Analytics", "vals": [400, 424], "raw_vals": [399, 508], "max": 424}, {"name": "Improvement HUB", "vals": [97, 83], "raw_vals": [97, 100], "max": 97}];
+const HM_DATES     = ["2026-06-23", "2026-06-24"];
+const TABLE_ROWS   = [{"name": "Wave Improvement Cord", "is_us": true, "invite": "https://discord.gg/dropmaps", "tracked_since": "2026-06-23", "is_new": true, "members": 30464, "online": 6201, "online_pct": 20.4, "eng_trend": null, "share": 60.04, "mpd": null, "accel": null, "d7": null, "p7": null, "d30": null, "p30": null, "ratio": null, "proj": 30314, "pred_label": "30,128 by 2026-07-18", "pred_status": "pending", "last_seen": "2026-06-24 15:25 UTC", "captured_at": "2026-06-24T15:25:10.152366+00:00", "s7": null, "s30": null, "share_delta_7d": null, "online_pct_norm": 17.0}, {"name": "The Pro Reality", "is_us": false, "invite": "https://discord.com/invite/the-pro-reality-1-free-fn-improvement-hub-1120390152343269409", "tracked_since": "2026-06-23", "is_new": true, "members": 8424, "online": 1118, "online_pct": 13.3, "eng_trend": null, "share": 16.6, "mpd": null, "accel": null, "d7": null, "p7": null, "d30": null, "p30": null, "ratio": 3.6, "proj": 8124, "pred_label": "8,346 by 2026-07-18", "pred_status": "pending", "last_seen": "2026-06-24 15:25 UTC", "captured_at": "2026-06-24T15:25:10.213262+00:00", "s7": null, "s30": null, "share_delta_7d": null, "online_pct_norm": 11.1}, {"name": "Cloud Improvement", "is_us": false, "invite": "https://discord.gg/yR325b8nyE", "tracked_since": "2026-06-23", "is_new": true, "members": 5863, "online": 1304, "online_pct": 22.2, "eng_trend": null, "share": 11.55, "mpd": null, "accel": null, "d7": null, "p7": null, "d30": null, "p30": null, "ratio": 5.2, "proj": 5533, "pred_label": "5,864 by 2026-07-18", "pred_status": "pending", "last_seen": "2026-06-24 15:25 UTC", "captured_at": "2026-06-24T15:25:10.176372+00:00", "s7": null, "s30": null, "share_delta_7d": null, "online_pct_norm": 18.6}, {"name": "XR Improvement Cord", "is_us": false, "invite": "https://discord.com/invite/N4eZxPxrF9", "tracked_since": "2026-06-23", "is_new": true, "members": 2633, "online": 150, "online_pct": 5.7, "eng_trend": null, "share": 5.19, "mpd": null, "accel": null, "d7": null, "p7": null, "d30": null, "p30": null, "ratio": 11.6, "proj": 2633, "pred_label": "2,648 by 2026-07-18", "pred_status": "pending", "last_seen": "2026-06-24 15:25 UTC", "captured_at": "2026-06-24T15:25:10.249747+00:00", "s7": null, "s30": null, "share_delta_7d": null, "online_pct_norm": 4.8}, {"name": "Titan Improvement & Analytics", "is_us": false, "invite": "https://discord.gg/BaZ4E5YKT", "tracked_since": "2026-06-23", "is_new": true, "members": 2481, "online": 508, "online_pct": 20.5, "eng_trend": null, "share": 4.89, "mpd": null, "accel": null, "d7": null, "p7": null, "d30": null, "p30": null, "ratio": 12.3, "proj": 2451, "pred_label": "2,406 by 2026-07-18", "pred_status": "pending", "last_seen": "2026-06-24 15:25 UTC", "captured_at": "2026-06-24T15:25:10.232263+00:00", "s7": null, "s30": null, "share_delta_7d": null, "online_pct_norm": 17.1}, {"name": "Improvement HUB", "is_us": false, "invite": "https://discord.com/invite/improvement-hub-1306006683306426388", "tracked_since": "2026-06-23", "is_new": true, "members": 876, "online": 100, "online_pct": 11.4, "eng_trend": null, "share": 1.73, "mpd": null, "accel": null, "d7": null, "p7": null, "d30": null, "p30": null, "ratio": 34.8, "proj": 846, "pred_label": "859 by 2026-07-18", "pred_status": "pending", "last_seen": "2026-06-24 15:25 UTC", "captured_at": "2026-06-24T15:25:10.195265+00:00", "s7": null, "s30": null, "share_delta_7d": null, "online_pct_norm": 9.5}];
+const PRED_DATA    = [{"id": 1, "name": "Wave Improvement Cord", "server_key": "wave", "predicted_at": "2026-06-18", "target_date": "2026-07-18", "members_at_prediction": 30556, "predicted_members": 30128, "actual_members": null, "hit": null}, {"id": 2, "name": "Cloud Improvement", "server_key": "cloud", "predicted_at": "2026-06-18", "target_date": "2026-07-18", "members_at_prediction": 5887, "predicted_members": 5864, "actual_members": null, "hit": null}, {"id": 3, "name": "Improvement HUB", "server_key": "imp_hub", "predicted_at": "2026-06-18", "target_date": "2026-07-18", "members_at_prediction": 874, "predicted_members": 859, "actual_members": null, "hit": null}, {"id": 4, "name": "The Pro Reality", "server_key": "pro_reality", "predicted_at": "2026-06-18", "target_date": "2026-07-18", "members_at_prediction": 8473, "predicted_members": 8346, "actual_members": null, "hit": null}, {"id": 5, "name": "Titan Improvement & Analytics", "server_key": "titan_imp", "predicted_at": "2026-06-18", "target_date": "2026-07-18", "members_at_prediction": 2486, "predicted_members": 2406, "actual_members": null, "hit": null}, {"id": 6, "name": "XR Improvement Cord", "server_key": "xr", "predicted_at": "2026-06-18", "target_date": "2026-07-18", "members_at_prediction": 2641, "predicted_members": 2648, "actual_members": null, "hit": null}];
+
+const GRID = {color:'#1F2630'};
+const TICK = {color:'#8B98A6',font:{size:11,family:"'JetBrains Mono',monospace"}};
+const TIP  = {backgroundColor:'#0F1419',borderColor:'#283040',borderWidth:1,titleColor:'#E6EDF3',bodyColor:'#8B98A6',titleFont:{family:"'Inter',sans-serif",size:12},bodyFont:{family:"'JetBrains Mono',monospace",size:12},padding:{x:12,y:8}};
+const AXIS = {x:{ticks:{...TICK,maxTicksLimit:14},grid:GRID},y:{ticks:{...TICK,callback:v=>v?.toLocaleString()},grid:GRID}};
+const LEG  = {labels:{color:'#8B98A6',font:{size:11,family:"'Inter',sans-serif"},usePointStyle:true,pointStyle:'line',boxWidth:20,padding:16}};
+
+/* donut */
+
+new Chart('pieChart',{type:'doughnut',
+  data:{labels:PIE_LABELS,datasets:[{data:PIE_VALUES,_raw:PIE_VALUES,
+    backgroundColor:PIE_COLORS,borderWidth:2,borderColor:'#0F1419',hoverOffset:6}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+    plugins:{
+      legend:{position:'bottom',labels:{color:'#8B98A6',padding:12,font:{size:11},usePointStyle:true,pointStyle:'rect',boxWidth:10},
+        onClick(e,item,legend){
+          const c=legend.chart,idx=item.index;
+          c.toggleDataVisibility(idx);
+          const ds=c.data.datasets[0];
+          let total=0; const vis=[];
+          ds._raw.forEach((v,i)=>{if(c.getDataVisibility(i) && v!=null){total+=v;vis.push({i,v});}});
+          vis.forEach(({i,v})=>{ds.data[i]=total>0?Math.round(v/total*10000)/100:0;});
+          c.update();
+        }
+      },
+      tooltip:{...TIP,callbacks:{label:c=>{
+        const raw=c.dataset._raw[c.dataIndex];
+        const tot=c.dataset._raw.filter((v,i)=>c.chart.getDataVisibility(i)).reduce((a,b)=>a+(b||0),0);
+        return ` ${c.label}: ${(raw||0).toLocaleString()} (${tot?((raw/tot)*100).toFixed(1):0}%)`;
+      }}}
+    }
+  }
+});
+
+
+/* online ratio bar */
+new Chart('ratioChart',{type:'bar',
+  data:{labels:RATIO_DATA.map(r=>r.name),datasets:[{label:'Online %',data:RATIO_DATA.map(r=>r.ratio),backgroundColor:RATIO_DATA.map((_,i)=>COLORS[i%COLORS.length]+'40'),borderColor:RATIO_DATA.map((_,i)=>COLORS[i%COLORS.length]),borderWidth:1,borderRadius:4}]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.parsed.x.toFixed(1)}%`}}},scales:{x:{ticks:{...TICK,callback:v=>v+'%'},grid:GRID},y:{ticks:{color:'#8B98A6',font:{size:11}},grid:{color:'transparent'}}}}
+});
+
+function mkLine(id, ds, extra={}) {
+  new Chart(id, {type:'line',data:{labels:DATES,datasets:ds},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:LEG,tooltip:TIP},scales:AXIS,...extra}});
+}
+
+(function(){
+  const wrap=document.getElementById('mcMultiples');
+  const dates=DATES;
+  const datasets=MC_DS;
+  if(!wrap||!datasets.length)return;
+  let ymax=0;
+  datasets.forEach(ds=>{(ds.data||[]).forEach(v=>{if(v!=null&&v>ymax)ymax=v;});});
+  ymax=Math.ceil(ymax*1.05)||1;
+  datasets.forEach((ds,i)=>{
+    const card=document.createElement('div');card.className='multiple-card';
+    const h=document.createElement('h4');h.textContent=ds.label;card.appendChild(h);
+    const cv=document.createElement('canvas');cv.id='mini_'+i;card.appendChild(cv);
+    wrap.appendChild(card);
+    new Chart(cv,{type:'line',data:{labels:dates,datasets:[{...ds,pointRadius:0,borderWidth:1.5,fill:false}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TIP},
+        scales:{x:{display:false},y:{min:0,max:ymax,ticks:{...TICK,maxTicksLimit:4},grid:GRID}}}
+    });
+  });
+})();
+
+mkLine('ocChart', OC_DS);
+function renormalizeShare(chart){
+  const ds=chart.data.datasets, labels=chart.data.labels;
+  for(let i=0;i<labels.length;i++){
+    let total=0; const vis=[];
+    ds.forEach((d,di)=>{
+      if(chart.getDatasetMeta(di).hidden)return;
+      const raw=d._raw?d._raw[i]:null;
+      if(raw!=null){total+=raw;vis.push({di,raw});}
+    });
+    vis.forEach(({di,raw})=>{ds[di].data[i]=total>0?Math.round(raw/total*10000)/100:null;});
+  }
+  chart.update();
+}
+new Chart('stackedChart',{type:'line',data:{labels:DATES,datasets:STACK_DS},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{...LEG,onClick(e,item,legend){
+        const c=legend.chart, idx=item.datasetIndex;
+        c.isDatasetVisible(idx)?c.hide(idx):c.show(idx);
+        renormalizeShare(c);
+      }},
+      tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y?.toFixed(1)}%`}}
+    },
+    scales:{x:AXIS.x,y:{stacked:true,min:0,max:100,ticks:{...TICK,callback:v=>v+'%'},grid:GRID}}
+  }
+});
+mkLine('velChart', VEL_DS, {
+  plugins:{legend:LEG,tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y?.toFixed(2)}%`}}},
+  scales:{x:AXIS.x,y:{ticks:{...TICK,callback:v=>v+'%'},grid:GRID,afterDataLimits(s){const r=Math.max(Math.abs(s.min),Math.abs(s.max),1);s.min=-r;s.max=r;}}}
+});
+mkLine('engChart', ENG_DS, {
+  plugins:{legend:LEG,tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y?.toFixed(1)}%`}}},
+  scales:{x:AXIS.x,y:{ticks:{...TICK,callback:v=>v+'%'},grid:GRID}}
+});
+
+/* heatmap */
+(function(){
+  const wrap = document.getElementById('heatmap');
+  if(!HM_DATES.length){wrap.innerHTML='<p style="color:var(--muted-2);padding:8px">Not enough data.</p>';return;}
+  const hdr=document.createElement('div');hdr.className='hm-dates';
+  HM_DATES.forEach(d=>{const el=document.createElement('div');el.className='hm-date';el.textContent=d.slice(5);hdr.appendChild(el);});
+  wrap.appendChild(hdr);
+  HM_DATA.forEach(srv=>{
+    const row=document.createElement('div');row.className='hm-row';
+    const lbl=document.createElement('div');lbl.className='hm-label';lbl.textContent=srv.name;row.appendChild(lbl);
+    const cells=document.createElement('div');cells.className='hm-cells';
+    srv.vals.forEach((v,i)=>{
+      const c=document.createElement('div');c.className='hm-cell';
+      if(v===null||v===undefined)c.style.background='#131922';
+      else{const t=v/srv.max;const raw=srv.raw_vals?srv.raw_vals[i]:v;c.style.background=`rgba(74,158,255,${(.08+t*.65).toFixed(2)})`;c.title=`${srv.name} · ${HM_DATES[i]}: ${(raw??0).toLocaleString()} online (norm display)`;}
+      cells.appendChild(c);
+    });
+    row.appendChild(cells);wrap.appendChild(row);
+  });
+})();
+
+/* table */
+let sortCol='members', sortDir=-1;
+function fmtN(v,sfx='',dec=0){
+  if(v===null||v===undefined)return'<span class="dim">—</span>';
+  const f=dec>0?Math.abs(v).toFixed(dec):Math.abs(v).toLocaleString();
+  const sign=v>0?'+':v<0?'-':'';const cls=v>0?'pos':v<0?'neg':'';
+  return cls?`<span class="${cls}">${sign}${f}${sfx}</span>`:`${f}${sfx}`;
+}
+function renderTable(rows){
+  const sorted=[...rows].sort((a,b)=>{
+    const av=a[sortCol],bv=b[sortCol];
+    if(av===null||av===undefined)return 1;if(bv===null||bv===undefined)return-1;
+    return(typeof av==='string'?av.localeCompare(bv):av-bv)*sortDir;
+  });
+  document.getElementById('tableBody').innerHTML=sorted.map(r=>{
+    const badge=r.is_us?'<span class="badge badge-you">you</span> ':'';
+    const nb=r.is_new&&r.tracked_since?`<span class="entrant-badge">since ${r.tracked_since}</span>`:'';
+    const link=r.invite?`<a class="inv" href="${r.invite}" target="_blank">↗</a>`:'';
+    return`<tr>
+      <td><b>${r.name}</b> ${badge}${nb}${link}</td>
+      <td style="font-family:var(--mono)">${r.members?r.members.toLocaleString():'—'}</td>
+      <td style="font-family:var(--mono)">${r.share!=null?r.share.toFixed(2)+'%':'—'}</td>
+      <td style="font-family:var(--mono)">${fmtN(r.s7,'pp',2)}</td>
+      <td style="font-family:var(--mono)">${fmtN(r.d7)}</td>
+      <td style="font-family:var(--mono)">${fmtN(r.mpd,'',1)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${r.online?r.online.toLocaleString():'—'}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${r.online_pct!=null?r.online_pct.toFixed(1)+'%':'—'}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${fmtN(r.eng_trend,'%',1)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${fmtN(r.accel,'',1)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${fmtN(r.p7,'%',2)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${fmtN(r.d30)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${fmtN(r.p30,'%',2)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${fmtN(r.s30,'pp',2)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${r.ratio!=null&&!r.is_us?'<span class="dim">'+r.ratio+'×</span>':'<span class="dim">—</span>'}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${r.proj!=null?r.proj.toLocaleString():'—'}</td>
+      <td class="col-advanced" style="color:var(--muted-2);font-family:var(--mono);font-size:11px">${r.last_seen}</td>
+    </tr>`;
+  }).join('');
+}
+document.querySelectorAll('#mainTable th[data-col]').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const col=th.dataset.col;sortDir=sortCol===col?-sortDir:-1;sortCol=col;
+    document.querySelectorAll('#mainTable th').forEach(t=>{t.classList.remove('sort-asc','sort-desc');t.querySelector('.arr').textContent='↕';});
+    th.classList.add(sortDir===-1?'sort-desc':'sort-asc');th.querySelector('.arr').textContent=sortDir===-1?'↓':'↑';
+    renderTable(TABLE_ROWS);
+  });
+});
+renderTable(TABLE_ROWS);
+document.querySelector('#mainTable th[data-col="members"]').classList.add('sort-desc');
+document.querySelector('#mainTable th[data-col="members"] .arr').textContent='↓';
+
+/* predictions */
+(function(){
+  const seen=new Set();
+  const rows=PRED_DATA.filter(p=>{if(seen.has(p.server_key))return false;seen.add(p.server_key);return true;});
+  document.getElementById('predBody').innerHTML=rows.map(p=>{
+    const badge=p.hit===null?`<span class="badge badge-pend">Pending · due ${p.target_date}</span>`
+      :p.hit===1?`<span class="badge badge-hit">Hit</span>`:`<span class="badge badge-miss">Missed</span>`;
+    const actual=p.actual_members!=null?p.actual_members.toLocaleString():'—';
+    return`<tr><td><b>${p.name}</b></td>
+      <td style="color:var(--muted-2);font-family:var(--mono);font-size:11px">${p.predicted_at}</td>
+      <td style="font-family:var(--mono)">${p.target_date}</td>
+      <td style="font-family:var(--mono)">${p.members_at_prediction.toLocaleString()}</td>
+      <td style="font-family:var(--mono)">${p.predicted_members.toLocaleString()}</td>
+      <td style="font-family:var(--mono)">${actual}</td>
+      <td>${badge}</td></tr>`;
+  }).join('');
+})();
+
+function setupTableExpand(tableId, btnId) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  let expanded = false;
+  btn.addEventListener('click', () => {
+    expanded = !expanded;
+    document.querySelectorAll(`#${tableId} .col-advanced`).forEach(el => {
+      el.style.display = expanded ? '' : 'none';
+    });
+    btn.textContent = expanded ? 'Show fewer columns' : 'Show all columns';
+  });
+}
+
+setupTableExpand('mainTable','expandBtn');
+</script>
+</body>
+</html>

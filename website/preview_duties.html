@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="refresh" content="300">
+<title>Wave Staff — Weekly Performance</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800;900&family=Exo+2:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060810; --surface:#0a1628; --surface2:#0f1f38;
+  --cyan:#00d4ff; --pink:#ff0080; --purple:#a855f7; --green:#39ff14; --amber:#ffb800; --red:#ff3333; --gold:#ffd700;
+  --border:rgba(0,212,255,.15); --text:#cdd9e8; --dim:#4a6a84; --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:var(--bg);overflow-x:hidden;font-family:'Exo 2',sans-serif;color:var(--text);}
+
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;}
+.orb1{width:900px;height:900px;background:radial-gradient(circle,rgba(0,212,255,.07) 0%,transparent 65%);top:-300px;left:-300px;animation:o1 18s ease-in-out infinite;}
+.orb2{width:1100px;height:1100px;background:radial-gradient(circle,rgba(255,0,128,.055) 0%,transparent 65%);bottom:-400px;right:-400px;animation:o2 22s ease-in-out infinite;}
+.orb3{width:700px;height:700px;background:radial-gradient(circle,rgba(120,60,255,.05) 0%,transparent 65%);top:40%;left:50%;transform:translate(-50%,-50%);animation:o3 14s ease-in-out infinite;}
+@keyframes o1{0%,100%{transform:translate(0,0)}50%{transform:translate(80px,60px)}}
+@keyframes o2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-90px)}}
+@keyframes o3{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.4)}}
+
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.02) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
+.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.05) 3px,rgba(0,0,0,.05) 4px);opacity:.18;}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:linear-gradient(var(--cyan),var(--purple),var(--pink));border-radius:2px;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmerSlide{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Page layout ── */
+.page-wrap{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:20px 16px 80px;}
+
+/* ── Header ── */
+.page-header{text-align:center;padding:36px 0 18px;animation:fadeUp .5s ease;}
+.page-header h1{
+  font-family:'Orbitron',sans-serif;font-size:clamp(1.5rem,3.5vw,2.4rem);font-weight:900;
+  letter-spacing:.1em;text-transform:uppercase;
+  background:linear-gradient(135deg,var(--cyan) 0%,#80eaff 35%,var(--purple) 65%,var(--pink) 100%);
+  background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmerSlide 6s linear infinite;
+}
+.page-header .sub{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;margin-top:5px;}
+
+/* ── Week selector ── */
+.week-selector{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;margin-bottom:10px;
+  border:1px solid var(--border);border-radius:8px;background:rgba(0,212,255,.025);
+  overflow-x:auto;scrollbar-width:none;
+}
+.week-selector::-webkit-scrollbar{display:none;}
+.ws-label{
+  font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;color:var(--dim);
+  text-transform:uppercase;white-space:nowrap;flex-shrink:0;
+}
+.week-pills{display:flex;gap:6px;flex-shrink:0;}
+.week-pill{
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;
+  padding:5px 12px;border-radius:5px;border:1px solid rgba(0,212,255,.2);
+  background:transparent;color:var(--dim);cursor:pointer;white-space:nowrap;
+  transition:all .18s;
+}
+.week-pill:hover{border-color:rgba(0,212,255,.45);color:var(--text);}
+.week-pill.active{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.55);color:var(--cyan);}
+
+/* ── Meta bar ── */
+.meta-bar{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;
+  padding:8px 16px;margin-bottom:16px;
+  font-family:var(--mono);font-size:.65rem;color:var(--dim);
+}
+.meta-left{display:flex;gap:14px;flex-wrap:wrap;}
+.meta-item .hl{color:var(--text);}
+.countdown-wrap{display:flex;align-items:center;gap:7px;}
+.cd-label{font-size:.58rem;letter-spacing:.12em;color:var(--dim);text-transform:uppercase;}
+.cd-val{font-family:'Orbitron',sans-serif;font-size:.85rem;font-weight:700;color:var(--cyan);letter-spacing:.08em;}
+
+/* ── Tab bar ── */
+.tab-bar{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:14px;overflow-x:auto;scrollbar-width:none;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-btn{
+  font-family:'Orbitron',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:10px 16px;border:none;background:none;color:var(--dim);cursor:pointer;
+  border-bottom:2px solid transparent;position:relative;top:1px;white-space:nowrap;transition:color .18s;
+}
+.tab-btn:hover{color:var(--cyan);}
+.tab-btn.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+.tab-count{
+  display:inline-block;background:rgba(0,212,255,.12);color:var(--cyan);
+  border-radius:10px;padding:1px 6px;font-size:.52rem;margin-left:4px;
+}
+
+/* ── Section wrapper ── */
+.section-wrap{display:none;}
+.section-wrap.active{display:block;animation:fadeUp .25s ease;}
+
+/* ── Table ── */
+.tbl-head{
+  display:grid;align-items:center;gap:8px;padding:8px 14px;
+  background:rgba(0,212,255,.04);border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;
+  font-family:var(--mono);font-size:.56rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
+}
+.tbl-body{border:1px solid var(--border);border-radius:0 0 8px 8px;overflow:hidden;}
+.tbl-row{
+  display:grid;align-items:center;gap:8px;padding:9px 14px;
+  border-bottom:1px solid rgba(0,212,255,.05);transition:background .12s;
+}
+.tbl-row:last-child{border-bottom:none;}
+.tbl-row:hover{background:rgba(0,212,255,.04);}
+.tbl-row.away{opacity:.6;}
+
+/* column templates */
+.cols-msg  {grid-template-columns:34px 40px 1fr 80px 72px 72px 72px 64px;}
+.cols-duty {grid-template-columns:34px 40px 1fr 72px 110px 80px;}
+
+/* column header color accents */
+.ch-cyan  {color:var(--cyan)!important;}
+.ch-purple{color:#b87fff!important;}
+.ch-amber {color:var(--amber)!important;}
+.ch-green {color:var(--green)!important;}
+.ch-gold  {color:var(--gold)!important;}
+
+/* stat value colors per column */
+.sv-cyan  {font-family:var(--mono);font-size:.82rem;font-weight:600;color:var(--cyan);}
+.sv-purple{font-family:var(--mono);font-size:.82rem;font-weight:600;color:#b87fff;}
+.sv-amber {font-family:var(--mono);font-size:.82rem;font-weight:600;color:var(--amber);}
+.sv-green {font-family:var(--mono);font-size:.82rem;font-weight:600;color:var(--green);}
+.stat-sub {font-family:var(--mono);font-size:.6rem;color:var(--dim);}
+
+/* rank total badge */
+.rank-box{
+  display:inline-block;
+  font-family:'Orbitron',sans-serif;font-size:.82rem;font-weight:900;
+  min-width:48px;text-align:center;
+  padding:4px 8px;border-radius:6px;letter-spacing:.04em;
+}
+.rank-box.r100{background:rgba(255,215,0,.14);border:1px solid rgba(255,215,0,.5);color:var(--gold);box-shadow:0 0 10px rgba(255,215,0,.18);}
+.rank-box.r80 {background:rgba(0,212,255,.1); border:1px solid rgba(0,212,255,.35);color:var(--cyan);}
+.rank-box.r60 {background:rgba(57,255,20,.08);border:1px solid rgba(57,255,20,.28);color:var(--green);}
+.rank-box.r40 {background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.28);color:var(--amber);}
+.rank-box.rlo {background:rgba(255,51,51,.08); border:1px solid rgba(255,51,51,.28); color:var(--red);}
+
+/* rank number */
+.rk{font-family:'Orbitron',sans-serif;font-size:.72rem;font-weight:700;color:var(--dim);text-align:center;}
+.rk.gold{color:var(--gold);}
+.rk.silver{color:#c0c0d0;}
+.rk.bronze{color:#cd7f32;}
+
+/* avatar */
+.av{width:36px;height:36px;border-radius:50%;border:1px solid rgba(0,212,255,.2);object-fit:cover;display:block;position:relative;}
+.av-wrap{position:relative;width:36px;height:36px;flex-shrink:0;}
+.away-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:2px solid var(--bg);}
+.away-dot.immunity{background:var(--purple);}
+.away-dot.normal{background:var(--amber);}
+
+/* name block */
+.nb .uname{font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.role-chip{
+  display:inline-block;font-family:var(--mono);font-size:.52rem;letter-spacing:.07em;
+  padding:1px 6px;border-radius:8px;margin-top:2px;text-transform:uppercase;
+}
+.c-board  {background:rgba(255,0,128,.15);color:#ff80c0;border:1px solid rgba(255,0,128,.3);}
+.c-head   {background:rgba(148,0,255,.2);color:#d4a0ff;border:1px solid rgba(148,0,255,.35);}
+.c-mgmt   {background:rgba(148,0,255,.15);color:#c080ff;border:1px solid rgba(148,0,255,.28);}
+.c-admin  {background:rgba(255,80,0,.15);color:#ff9060;border:1px solid rgba(255,80,0,.3);}
+.c-sradmin{background:rgba(255,140,0,.15);color:#ffb347;border:1px solid rgba(255,140,0,.28);}
+.c-sup    {background:rgba(0,120,255,.15);color:#60b0ff;border:1px solid rgba(0,120,255,.28);}
+.c-srsup  {background:rgba(0,180,255,.15);color:#80d0ff;border:1px solid rgba(0,180,255,.28);}
+.c-staff  {background:rgba(57,255,20,.1);color:#80ff60;border:1px solid rgba(57,255,20,.22);}
+.c-trial  {background:rgba(80,110,140,.15);color:#90b0c8;border:1px solid rgba(80,110,140,.25);}
+
+/* stat cells */
+.stat-val{font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--text);}
+.stat-sub{font-family:var(--mono);font-size:.6rem;color:var(--dim);margin-top:1px;}
+.stat-cyan{color:var(--cyan);}
+
+/* rank pills */
+.rp{font-family:var(--mono);font-size:.58rem;padding:3px 8px;border-radius:4px;font-weight:600;white-space:nowrap;display:inline-block;}
+.rp-great   {background:rgba(0,212,255,.12);color:var(--cyan);border:1px solid rgba(0,212,255,.28);}
+.rp-verygood{background:rgba(57,255,20,.1);color:var(--green);border:1px solid rgba(57,255,20,.22);}
+.rp-good    {background:rgba(0,120,255,.12);color:#60b0ff;border:1px solid rgba(0,120,255,.25);}
+.rp-okay    {background:rgba(255,184,0,.1);color:var(--amber);border:1px solid rgba(255,184,0,.22);}
+.rp-bad     {background:rgba(255,51,51,.1);color:var(--red);border:1px solid rgba(255,51,51,.22);}
+.rp-away    {background:rgba(148,0,255,.1);color:#c080ff;border:1px solid rgba(148,0,255,.22);}
+
+/* vbucks in duty tab */
+.vb-cell{font-family:var(--mono);font-size:.8rem;font-weight:700;}
+.vb-pos{color:var(--gold);}
+.vb-zero{color:var(--dim);}
+.vb-pen{font-size:.65rem;color:var(--red);margin-top:1px;}
+
+
+
+/* ── Empty / error ── */
+.empty-state{text-align:center;padding:50px 20px;color:var(--dim);font-family:var(--mono);font-size:.78rem;}
+
+/* ── Mobile: keep the dense grid table aligned by allowing horizontal swipe ── */
+@media(max-width:680px){
+  .page-wrap{padding:16px 10px 70px;}
+  .page-header{padding:24px 0 14px;}
+  .section-wrap.active{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .tbl-head,.tbl-body{min-width:600px;}
+  .meta-bar{font-size:.6rem;}
+}
+</style>
+<style>.wave-logo-inline { width: 1.1em; height: 1.1em; vertical-align: -0.15em; display: inline-block; object-fit: contain; }</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+<div class="scanlines"></div>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="sub">Wave Staff Hub · Weekly Performance</div>
+    <h1>Weekly Performance</h1>
+    <div style="margin-top:20px; display:inline-flex; align-items:center; gap:10px; background:linear-gradient(90deg, rgba(255,170,0,0.1), rgba(255,170,0,0.25), rgba(255,170,0,0.1)); padding:8px 24px; border-radius:30px; border:1px solid rgba(255,170,0,0.5); box-shadow:0 0 20px rgba(255,170,0,0.2); animation: shimmerSlide 3s linear infinite; background-size:200% auto;">
+      <span style="font-size:18px;">🎯</span>
+      <span style="font-family:'Orbitron',monospace; font-weight:700; font-size:13px; color:#ffaa00; letter-spacing:1px; text-shadow:0 0 10px rgba(255,170,0,0.4);">
+        Perfect <strong style="color:#fff;">100</strong> Rank Total = <strong style="color:#fff;">30 WP</strong> Bonus!
+      </span>
+    </div>
+
+    <!-- MOCKUP: Slick & Clean Progress Line -->
+    <div style="margin-top:40px; display:flex; flex-direction:column; align-items:center; opacity:0; animation:fadeUp 0.6s ease forwards 0.1s;">
+      <div style="display:flex; justify-content:space-between; width:100%; max-width:380px; margin-bottom:14px; align-items:baseline;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(122,152,176,0.5);">Current Trajectory</div>
+        <div style="font-family:'Orbitron',sans-serif; font-size:16px; font-weight:800; color:#fff; letter-spacing:1px; text-shadow:0 0 15px rgba(0,212,255,0.3);">
+          <span style="color:#00d4ff;">65</span><span style="color:rgba(122,152,176,0.35); font-size:10px; margin-left:5px;">/ 100 WP</span>
+        </div>
+      </div>
+
+      <!-- The Track -->
+      <div style="width:100%; max-width:380px; height:2px; background:rgba(255,255,255,0.06); position:relative; border-radius:2px;">
+        <!-- The Fill -->
+        <div style="position:absolute; top:0; left:0; height:100%; width:65%; background:linear-gradient(90deg, #00d4ff, #a855f7); box-shadow:0 0 10px rgba(0,212,255,0.6), 0 0 20px rgba(168,85,247,0.6); border-radius:2px;"></div>
+        <!-- The Knob/Lead -->
+        <div style="position:absolute; top:50%; left:65%; width:3px; height:12px; background:#fff; transform:translate(-50%, -50%); box-shadow:0 0 8px #fff; border-radius:2px;"></div>
+      </div>
+      
+      <div style="margin-top:14px; font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:2.5px; color:rgba(0,212,255,0.4); text-transform:uppercase;">
+        35 WP remaining for bonus
+      </div>
+    </div>
+  </div>
+
+  <!-- Week selector -->
+  <div class="week-selector">
+    <span class="ws-label">Week</span>
+    <div class="week-pills" id="week-pills"></div>
+  </div>
+
+  <!-- Meta bar -->
+  <div class="meta-bar">
+    <div class="meta-left">
+      <span class="meta-item"><span class="hl" id="metaCount">—</span> staff</span>
+      <span class="meta-item">Updated <span class="hl" id="metaUpdated">—</span></span>
+    </div>
+    <div class="countdown-wrap">
+      <span class="cd-label">Next report</span>
+      <span class="cd-val" id="countdown">—</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="messages">General Staff <span class="tab-count" id="cnt-messages">0</span></button>
+    <button class="tab-btn" data-tab="req">Map Request <span class="tab-count" id="cnt-req">0</span></button>
+  </div>
+
+  <div class="section-wrap active" id="sec-messages"></div>
+  <div class="section-wrap" id="sec-req"></div>
+</div>
+
+<script>
+const DATA_URL   = '/api/duties';
+
+/* ── Stars ── */
+(()=>{
+  const c=document.getElementById('stars'),ctx=c.getContext('2d');let S=[];
+  const resize=()=>{c.width=innerWidth;c.height=innerHeight;};
+  const init=()=>{S=[];for(let i=0;i<160;i++)S.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.3+.3,a:Math.random(),da:(Math.random()-.5)*.007});};
+  const draw=()=>{
+    ctx.clearRect(0,0,c.width,c.height);
+    S.forEach(s=>{s.a=Math.max(.05,Math.min(1,s.a+s.da));if(s.a<=.05||s.a>=1)s.da*=-1;
+      ctx.globalAlpha=s.a;ctx.fillStyle='#c8e0f0';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();});
+    ctx.globalAlpha=1;requestAnimationFrame(draw);
+  };
+  addEventListener('resize',()=>{resize();init();});resize();init();draw();
+})();
+
+/* ── Countdown ── */
+(()=>{
+  const el=document.getElementById('countdown');
+  const pad=n=>String(n).padStart(2,'0');
+  const nextSun=()=>{const n=new Date(),d=new Date(Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate()));const dts=(7-d.getUTCDay())%7||7;d.setUTCDate(d.getUTCDate()+dts);return d;};
+  const tick=()=>{const diff=nextSun()-Date.now();if(diff<=0){el.textContent='Processing…';return;}const d=Math.floor(diff/86400000),h=Math.floor(diff%86400000/3600000),m=Math.floor(diff%3600000/60000),s=Math.floor(diff%60000/1000);el.textContent=`${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;};
+  tick();setInterval(tick,1000);
+})();
+
+/* ── Helpers ── */
+const rankCls=r=>{const x=(r||'').toLowerCase().replace(/\s+/g,'');return x==='great'?'great':x.includes('very')?'verygood':x==='good'?'good':x==='okay'?'okay':x==='bad'?'bad':'';};
+const chipCls=t=>`role-chip c-${(t||'trial').toLowerCase()}`;
+const avatar=u=>{
+  const dot=u.is_away?`<div class="away-dot ${u.away_type||'normal'}"></div>`:'';
+  return `<div class="av-wrap"><img class="av" src="${u.avatar_url||'https://cdn.discordapp.com/embed/avatars/0.png'}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">${dot}</div>`;
+};
+const nameBlock=u=>`<div class="nb"><div class="uname">${u.name}</div><span class="${chipCls(u.role_tier)}">${u.top_role||'Staff'}</span></div>`;
+const rkNum=(i)=>{const n=i+1;const cls=n===1?'rk gold':n===2?'rk silver':n===3?'rk bronze':'rk';return `<div class="${cls}">${n===1?'🥇':n===2?'🥈':n===3?'🥉':'#'+n}</div>`;};
+
+/* ── Build: General Staff tab ── */
+const rankBoxCls=n=>n>=100?'r100':n>=80?'r80':n>=60?'r60':n>=40?'r40':'rlo';
+function buildMessages(users, containerId){
+  const el=document.getElementById(containerId);
+  if(!users.length){el.innerHTML='<div class="empty-state">No engagement data this week.</div>';return;}
+  const sorted=[...users].sort((a,b)=>(b.engagement?.rank_total||0)-(a.engagement?.rank_total||0));
+  let html=`<div class="tbl-head cols-msg">
+    <div></div><div></div><div>Member</div>
+    <div class="ch-cyan">Messages</div>
+    <div class="ch-purple">Days Active</div>
+    <div class="ch-amber">Mod Cmds</div>
+    <div class="ch-green">Reviews</div>
+    <div class="ch-gold">Rank Total</div>
+  </div><div class="tbl-body">`;
+  sorted.forEach((u,i)=>{
+    const e=u.engagement||{};
+    const rt=e.rank_total??0;
+    html+=`<div class="tbl-row cols-msg${u.is_away?' away':''}" style="cursor:pointer;" onclick="if(${u.user_id})window.location.href='profile.html?id=${u.user_id}';" >
+      ${rkNum(i)}
+      ${avatar(u)}
+      ${nameBlock(u)}
+      <div><span class="sv-cyan">${e.messages??'—'}</span></div>
+      <div><span class="sv-purple">${e.days_active??'—'}<span class="stat-sub">/7</span></span></div>
+      <div><span class="sv-amber">${e.mod_commands??'—'}</span></div>
+      <div><span class="sv-green">${e.reviews??'—'}</span></div>
+      <div><span class="rank-box ${rankBoxCls(rt)}">${rt}</span></div>
+    </div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+/* ── Build: Duty tab (Map Request) ── */
+function buildDuty(users, dutyKey, containerId){
+  const el=document.getElementById(containerId);
+  const filtered=users.filter(u=>u.duties?.[dutyKey]).sort((a,b)=>(a.duties[dutyKey].position||99)-(b.duties[dutyKey].position||99));
+  document.getElementById('cnt-'+containerId.replace('sec-','')).textContent=filtered.length;
+  if(!filtered.length){el.innerHTML='<div class="empty-state">No duty data this week.</div>';return;}
+  let html=`<div class="tbl-head cols-duty"><div></div><div></div><div>Member</div><div>Requests</div><div>Performance</div><div>V-Bucks</div></div><div class="tbl-body">`;
+  filtered.forEach((u,i)=>{
+    const d=u.duties[dutyKey];
+    const pillCl='rp rp-'+(u.is_away?'away':rankCls(d.rank));
+    const pillTxt=u.is_away?'Away':(d.rank||'—');
+    let vbHtml;
+    if(u.is_away){
+      vbHtml=`<div class="vb-cell vb-zero">—</div>`;
+    } else {
+      const vbEarned=d.vbucks_earned||0;
+      const vbPen=d.penalty_amount||0;
+      const vbLines=[];
+      if(vbEarned>0) vbLines.push(`<div class="vb-cell vb-pos">+${vbEarned}</div>`);
+
+      if(vbPen>0) vbLines.push(`<div class="vb-pen">−${vbPen}</div>`);
+      vbHtml=vbLines.length?vbLines.join(''):`<div class="vb-cell vb-zero">—</div>`;
+    }
+    html+=`<div class="tbl-row cols-duty${u.is_away?' away':''}" style="cursor:pointer;" onclick="if(${u.user_id})window.location.href='profile.html?id=${u.user_id}';" >
+      ${rkNum(i)}
+      ${avatar(u)}
+      ${nameBlock(u)}
+      <div><div class="stat-val stat-cyan">${d.count??'—'}</div></div>
+      <div><span class="${pillCl}">${pillTxt}</span></div>
+      <div>${vbHtml}</div>
+    </div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+
+/* ── Tab switching ── */
+document.querySelector('.tab-bar').addEventListener('click',e=>{
+  const btn=e.target.closest('.tab-btn');if(!btn) return;
+  const tab=btn.dataset.tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.section-wrap').forEach(s=>s.classList.remove('active'));
+  const sec=document.getElementById('sec-'+tab);if(sec) sec.classList.add('active');
+});
+
+/* ── Render a week snapshot ── */
+function renderWeek(weekData){
+  const users=Object.values(weekData.users||{});
+  const engUsers=users.filter(u=>u.engagement);
+  const allUsers=users;
+  document.getElementById('cnt-messages').textContent=engUsers.length;
+  document.getElementById('cnt-req').textContent=allUsers.filter(u=>u.duties?.req).length;
+  document.getElementById('metaCount').textContent=users.length;
+  if(weekData._meta?.last_updated){
+    const d=new Date(weekData._meta.last_updated);
+    document.getElementById('metaUpdated').textContent=d.toUTCString().slice(5,16)+' UTC';
+  }
+  buildMessages(engUsers,'sec-messages');
+  buildDuty(allUsers,'req','sec-req');
+}
+
+/* ── Main load ── */
+(async()=>{
+  try{
+    const res=await fetch(DATA_URL);
+    if(!res.ok) throw new Error(res.status);
+    const data=await res.json();
+
+    const pillsEl=document.getElementById('week-pills');
+
+    // Current week is always the top-level _meta + users
+    const currentWeek={_meta:data._meta, users:data.users};
+    // Completed weeks are in data.weeks[] each shaped as {_meta, users}
+    const historyWeeks=Array.isArray(data.weeks)?data.weeks:[];
+    const allWeeks=[currentWeek,...historyWeeks];
+
+    allWeeks.forEach((w,i)=>{
+      const s=w._meta?.start_date||'?';
+      const e=w._meta?.end_date||'?';
+      const pill=document.createElement('button');
+      pill.className='week-pill'+(i===0?' active':'');
+      pill.textContent=`${s} – ${e}`;
+      pill.addEventListener('click',()=>{
+        document.querySelectorAll('.week-pill').forEach(p=>p.classList.remove('active'));
+        pill.classList.add('active');
+        renderWeek(w);
+      });
+      pillsEl.appendChild(pill);
+    });
+
+    renderWeek(currentWeek);
+
+  }catch(e){
+    document.getElementById('sec-messages').innerHTML=`<div class="empty-state">Failed to load: ${e.message}</div>`;
+    document.getElementById('sec-messages').classList.add('active');
+  }
+})();
+</script>
+<style>
+body{padding-bottom:52px;}.ucf-ticker-wrap{position:fixed;bottom:0;left:0;right:0;z-index:9999;overflow:hidden;background:rgba(5,12,22,0.97);border-top:1px solid rgba(0,212,255,0.2);height:36px;display:flex;align-items:center;box-shadow:0 -8px 24px rgba(0,0,0,0.6);backdrop-filter:blur(16px);}
+.ucf-ticker-label{flex-shrink:0;display:flex;align-items:center;gap:7px;padding:0 16px;height:100%;background:rgba(0,212,255,0.07);border-right:1px solid rgba(0,212,255,0.18);font-family:'Orbitron',monospace;font-size:0.56rem;font-weight:700;letter-spacing:2.5px;color:#00d4ff;text-transform:uppercase;white-space:nowrap;}
+.ucf-ticker-dot{width:5px;height:5px;border-radius:50%;background:#00d4ff;box-shadow:0 0 6px #00d4ff;animation:ucf-pulse 1.8s ease-in-out infinite;}
+@keyframes ucf-pulse{0%,100%{opacity:1}50%{opacity:0.25}}
+.ucf-ticker-scroll{flex:1;overflow:hidden;height:100%;display:flex;align-items:center;}
+.ucf-ticker{display:inline-flex;align-items:center;white-space:nowrap;animation:ucf-scroll 30s linear infinite;font-family:'JetBrains Mono',monospace;font-size:0.68rem;letter-spacing:2px;color:#00d4ff;font-weight:700;padding:0 60px;}
+.ucf-ticker:hover{animation-play-state:paused;}
+@keyframes ucf-scroll{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+.ucf-ticker-code{text-shadow:0 0 8px rgba(0,212,255,0.55);}
+</style>
+<div class="ucf-ticker-wrap">
+  <div class="ucf-ticker-label"><div class="ucf-ticker-dot"></div>LIVE</div>
+  <div class="ucf-ticker-scroll"><div class="ucf-ticker">Use code &nbsp;<span class="ucf-ticker-code">Wavedropmaps</span>&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;in the Fortnite item shop&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;Use code &nbsp;<span class="ucf-ticker-code">Wavedropmaps</span>&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;in the Fortnite item shop</div></div>
+</div>
+<script src="wave-nav.js"></script>
+<script src="wave-guide.js"></script>
+</body>
+</html>
+

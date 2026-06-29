@@ -1,0 +1,48 @@
+{
+  "tasks": [
+    {
+      "task_id": 101,
+      "title": "Update Drop Spot images for the new season",
+      "description": "Go into replay mode and grab top-down screenshots of the new POIs.",
+      "claimed_by": null,
+      "claimed_by_name": null
+    },
+    {
+      "task_id": 102,
+      "title": "Add game stage info for the current meta",
+      "description": "Update advantages and disadvantages for early, mid, and late game in the current season.",
+      "claimed_by": "234567890123456789",
+      "claimed_by_name": "kiere"
+    }
+  ],
+  "duties": [
+    {
+      "user_id": "234567890123456789",
+      "display_name": "kiere",
+      "avatar_url": "",
+      "code": "SPAWNS"
+    },
+    {
+      "user_id": "123456789012345678",
+      "display_name": "Fruss",
+      "avatar_url": "",
+      "code": "LOADOUTS"
+    }
+  ],
+  "duty_codes": [
+    { "code": "SPAWNS", "name": "Managing Spawns Category" },
+    { "code": "SURGE", "name": "Managing Surge Category" },
+    { "code": "CREATIVE", "name": "Managing Creative Map Codes Category" },
+    { "code": "PRONOTES", "name": "Managing Pro Notes & Learn From Pros" },
+    { "code": "GAMESTAGES", "name": "Managing Game Stages" },
+    { "code": "LOADOUTS", "name": "Managing Loadouts Category" },
+    { "code": "MECHANICS", "name": "Managing Game Mechanics & Meta" },
+    { "code": "DROPSPOTS", "name": "Managing Dropspots Category" },
+    { "code": "LOOTPOOLS", "name": "Managing Lootpools Category" }
+  ],
+  "helpers": [
+    { "user_id": "123456789012345678", "display_name": "Fruss" },
+    { "user_id": "234567890123456789", "display_name": "kiere" },
+    { "user_id": "345678901234567890", "display_name": "elax" }
+  ]
+}

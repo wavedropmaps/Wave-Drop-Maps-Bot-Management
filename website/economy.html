@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta property="og:title" content="Wave Economy 2.0 Dashboard">
+<meta property="og:description" content="Live Central Bank & Global Market Dashboard for Wave Points, VBucks, Loot Routes, and Surge Routes.">
+<meta property="og:url" content="https://wavedropmaps.github.io/wave-leaderboard/economy.html">
+<meta name="twitter:card" content="summary_large_image">
+<title>Wave Economy Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800;900&family=Exo+2:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<script defer crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script defer crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  body { color: white; font-family: 'Exo 2', sans-serif; }
+  h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
+  .glass-panel {
+    background: rgba(17, 25, 40, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  .neon-text { color: #00d4ff; text-shadow: 0 0 10px rgba(0,212,255,0.5); }
+  .neon-pink { color: #ff0080; text-shadow: 0 0 10px rgba(255,0,128,0.5); }
+  .neon-green { color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
+  .neon-red { color: #ff3333; text-shadow: 0 0 10px rgba(255,51,51,0.5); }
+  .neon-orange { color: #ffaa00; text-shadow: 0 0 10px rgba(255,170,0,0.5); }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, #00d4ff, #00ff88);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+  }
+  .gradient-text-pink {
+    background: linear-gradient(135deg, #ff0080, #ffaa00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+  }
+  
+  .hover-lift {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    z-index: 10;
+  }
+  
+  .stat-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.3) 100%);
+    padding: 24px;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 2px;
+    background: inherit;
+    opacity: 0.5;
+  }
+  
+  .emoji {
+    -webkit-text-fill-color: initial;
+    color: initial;
+    display: inline-block;
+  }
+  
+  .info-section {
+    background: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(255,255,255,0.02) 100%);
+    padding: 24px;
+    border-radius: 12px;
+    border-left: 4px solid #fff;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+  }
+  .info-section:hover {
+    background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    transform: translateX(5px);
+  }
+  
+  .tab-button {
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-family: 'Orbitron';
+    font-size: 1.1rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(5px);
+  }
+  .tab-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,212,255,0.2);
+  }
+
+body{padding-bottom:52px;}
+  .ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+    background: rgba(0, 8, 4, 0.97);
+    border: 1px solid rgba(0, 255, 136, 0.22);
+    border-radius: 999px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(0,255,136,0.08), 0 -4px 20px rgba(0,255,136,0.06);
+    backdrop-filter: blur(16px);
+    margin-top: 24px;
+  }
+  .ticker-label {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 16px;
+    height: 100%;
+    background: rgba(0, 255, 136, 0.08);
+    border-right: 1px solid rgba(0, 255, 136, 0.2);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    color: #00ff88;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .ticker-label-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #00ff88;
+    box-shadow: 0 0 6px #00ff88;
+    animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+  }
+  .ticker-scroll-area {
+    flex: 1;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+  .ticker {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    animation: ticker-scroll 45s linear infinite;
+  }
+  .ticker:hover {
+    animation-play-state: paused;
+  }
+  @keyframes ticker-scroll {
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
+  }
+  .ticker-sep {
+    color: rgba(0, 255, 136, 0.2);
+    font-size: 0.42rem;
+    padding: 0 4px;
+    user-select: none;
+  }
+  .ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .ticker-item-label {
+    color: #3a4f6a;
+    font-weight: 400;
+    letter-spacing: 1px;
+  }
+  .ticker-value {
+    color: #b0bdd4;
+    font-weight: 700;
+  }
+  .ticker-promo {
+    color: #00d4ff;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-size: 0.66rem;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 0 24px;
+  }
+  .ticker-promo-code {
+    text-shadow: 0 0 8px rgba(0,212,255,0.55);
+  }
+
+  /* ── Top market stats bar ── */
+  .mkt-bar {
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 32px;
+    background: rgba(0, 8, 18, 0.7);
+    border: 1px solid rgba(0, 212, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: 'JetBrains Mono', monospace;
+    flex-wrap: wrap;
+  }
+  .mkt-bar-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 16px;
+    background: rgba(0, 212, 255, 0.06);
+    border-right: 1px solid rgba(0, 212, 255, 0.1);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.52rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    color: #00d4ff;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .mkt-bar-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #00d4ff;
+    box-shadow: 0 0 5px #00d4ff;
+    animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+  .mkt-stat {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    white-space: nowrap;
+    flex: 1;
+    min-width: max-content;
+  }
+  .mkt-stat:last-child { border-right: none; }
+  .mkt-stat-label {
+    font-size: 0.58rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #2d4060;
+    font-weight: 400;
+  }
+  .mkt-stat-value {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #b0bdd4;
+  }
+  .mkt-stat-change {
+    font-size: 0.58rem;
+    font-weight: 700;
+  }
+
+  /* Mobile: tighten the shop root gutter (placed in <head> so the SPA shell keeps it) */
+  @media(max-width:600px){
+    #economy-root{padding:24px 12px!important;}
+    .tab-button{padding:10px 16px!important;font-size:0.82rem!important;letter-spacing:0.8px!important;}
+    .mkt-bar{flex-direction:column;}
+    .mkt-bar > *{flex:1;min-width:0;}
+    .glass-panel{padding:16px!important;}
+  }
+  @media(max-width:420px){
+    .tab-button{padding:8px 12px!important;font-size:0.76rem!important;letter-spacing:0.5px!important;}
+  }
+</style>
+<style>.wave-logo-inline { width: 1.1em !important; height: 1.1em !important; vertical-align: -0.15em !important; display: inline-block !important; object-fit: contain !important; }</style>
+</head>
+<body>
+<!-- ── Back-to-Hub Button (injected by Wave Staff Hub) ─────────────────── -->
+<style>
+.wsh-back{position:fixed;top:14px;left:14px;z-index:9999;
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(5,12,22,0.92);backdrop-filter:blur(10px);
+  border:1px solid rgba(0,212,255,0.4);border-radius:24px;
+  padding:8px 16px;color:#00d4ff;
+  font-family:'Orbitron',monospace;font-size:10px;font-weight:700;
+  letter-spacing:2.5px;text-transform:uppercase;text-decoration:none;
+  box-shadow:0 0 14px rgba(0,212,255,0.25),0 4px 18px rgba(0,0,0,0.55);
+  transition:all 0.25s;}
+.wsh-back:hover{background:rgba(0,212,255,0.15);color:#fff;
+  transform:translateY(-2px);
+  box-shadow:0 0 24px rgba(0,212,255,0.55),0 6px 22px rgba(0,0,0,0.65);}
+.wsh-back::before{content:'←';font-size:13px;line-height:1;}
+@media(max-width:520px){.wsh-back{padding:6px 12px;font-size:9px;letter-spacing:2px;top:10px;left:10px;}}
+</style>
+<a href="index.html" class="wsh-back" title="Back to Wave Staff Hub">Hub</a>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="scanlines"></div>
+<div id="economy-root" style="position: relative; z-index: 10; max-width: 1200px; margin: 0 auto; padding: 40px 20px;"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+// ── Bank Yield Calculator ─────────────────────────────────────────────────
+const YIELD_TIERS = [
+  { threshold: 1000, apr: 15 },
+  { threshold: 500,  apr: 10 },
+  { threshold: 250,  apr: 7  },
+  { threshold: 50,   apr: 5  },
+];
+
+const getApr = (bal) => {
+  for (const t of YIELD_TIERS) if (bal >= t.threshold) return t.apr;
+  return 0;
+};
+
+const BankYieldCalc = () => {
+  const [wpInput, setWpInput] = useState('500');
+  const wp = Math.max(0, Number(wpInput) || 0);
+  const apr = getApr(wp);
+  const dailyRate = apr > 0 ? wp * (apr / 100) / 365 : 0;
+  const daysUntilPoint = dailyRate > 0 ? Math.ceil(1 / dailyRate) : null;
+
+  const sortedTiers = [...YIELD_TIERS].sort((a, b) => a.threshold - b.threshold);
+  const nextTier   = sortedTiers.find(t => t.threshold > wp);
+  const prevTier   = [...sortedTiers].reverse().find(t => t.threshold <= wp);
+  const prevThresh = prevTier ? prevTier.threshold : 0;
+  const nextThresh = nextTier ? nextTier.threshold : null;
+  const ptsToNext  = nextThresh ? nextThresh - wp : null;
+  const progress   = nextThresh
+    ? Math.min(100, ((wp - prevThresh) / (nextThresh - prevThresh)) * 100)
+    : 100;
+
+  const yields = [
+    { label: 'DAILY',   val: dailyRate,           decimals: 2 },
+    { label: 'WEEKLY',  val: dailyRate * 7,        decimals: 2 },
+    { label: 'MONTHLY', val: dailyRate * 30,       decimals: 1 },
+    { label: 'YEARLY',  val: wp * (apr / 100),     decimals: 0 },
+  ];
+
+  return (
+    <div style={{ marginTop: '24px', marginBottom: '32px' }}>
+      <div className="glass-panel" style={{ border: '1px solid rgba(0,212,255,0.25)', padding: '22px' }}>
+        <h3 style={{ margin: '0 0 20px', color: '#00d4ff', fontFamily: 'Orbitron', fontSize: '0.95rem', letterSpacing: '1.5px' }}>
+          🧮 YIELD CALCULATOR
+        </h3>
+
+        {/* Input + APR badge */}
+        <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-end', marginBottom: '16px' }}>
+          <div style={{ flex: 1 }}>
+            <label style={{ color: '#8892b0', fontSize: '0.7rem', fontFamily: 'Orbitron', letterSpacing: '1.5px', display: 'block', marginBottom: '8px' }}>
+              YOUR WAVE POINTS
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={wpInput}
+              onChange={e => setWpInput(e.target.value)}
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                padding: '11px 16px', borderRadius: '8px',
+                background: 'rgba(0,0,0,0.35)',
+                border: '1px solid rgba(0,212,255,0.35)',
+                color: '#00d4ff', fontFamily: 'JetBrains Mono',
+                fontSize: '1.2rem', fontWeight: 700, outline: 'none',
+              }}
+            />
+          </div>
+          <div style={{ textAlign: 'center', minWidth: '88px', paddingBottom: '2px' }}>
+            <div style={{ color: '#555', fontSize: '0.68rem', fontFamily: 'Orbitron', letterSpacing: '1px', marginBottom: '4px' }}>APR</div>
+            <div style={{
+              fontSize: '2.2rem', fontFamily: 'JetBrains Mono', fontWeight: 700,
+              color: apr > 0 ? '#00ff88' : '#333',
+              textShadow: apr > 0 ? '0 0 14px rgba(0,255,136,0.55)' : 'none',
+              transition: 'all 0.2s',
+            }}>{apr}%</div>
+          </div>
+        </div>
+
+        {/* Slider */}
+        <input
+          type="range"
+          min="0"
+          max="2000"
+          step="10"
+          value={Math.min(2000, wp)}
+          onChange={e => setWpInput(e.target.value)}
+          style={{ width: '100%', marginBottom: '16px', accentColor: '#00d4ff', cursor: 'pointer' }}
+        />
+
+        {/* Tier progress bar */}
+        {wp >= 50 && nextThresh && (
+          <div style={{ marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <span style={{ color: '#555', fontSize: '0.73rem', fontFamily: 'JetBrains Mono' }}>
+                {prevThresh.toLocaleString()} WP · {prevTier?.apr ?? 5}%
+              </span>
+              <span style={{ color: '#00d4ff', fontSize: '0.73rem', fontFamily: 'JetBrains Mono' }}>
+                {nextThresh.toLocaleString()} WP · {nextTier.apr}%
+              </span>
+            </div>
+            <div style={{ height: '6px', background: 'rgba(255,255,255,0.07)', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', width: `${progress}%`,
+                background: 'linear-gradient(90deg, #00d4ff, #00ff88)',
+                borderRadius: '3px', transition: 'width 0.25s',
+              }} />
+            </div>
+            <div style={{ color: '#555', fontSize: '0.72rem', marginTop: '5px', textAlign: 'right', fontFamily: 'JetBrains Mono' }}>
+              {ptsToNext?.toLocaleString()} WP to next tier
+            </div>
+          </div>
+        )}
+        {wp >= 1000 && (
+          <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+            <span style={{
+              background: 'rgba(0,255,136,0.12)', border: '1px solid rgba(0,255,136,0.4)',
+              borderRadius: '20px', padding: '4px 14px', color: '#00ff88',
+              fontSize: '0.8rem', fontFamily: 'JetBrains Mono', fontWeight: 700,
+            }}>⭐ MAX TIER</span>
+          </div>
+        )}
+
+        {/* Yield cards */}
+        {apr > 0 && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', marginBottom: '14px' }}>
+            {yields.map(({ label, val, decimals }) => (
+              <div key={label} style={{
+                background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.14)',
+                borderRadius: '10px', padding: '14px 12px', textAlign: 'center',
+                transition: 'all 0.2s',
+              }}>
+                <div style={{ color: '#555', fontSize: '0.68rem', fontFamily: 'Orbitron', letterSpacing: '1px', marginBottom: '7px' }}>{label}</div>
+                <div style={{ color: '#00ff88', fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize: '1.05rem' }}>
+                  +{val.toFixed(decimals)} WP
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {daysUntilPoint && (
+          <div style={{ textAlign: 'center', color: '#8892b0', fontSize: '0.8rem', fontFamily: 'JetBrains Mono' }}>
+            Next whole point in ~<span style={{ color: '#00d4ff', fontWeight: 700 }}>{daysUntilPoint} day{daysUntilPoint !== 1 ? 's' : ''}</span>
+          </div>
+        )}
+
+        <style>{`
+          input[type=range] { -webkit-appearance: none; height: 4px; border-radius: 2px;
+            background: rgba(255,255,255,0.1); }
+          input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px;
+            border-radius: 50%; background: #00d4ff; cursor: pointer;
+            box-shadow: 0 0 8px rgba(0,212,255,0.6); }
+          input[type=number]::-webkit-inner-spin-button,
+          input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+          input[type=number] { -moz-appearance: textfield; }
+        `}</style>
+      </div>
+    </div>
+  );
+};
+
+// ── Bond Widget ───────────────────────────────────────────────────────────
+const BOND_TIERS = [
+  { days: 7,  apr: 7.5, label: '7 Days',  badge: '7.5%' },
+  { days: 14, apr: 15,  label: '14 Days', badge: '15%' },
+  { days: 30, apr: 30,  label: '30 Days', badge: '30%' },
+  { days: 60, apr: 50,  label: '60 Days', badge: '50%' },
+];
+
+const BondWidget = () => {
+  const [balance, setBalance]     = useState(null);
+  const [selectedDays, setDays]   = useState(14);
+  const [amountInput, setAmountInput] = useState('');
+  const [submitting, setSubmitting]   = useState(false);
+  const [toast, setToast]             = useState(null);
+  const [confirm, setConfirm]         = useState(false);
+  const pollRef                       = useRef(null);
+
+  const showToast = (ok, msg) => {
+    setToast({ ok, msg });
+    setTimeout(() => setToast(null), 8000);
+  };
+
+  const fetchBalance = useCallback(async () => {
+    try {
+      const r = await fetch('/api/bonds/balance');
+      if (r.ok) setBalance(await r.json());
+      else setBalance({ error: r.status });
+    } catch { setBalance({ error: 'network' }); }
+  }, []);
+
+  useEffect(() => { fetchBalance(); }, [fetchBalance]);
+
+  const tier   = BOND_TIERS.find(t => t.days === selectedDays);
+  const amount = Math.max(0, parseInt(amountInput) || 0);
+  const interest = amount > 0 ? Math.round(amount * (tier.apr / 100)) : 0;
+  const payout   = amount + interest;
+  const canAfford = balance && !balance.error && balance.wp >= amount && amount > 0;
+
+  const maturityLabel = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + selectedDays);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  const handleSubmit = async () => {
+    if (!canAfford || submitting) return;
+    setConfirm(false);
+    setSubmitting(true);
+    try {
+      const r = await fetch('/api/bonds/buy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ days: selectedDays, amount }),
+      });
+      const d = await r.json();
+      if (!r.ok) { showToast(false, d.error || 'Submission failed'); setSubmitting(false); return; }
+      pollBond(d.id);
+    } catch { showToast(false, 'Network error'); setSubmitting(false); }
+  };
+
+  const pollBond = (id) => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    pollRef.current = setInterval(async () => {
+      try {
+        const r = await fetch(`/api/bonds/status/${id}`);
+        const d = await r.json();
+        if (d.status === 'completed' || d.status === 'failed') {
+          clearInterval(pollRef.current);
+          setSubmitting(false);
+          setAmountInput('');
+          fetchBalance();
+          if (d.status === 'completed' && d.result) {
+            showToast(true,
+              `Bond locked! ${d.result.amount_locked.toLocaleString()} WP → ` +
+              `${d.result.amount_payout.toLocaleString()} WP in ${d.result.days} days (matures ${d.result.maturity_date}).`
+            );
+          } else {
+            showToast(false, d.result?.error || 'Bond purchase failed.');
+          }
+        }
+      } catch {}
+    }, 1500);
+  };
+
+  useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
+
+  const now = Date.now();
+
+  return (
+    <div style={{ marginBottom: '32px' }}>
+
+      {/* Toast */}
+      {toast && (
+        <div style={{
+          position: 'fixed', top: '24px', right: '24px', zIndex: 9999,
+          background: toast.ok ? 'rgba(0,255,136,0.18)' : 'rgba(255,51,51,0.18)',
+          border: `1px solid ${toast.ok ? 'rgba(0,255,136,0.7)' : 'rgba(255,51,51,0.7)'}`,
+          borderRadius: '12px', padding: '16px 22px', maxWidth: '460px',
+          color: toast.ok ? '#00ff88' : '#ff5555', fontFamily: "'Exo 2', sans-serif",
+          boxShadow: toast.ok ? '0 0 20px rgba(0,255,136,0.3)' : '0 0 20px rgba(255,51,51,0.3)',
+          backdropFilter: 'blur(12px)',
+        }}>
+          <strong>{toast.ok ? '✅ Bond Created!' : '❌ Error'}</strong><br/>
+          <span style={{ fontSize: '0.88rem', opacity: 0.9 }}>{toast.msg}</span>
+        </div>
+      )}
+
+      {/* Confirm modal */}
+      {confirm && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)',
+          backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', zIndex: 9998,
+        }}>
+          <div style={{
+            background: 'rgba(17,25,40,0.97)', border: '1px solid rgba(0,255,136,0.45)',
+            borderRadius: '16px', padding: '32px', maxWidth: '420px', width: '90%',
+            boxShadow: '0 0 40px rgba(0,255,136,0.15)',
+          }}>
+            <h3 style={{ color: '#00ff88', fontFamily: 'Orbitron', margin: '0 0 14px', fontSize: '1.05rem' }}>
+              🏦 Confirm Bond Purchase
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+              {[
+                ['Lock',     `${amount.toLocaleString()} WP`],
+                ['Duration', `${selectedDays} days`],
+                ['Return',   `${tier.apr}%`],
+                ['Interest', `+${interest.toLocaleString()} WP`],
+                ['Payout',   `${payout.toLocaleString()} WP`],
+                ['Matures',  maturityLabel()],
+              ].map(([k, v]) => (
+                <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.92rem' }}>
+                  <span style={{ color: '#8892b0' }}>{k}</span>
+                  <span style={{ color: '#e0e8ff', fontFamily: 'JetBrains Mono', fontWeight: 700 }}>{v}</span>
+                </div>
+              ))}
+            </div>
+            <p style={{ color: '#8892b0', fontSize: '0.8rem', margin: '0 0 20px', lineHeight: 1.5 }}>
+              ⚠️ WP are locked and cannot be accessed until maturity. The Central Bank guarantees the full payout.
+            </p>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button onClick={() => setConfirm(false)} style={{
+                flex: 1, padding: '11px', borderRadius: '8px',
+                border: '1px solid rgba(255,255,255,0.15)', background: 'transparent',
+                color: '#8b949e', cursor: 'pointer', fontFamily: 'Orbitron', fontSize: '0.83rem',
+              }}>Cancel</button>
+              <button onClick={handleSubmit} style={{
+                flex: 2, padding: '11px', borderRadius: '8px',
+                border: '1px solid rgba(0,255,136,0.7)', background: 'rgba(0,255,136,0.14)',
+                color: '#00ff88', cursor: 'pointer',
+                fontFamily: 'Orbitron', fontSize: '0.83rem', fontWeight: 700,
+                boxShadow: '0 0 14px rgba(0,255,136,0.25)',
+              }}>Lock {amount.toLocaleString()} WP</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="glass-panel" style={{ border: '1px solid rgba(0,255,136,0.25)', padding: '22px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '18px', minHeight: '28px' }}>
+          {balance && !balance.error ? (
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <span style={{ fontFamily: 'JetBrains Mono', fontSize: '0.85rem', color: '#a8b2d1' }}>
+                <img src="/assets/wave-logo.png" className="wave-logo-inline" alt="Wave" /> <span style={{ color: '#00d4ff', fontWeight: 700 }}>{balance.wp.toLocaleString()}</span> WP available
+              </span>
+              <button onClick={fetchBalance} style={{
+                background: 'transparent', border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: '5px', padding: '2px 8px', color: '#555', cursor: 'pointer', fontSize: '0.75rem',
+              }}>↻</button>
+            </div>
+          ) : balance?.error ? (
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <span style={{ color: '#555', fontSize: '0.75rem', fontFamily: 'JetBrains Mono' }}>
+                balance unavailable ({balance.error})
+              </span>
+              <button onClick={fetchBalance} style={{
+                background: 'transparent', border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: '5px', padding: '2px 8px', color: '#555', cursor: 'pointer', fontSize: '0.75rem',
+              }}>↻</button>
+            </div>
+          ) : (
+            <span style={{ color: '#333', fontSize: '0.78rem', fontFamily: 'JetBrains Mono' }}>loading balance…</span>
+          )}
+        </div>
+
+        {/* Duration selector */}
+        <div style={{ marginBottom: '18px' }}>
+          <div style={{ color: '#555', fontSize: '0.7rem', fontFamily: 'Orbitron', letterSpacing: '1.5px', marginBottom: '10px' }}>LOCK DURATION</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+            {BOND_TIERS.map(t => (
+              <button key={t.days} onClick={() => setDays(t.days)} style={{
+                padding: '10px 6px', borderRadius: '10px', cursor: 'pointer', textAlign: 'center',
+                transition: 'all 0.2s',
+                background: selectedDays === t.days ? 'rgba(0,255,136,0.14)' : 'rgba(255,255,255,0.03)',
+                border: `1px solid ${selectedDays === t.days ? 'rgba(0,255,136,0.7)' : 'rgba(255,255,255,0.08)'}`,
+                boxShadow: selectedDays === t.days ? '0 0 12px rgba(0,255,136,0.2)' : 'none',
+              }}>
+                <div style={{ color: selectedDays === t.days ? '#00ff88' : '#8892b0', fontFamily: 'Orbitron', fontSize: '0.72rem', fontWeight: 700 }}>{t.label}</div>
+                <div style={{ color: selectedDays === t.days ? '#00ff88' : '#555', fontFamily: 'JetBrains Mono', fontSize: '1.1rem', fontWeight: 700, marginTop: '4px' }}>{t.badge}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Amount input */}
+        <div style={{ marginBottom: '14px' }}>
+          <div style={{ color: '#555', fontSize: '0.7rem', fontFamily: 'Orbitron', letterSpacing: '1.5px', marginBottom: '8px' }}>AMOUNT TO LOCK (WP)</div>
+          <input
+            type="number"
+            min="1"
+            value={amountInput}
+            onChange={e => setAmountInput(e.target.value)}
+            placeholder="Enter WP to lock…"
+            style={{
+              width: '100%', boxSizing: 'border-box',
+              padding: '11px 16px', borderRadius: '8px',
+              background: 'rgba(0,0,0,0.35)',
+              border: '1px solid rgba(0,255,136,0.3)',
+              color: '#e0e8ff', fontFamily: 'JetBrains Mono', fontSize: '1.1rem',
+              outline: 'none',
+            }}
+          />
+        </div>
+
+        {/* Preview */}
+        {amount > 0 && (
+          <div style={{
+            background: 'rgba(0,255,136,0.05)', border: '1px solid rgba(0,255,136,0.18)',
+            borderRadius: '10px', padding: '14px 16px', marginBottom: '14px',
+          }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', textAlign: 'center' }}>
+              {[
+                { label: 'LOCKED', val: `${amount.toLocaleString()} WP`, color: '#8892b0' },
+                { label: 'INTEREST', val: `+${interest.toLocaleString()} WP`, color: '#00ff88' },
+                { label: 'PAYOUT', val: `${payout.toLocaleString()} WP`, color: '#00d4ff' },
+              ].map(({ label, val, color }) => (
+                <div key={label}>
+                  <div style={{ color: '#555', fontSize: '0.68rem', fontFamily: 'Orbitron', letterSpacing: '1px', marginBottom: '5px' }}>{label}</div>
+                  <div style={{ color, fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize: '1rem' }}>{val}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: '10px', textAlign: 'center', color: '#555', fontSize: '0.75rem', fontFamily: 'JetBrains Mono' }}>
+              Matures <span style={{ color: '#00d4ff' }}>{maturityLabel()}</span>
+            </div>
+            {balance && !balance.error && balance.wp < amount && (
+              <div style={{ color: '#ff7070', fontSize: '0.8rem', textAlign: 'center', marginTop: '8px' }}>
+                ⚠️ Need {(amount - balance.wp).toLocaleString()} more WP
+              </div>
+            )}
+          </div>
+        )}
+
+        <button
+          onClick={() => setConfirm(true)}
+          disabled={!canAfford || submitting}
+          style={{
+            width: '100%', padding: '12px', borderRadius: '8px',
+            fontFamily: 'Orbitron', fontSize: '0.9rem', fontWeight: 700,
+            cursor: canAfford && !submitting ? 'pointer' : 'not-allowed',
+            background: canAfford && !submitting ? 'rgba(0,255,136,0.14)' : 'rgba(255,255,255,0.04)',
+            border: `1px solid ${canAfford && !submitting ? 'rgba(0,255,136,0.7)' : 'rgba(255,255,255,0.1)'}`,
+            color: canAfford && !submitting ? '#00ff88' : '#444',
+            transition: 'all 0.2s',
+            boxShadow: canAfford && !submitting ? '0 0 14px rgba(0,255,136,0.2)' : 'none',
+          }}
+        >
+          {submitting ? '⚙️ Processing…' : '🔒 Lock into Bond'}
+        </button>
+
+        {/* Active bonds */}
+        {balance?.bonds?.length > 0 && (
+          <div style={{ marginTop: '20px' }}>
+            <div style={{ color: '#555', fontSize: '0.7rem', fontFamily: 'Orbitron', letterSpacing: '1px', marginBottom: '10px' }}>YOUR ACTIVE BONDS</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+              {balance.bonds.map(b => {
+                const daysLeft = Math.max(0, Math.ceil((new Date(b.maturity) - now) / 86400000));
+                const interest = b.payout - b.locked;
+                return (
+                  <div key={b.id} style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '9px 14px', borderRadius: '8px',
+                    background: 'rgba(0,255,136,0.05)', border: '1px solid rgba(0,255,136,0.15)',
+                    fontSize: '0.85rem', flexWrap: 'wrap', gap: '8px',
+                  }}>
+                    <span style={{ fontFamily: 'JetBrains Mono', color: '#8892b0' }}>
+                      🔒 {b.locked.toLocaleString()} WP
+                    </span>
+                    <span style={{ fontFamily: 'JetBrains Mono', color: '#00ff88' }}>
+                      → +{interest.toLocaleString()} WP
+                    </span>
+                    <span style={{ fontFamily: 'JetBrains Mono', color: daysLeft <= 1 ? '#ffaa00' : '#555', fontSize: '0.8rem' }}>
+                      {daysLeft === 0 ? 'Due today!' : `${daysLeft}d left`}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+        input[type=number] { -moz-appearance: textfield; }
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      `}</style>
+    </div>
+  );
+};
+
+// ── Shop catalogue (mirrors web_api.py _SHOP_PRIZES) ──────────────────────
+const SHOP_PRIZES = {
+  "VBucks": {
+    color: "#9b59b6", accent: "rgba(155,89,182,0.15)", border: "rgba(155,89,182,0.4)", icon: "vbucks",
+    currency: "vbucks",
+    note: "Spent from your Wave Points balance. Check your DMs after confirming for claim instructions.",
+    items: [
+      { name: "Redeem 800 VBucks",    cost: 400   },
+      { name: "Redeem 1,000 VBucks",  cost: 500   },
+      { name: "Redeem 1,500 VBucks",  cost: 750   },
+      { name: "Redeem 2,000 VBucks",  cost: 1000  },
+      { name: "Redeem 5,000 VBucks",  cost: 2500  },
+      { name: "Redeem 10,000 VBucks", cost: 5000  },
+    ]
+  },
+  "Staff Promotions": {
+    color: "#ffaa00", accent: "rgba(255,170,0,0.15)", border: "rgba(255,170,0,0.35)", icon: "📈",
+    items: [
+      { name: "Trial Staff → Staff",       cost: 30   },
+      { name: "Staff → Support",           cost: 50   },
+      { name: "Support → Senior Support",  cost: 200  },
+      { name: "Senior Support → Admin",    cost: 350  },
+      { name: "Admin → Head Admin",        cost: 700  },
+      { name: "Head Admin → Management",   cost: 999,  note: "Requires 6 months as Head Admin. Management will verify before applying the role." },
+      { name: "Instant Management",        cost: 5000, note: "Skips the promotion ladder entirely. Grants Management directly." },
+    ]
+  },
+  "Perks & Roles": {
+    color: "#00d4ff", accent: "rgba(0,212,255,0.12)", border: "rgba(0,212,255,0.35)", icon: "🎖️",
+    items: [
+      { name: "Wave Contributor",                              cost: 450  },
+      { name: "Paid Priority",                                cost: 400  },
+      { name: "Paid Promotions in Drop Map Announcements",    cost: 7500, note: "Redeems an @everyone ping in the Drop Map announcement channel for a message of your choice." },
+      { name: "Paid Promotions in Improvement Cord Announcements", cost: 3000, note: "Redeems an @everyone ping in the Improvement Cord announcement channel for a message of your choice." },
+      { name: "VIP",                                          cost: 5000 },
+    ]
+  },
+  "In-Game Rewards": {
+    color: "#00ff88", accent: "rgba(0,255,136,0.10)", border: "rgba(0,255,136,0.35)", icon: "🗺️",
+    items: [
+      { name: "Pro Drop Map",   cost: 700 },
+      { name: "Pro Loot Route", cost: 400 },
+      { name: "Pro Surge Route",cost: 200 },
+    ]
+  },
+};
+
+// ── Staff hierarchy for promotion gating ───────────────────────────────────
+// Order: lowest → highest. Each entry is the role name as it appears in Discord.
+const STAFF_HIERARCHY = [
+  'Trial Staff',
+  'Staff',
+  'Support',
+  'Senior Support',
+  'Admin',
+  'Head Admin',
+  'Management',
+];
+
+// Each promotion card "grants" the role at index [fromIdx + 1].
+// Key = item.name, value = the role the card GRANTS (i.e. the target rank).
+const PROMO_GRANTS = {
+  'Trial Staff → Staff':       'Staff',
+  'Staff → Support':           'Support',
+  'Support → Senior Support':  'Senior Support',
+  'Senior Support → Admin':    'Admin',
+  'Admin → Head Admin':        'Head Admin',
+  'Head Admin → Management':   'Management',
+  'Instant Management':        'Management',
+};
+
+// Returns true if the user already holds `targetRole` or higher in the hierarchy.
+function userAlreadyHolds(userRoles, targetRole) {
+  const targetIdx = STAFF_HIERARCHY.indexOf(targetRole);
+  if (targetIdx === -1) return false; // not a hierarchy role, never lock
+  return userRoles.some(r => {
+    const idx = STAFF_HIERARCHY.indexOf(r);
+    return idx !== -1 && idx >= targetIdx;
+  });
+}
+
+// ── Starfield Background ───────────────────────────────────────────────────
+const StarfieldBackground = () => {
+  const [starsStyles, setStarsStyles] = useState(null);
+
+  useEffect(() => {
+    // Generate random star positions inside a 2000x2000 area
+    const generateStars = (count, color) => {
+      let result = [];
+      for (let i = 0; i < count; i++) {
+        const x = Math.floor(Math.random() * 2000);
+        const y = Math.floor(Math.random() * 2000);
+        const useCyan = Math.random() > 0.85;
+        const usePink = Math.random() > 0.95;
+        const c = useCyan ? '#00d4ff' : (usePink ? '#ffaa00' : color);
+        result.push(`${x}px ${y}px ${c}`);
+      }
+      return result.join(', ');
+    };
+
+    setStarsStyles({
+      small: generateStars(350, '#ffffff'),
+      medium: generateStars(100, 'rgba(255,255,255,0.85)'),
+      large: generateStars(40, 'rgba(255,255,255,0.95)')
+    });
+  }, []);
+
+  if (!starsStyles) return null;
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: -5,
+      background: 'radial-gradient(ellipse at bottom, #091322 0%, #02050A 100%)',
+      overflow: 'hidden', pointerEvents: 'none'
+    }}>
+      <style>{`
+        @keyframes animStar {
+          from { transform: translateY(0px); }
+          to { transform: translateY(-2000px); }
+        }
+        .stars-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+        .star-box { background: transparent; }
+        
+        .stars-small { width: 1px; height: 1px; animation: animStar 100s linear infinite; }
+        .stars-small::after { content: " "; position: absolute; top: 2000px; width: 1px; height: 1px; background: transparent; box-shadow: inherit; }
+        
+        .stars-med { width: 2px; height: 2px; animation: animStar 150s linear infinite; }
+        .stars-med::after { content: " "; position: absolute; top: 2000px; width: 2px; height: 2px; background: transparent; box-shadow: inherit; }
+        
+        .stars-large { width: 3px; height: 3px; animation: animStar 200s linear infinite; }
+        .stars-large::after { content: " "; position: absolute; top: 2000px; width: 3px; height: 3px; background: transparent; box-shadow: inherit; }
+      `}</style>
+      
+      <div className="stars-layer">
+        <div className="star-box stars-small" style={{ boxShadow: starsStyles.small }}></div>
+      </div>
+      <div className="stars-layer">
+        <div className="star-box stars-med" style={{ boxShadow: starsStyles.medium }}></div>
+      </div>
+      <div className="stars-layer">
+        <div className="star-box stars-large" style={{ boxShadow: starsStyles.large }}></div>
+      </div>
+      
+      {/* Subtle nebula glows matching Wave theme */}
+      <div style={{ position: 'absolute', top: '10%', left: '20%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%)', filter: 'blur(60px)' }}></div>
+      <div style={{ position: 'absolute', bottom: '10%', right: '10%', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(255,0,128,0.04) 0%, transparent 70%)', filter: 'blur(80px)' }}></div>
+      <div style={{ position: 'absolute', top: '40%', right: '30%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(0,255,136,0.03) 0%, transparent 70%)', filter: 'blur(70px)' }}></div>
+    </div>
+  );
+};
+
+// ── Shop component ─────────────────────────────────────────────────────────
+const ShopTab = () => {
+  const [balance, setBalance]         = useState(null);
+  const [vbBalance, setVbBalance]     = useState(null);
+  const [loadingBal, setLoadingBal]   = useState(true);
+  const [userRoleNames, setUserRoleNames] = useState([]);
+  const [confirm, setConfirm]         = useState(null); // {name, cost, note?, currency?}
+  const [claiming, setClaiming]       = useState(null); // {id, currency}
+  const [toast, setToast]             = useState(null); // {ok, msg}
+  const pollRef                       = useRef(null);
+
+  const showToast = (ok, msg) => {
+    setToast({ ok, msg });
+    setTimeout(() => setToast(null), 7000);
+  };
+
+  const fetchBalance = useCallback(async () => {
+    setLoadingBal(true);
+    try {
+      const [wpRes, vbRes, rolesRes] = await Promise.all([
+        fetch('/api/shop/balance'),
+        fetch('/api/shop/vbucks_balance'),
+        fetch('/api/shop/role_names'),
+      ]);
+      if (wpRes.ok)    { const d = await wpRes.json();    setBalance(d.balance); }
+      if (vbRes.ok)    { const d = await vbRes.json();    setVbBalance(d.total); }
+      if (rolesRes.ok) { const d = await rolesRes.json(); setUserRoleNames(d.role_names || []); }
+    } catch {}
+    setLoadingBal(false);
+  }, []);
+
+  useEffect(() => { fetchBalance(); }, [fetchBalance]);
+
+  const startClaim = (item, currency) => setConfirm({ ...item, currency: currency || 'wp' });
+  const cancelClaim = () => setConfirm(null);
+
+  const confirmClaim = async () => {
+    const item = confirm;
+    setConfirm(null);
+    const isVb = item.currency === 'vbucks';
+    const redeemUrl = isVb ? '/api/shop/vbucks_redeem' : '/api/shop/redeem';
+    try {
+      const r = await fetch(redeemUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prize: item.name }),
+      });
+      const d = await r.json();
+      if (!r.ok) {
+        if (d.error === 'insufficient_balance') {
+          const unit = 'pts';
+          showToast(false, `Not enough ${unit}! You have ${d.balance?.toLocaleString()} ${unit}, need ${d.cost?.toLocaleString()}.`);
+        } else {
+          showToast(false, d.error || 'Claim failed. Try again.');
+        }
+        return;
+      }
+      setClaiming({ id: d.id, currency: item.currency });
+      pollStatus(d.id, item.currency);
+    } catch { showToast(false, 'Network error. Please try again.'); }
+  };
+
+  const pollStatus = (id, currency) => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    const statusUrl = currency === 'vbucks' ? `/api/shop/vbucks_status/${id}` : `/api/shop/status/${id}`;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 40;       // 40 × 2s = 80s before we give up
+    let notFoundStreak = 0;
+    const stop = () => { clearInterval(pollRef.current); pollRef.current = null; setClaiming(null); };
+    pollRef.current = setInterval(async () => {
+      attempts += 1;
+      // Hard timeout: never trap the user behind the overlay forever.
+      if (attempts > MAX_ATTEMPTS) {
+        stop();
+        fetchBalance();
+        showToast(false, "Still processing — this is taking longer than expected. Check your DMs/balance in a moment; if nothing arrives, contact Management.");
+        return;
+      }
+      try {
+        const r = await fetch(statusUrl);
+        const d = await r.json();
+        // Dead/unknown redemption id (e.g. stale from an earlier session) → stop instead of spinning.
+        if (r.status === 404 || d.error === 'not_found') {
+          if (++notFoundStreak >= 3) {
+            stop();
+            fetchBalance();
+            showToast(false, "Couldn't find that redemption. Please refresh and try again.");
+          }
+          return;
+        }
+        notFoundStreak = 0;
+        if (d.status === 'completed' || d.status === 'failed') {
+          stop();
+          fetchBalance();
+          const res = d.result || {};
+          if (d.status === 'completed' && res.success) {
+            const balStr = res.new_balance != null
+              ? ` New balance: ${res.new_balance.toLocaleString()} pts.`
+              : res.new_total != null
+                ? ` New VBucks total: ${res.new_total.toLocaleString()}.`
+                : '';
+            showToast(true, (res.message || 'Redeemed!') + balStr);
+          } else {
+            showToast(false, res.message || 'Claim failed.');
+          }
+        }
+      } catch {}
+    }, 2000);
+  };
+
+  useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
+
+  const isVbConfirm = confirm?.currency === 'vbucks';
+  const confirmBalance = balance;  // VBucks items now cost WP — always use WP balance
+  const confirmUnit    = 'pts';
+  const confirmColor   = isVbConfirm ? '#9b59b6' : '#ffaa00';
+
+  return (
+    <div style={{ position: 'relative' }}>
+
+      {/* Toast */}
+      {toast && (
+        <div style={{
+          position: 'fixed', top: '24px', right: '24px', zIndex: 9999,
+          background: toast.ok ? 'rgba(0,255,136,0.18)' : 'rgba(255,51,51,0.18)',
+          border: `1px solid ${toast.ok ? 'rgba(0,255,136,0.7)' : 'rgba(255,51,51,0.7)'}`,
+          borderRadius: '12px', padding: '16px 22px', maxWidth: '420px',
+          color: toast.ok ? '#00ff88' : '#ff5555', fontFamily: "'Exo 2', sans-serif",
+          boxShadow: toast.ok ? '0 0 20px rgba(0,255,136,0.3)' : '0 0 20px rgba(255,51,51,0.3)',
+          backdropFilter: 'blur(12px)',
+        }}>
+          <strong>{toast.ok ? '✅ Claimed!' : '❌ Error'}</strong><br/>
+          <span style={{ fontSize: '0.9rem', opacity: 0.9 }}>{toast.msg}</span>
+        </div>
+      )}
+
+      {/* Confirm modal */}
+      {confirm && ReactDOM.createPortal((
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)',
+          backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', zIndex: 9998,
+        }}>
+          <div style={{
+            background: 'rgba(17,25,40,0.97)',
+            border: `1px solid ${isVbConfirm ? 'rgba(155,89,182,0.5)' : 'rgba(255,170,0,0.4)'}`,
+            borderRadius: '16px', padding: '32px', maxWidth: '440px', width: '90%',
+            boxShadow: `0 0 40px ${isVbConfirm ? 'rgba(155,89,182,0.2)' : 'rgba(255,170,0,0.2)'}`,
+          }}>
+            <h3 style={{ color: confirmColor, fontFamily: 'Orbitron', margin: '0 0 8px', fontSize: '1.1rem' }}>
+              {isVbConfirm ? '💎 Confirm VBucks Redemption' : '🛒 Confirm Redemption'}
+            </h3>
+            <p style={{ color: '#e0e8ff', margin: '0 0 8px', fontSize: '1.05rem', fontWeight: 600 }}>{confirm.name}</p>
+            <p style={{ color: confirmColor, fontFamily: 'JetBrains Mono', margin: '0 0 16px', fontSize: '1.1rem', fontWeight: 'bold' }}>
+              {confirm.cost.toLocaleString()} {confirmUnit}
+            </p>
+            {confirmBalance != null && (
+              <p style={{ color: '#8b949e', margin: '0 0 12px', fontSize: '0.9rem' }}>
+                Your balance: <strong style={{ color: '#00d4ff' }}>{confirmBalance.toLocaleString()} {confirmUnit}</strong>
+                {' → '}<strong style={{ color: confirmBalance - confirm.cost >= 0 ? '#00ff88' : '#ff5555' }}>
+                  {(confirmBalance - confirm.cost).toLocaleString()} {confirmUnit}
+                </strong> after
+              </p>
+            )}
+            {isVbConfirm && (
+              <div style={{
+                background: 'rgba(155,89,182,0.08)', border: '1px solid rgba(155,89,182,0.25)',
+                borderRadius: '8px', padding: '10px 14px', marginBottom: '16px',
+              }}>
+                <span style={{ color: '#c39bd3', fontSize: '0.85rem' }}>
+                  💡 Deducted from your Wave Points balance. Check your DMs after confirming for VBucks claim instructions.
+                </span>
+              </div>
+            )}
+            {confirm.note && !isVbConfirm && (
+              <div style={{
+                background: 'rgba(255,170,0,0.08)', border: '1px solid rgba(255,170,0,0.25)',
+                borderRadius: '8px', padding: '10px 14px', marginBottom: '20px',
+              }}>
+                <span style={{ color: '#ffcc44', fontSize: '0.88rem' }}>⚠️ {confirm.note}</span>
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button onClick={cancelClaim} style={{
+                flex: 1, padding: '11px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)',
+                background: 'transparent', color: '#8b949e', cursor: 'pointer', fontFamily: 'Orbitron', fontSize: '0.85rem',
+              }}>Cancel</button>
+              <button onClick={confirmClaim} style={{
+                flex: 2, padding: '11px', borderRadius: '8px',
+                border: `1px solid ${isVbConfirm ? 'rgba(155,89,182,0.8)' : 'rgba(255,170,0,0.7)'}`,
+                background: isVbConfirm ? 'rgba(155,89,182,0.18)' : 'rgba(255,170,0,0.15)',
+                color: confirmColor, cursor: 'pointer',
+                fontFamily: 'Orbitron', fontSize: '0.85rem', fontWeight: 700,
+                boxShadow: `0 0 14px ${isVbConfirm ? 'rgba(155,89,182,0.3)' : 'rgba(255,170,0,0.25)'}`,
+              }}>
+                Confirm {isVbConfirm ? 'Redemption' : 'Claim'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ), document.body)}
+
+      {/* Processing overlay */}
+      {claiming && ReactDOM.createPortal((
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)',
+          backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', zIndex: 9997,
+        }}>
+          <div style={{
+            background: 'rgba(17,25,40,0.97)', borderRadius: '14px', padding: '32px 40px',
+            border: `1px solid ${claiming.currency === 'vbucks' ? 'rgba(155,89,182,0.5)' : 'rgba(0,212,255,0.4)'}`, textAlign: 'center',
+            boxShadow: `0 0 40px ${claiming.currency === 'vbucks' ? 'rgba(155,89,182,0.2)' : 'rgba(0,212,255,0.2)'}`,
+          }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '12px', animation: 'spin 1.2s linear infinite' }}>⚙️</div>
+            <div style={{ color: claiming.currency === 'vbucks' ? '#9b59b6' : '#00d4ff', fontFamily: 'Orbitron', fontSize: '1rem' }}>Processing…</div>
+            <div style={{ color: '#8b949e', fontSize: '0.85rem', marginTop: '6px' }}>The bot is processing your redemption</div>
+            <button
+              onClick={() => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } setClaiming(null); fetchBalance(); }}
+              style={{
+                marginTop: '18px', background: 'transparent', border: '1px solid rgba(255,255,255,0.2)',
+                color: '#8b949e', borderRadius: '8px', padding: '8px 18px', cursor: 'pointer',
+                fontFamily: "'Exo 2', sans-serif", fontSize: '0.85rem',
+              }}
+            >Close</button>
+          </div>
+        </div>
+      ), document.body)}
+
+      <h2 style={{ color: '#ffaa00', textShadow: '0 0 10px rgba(255,170,0,0.5)', marginBottom: '6px' }}>🛒 Wave Shop</h2>
+
+      {/* Balance bar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '28px',
+        background: 'rgba(255,170,0,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: '12px', padding: '14px 20px',
+      }}>
+        <span style={{ color: '#8b949e', fontSize: '0.95rem' }}>Your Balances:</span>
+        {loadingBal
+          ? <span style={{ color: '#555', fontFamily: 'JetBrains Mono' }}>loading…</span>
+          : <>
+              <span style={{ color: '#ffaa00', fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <img src="/assets/wave-logo.png" alt="Wave Points" style={{ height: '18px', width: 'auto', display: 'inline-block' }} />
+                {balance != null ? balance.toLocaleString() : '—'} pts
+              </span>
+            </>
+        }
+        <button onClick={fetchBalance} style={{
+          marginLeft: 'auto', background: 'transparent', border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: '6px', padding: '4px 12px', color: '#8b949e', cursor: 'pointer', fontSize: '0.8rem',
+        }}>↻ Refresh</button>
+      </div>
+
+      {/* Prize categories */}
+      {Object.entries(SHOP_PRIZES).map(([cat, catDef]) => {
+        const { color, accent, border, icon, items, currency: catCurrency, note: catNote } = catDef;
+        const isVbCat = catCurrency === 'vbucks';
+        const balForCat = balance;
+        const unitLabel = 'pts';
+        return (
+          <div key={cat} className="glass-panel" style={{ border: `1px solid ${border}`, marginBottom: '24px', padding: '22px' }}>
+            <h3 style={{ color, margin: '0 0 6px', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {icon === 'vbucks' ? (
+                <img src="assets/vbucks-icon.webp" alt="VBucks" style={{ height: '20px', width: 'auto', display: 'inline-block', opacity: 0.85 }} />
+              ) : (
+                <span>{icon}</span>
+              )} {cat}
+              {isVbCat && (
+                <span style={{
+                  marginLeft: '8px', fontSize: '0.7rem', fontFamily: 'JetBrains Mono', fontWeight: 400,
+                  background: 'rgba(155,89,182,0.15)', border: '1px solid rgba(155,89,182,0.4)',
+                  borderRadius: '6px', padding: '2px 8px', color: '#c39bd3', letterSpacing: '0.05em',
+                }}>VBUCKS CURRENCY</span>
+              )}
+            </h3>
+            {catNote && (
+              <p style={{ color: '#8b949e', fontSize: '0.8rem', margin: '0 0 14px', lineHeight: 1.5 }}>{catNote}</p>
+            )}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
+              {items.map(item => {
+                const grantedRole   = PROMO_GRANTS[item.name];
+                const roleHeld      = grantedRole ? userAlreadyHolds(userRoleNames, grantedRole) : false;
+                const canAfford     = balForCat != null && balForCat >= item.cost;
+                const isClaiming    = claiming != null;
+                const isDisabled    = roleHeld || !canAfford || isClaiming;
+                const activeColor   = roleHeld ? '#555' : color;
+                const activeBorder  = roleHeld ? 'rgba(255,255,255,0.08)' : border;
+                const progressPct = balForCat != null ? Math.min(100, Math.max(0, (balForCat / item.cost) * 100)) : 0;
+                
+                const getItemIcon = (name) => {
+                  if (name.includes('VBucks')) return <img src="assets/vbucks-icon.webp" style={{ height: '1.2em', verticalAlign: 'middle' }} alt="VBucks" />;
+                  if (name.includes('Management')) return '👑';
+                  if (name.includes('Admin')) return '🛡️';
+                  if (name.includes('Support')) return '🎧';
+                  if (name.includes('Staff')) return '🚀';
+                  if (name.includes('Contributor')) return '🤝';
+                  if (name.includes('Priority')) return '⚡';
+                  if (name.includes('Promotion')) return '📢';
+                  if (name.includes('VIP')) return '💎';
+                  if (name.includes('Map')) return '🗺️';
+                  if (name.includes('Loot') || name.includes('Route')) return '📦';
+                  return '✨';
+                };
+
+                return (
+                  <div key={item.name} className={`premium-shop-card ${(!roleHeld && canAfford) ? 'affordable' : 'unaffordable'}`} style={{
+                    borderTop: `2px solid ${activeBorder}`,
+                    boxShadow: (!roleHeld && canAfford) ? `0 8px 24px ${accent}` : '0 4px 15px rgba(0,0,0,0.2)',
+                    opacity: roleHeld ? 0.6 : 1,
+                    background: (!roleHeld && canAfford) ? `linear-gradient(145deg, rgba(17,25,40,0.9), ${accent})` : 'rgba(17, 25, 40, 0.6)',
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ color: '#ffffff', fontSize: '1rem', fontWeight: 700, lineHeight: 1.3, fontFamily: "'Exo 2', sans-serif", display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span style={{ marginRight: '8px', display: 'flex', alignItems: 'center' }}>{getItemIcon(item.name)}</span>
+                        {item.name}
+                      </span>
+                      <div style={{
+                        background: 'rgba(0,0,0,0.4)', padding: '4px 8px', borderRadius: '6px',
+                        border: `1px solid ${activeBorder}`, color: activeColor, fontFamily: 'JetBrains Mono', fontWeight: 800, whiteSpace: 'nowrap', fontSize: '0.85rem',
+                        boxShadow: `0 0 10px ${accent}`, textShadow: `0 0 5px ${color}`, flexShrink: 0
+                      }}>
+                        {item.cost.toLocaleString()} {unitLabel}
+                      </div>
+                    </div>
+                    {item.note && (
+                      <div style={{ color: '#a0aab8', fontSize: '0.82rem', lineHeight: 1.45, fontStyle: 'italic', background: 'rgba(0,0,0,0.2)', padding: '6px 10px', borderRadius: '6px', borderLeft: `2px solid ${activeColor}` }}>
+                        {item.note}
+                      </div>
+                    )}
+                    
+                    {/* Visual Progress Bar to encourage unlocking */}
+                    {!roleHeld && balForCat != null && (
+                      <div style={{ marginTop: 'auto', marginBottom: '8px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', fontFamily: 'JetBrains Mono', color: '#8b949e', marginBottom: '4px' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <img src="/assets/wave-logo.png" style={{ height: '11px', opacity: 0.8 }} alt="WP" />
+                            {canAfford ? 'Ready to Claim!' : 'Unlock Progress'}
+                          </span>
+                          <span style={{ color: canAfford ? '#00ff88' : color }}>{Math.floor(progressPct)}%</span>
+                        </div>
+                        <div style={{ height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                          <div style={{ 
+                            height: '100%', 
+                            width: `${progressPct}%`, 
+                            background: canAfford ? '#00ff88' : `linear-gradient(90deg, ${color}66, ${color})`, 
+                            boxShadow: canAfford ? '0 0 10px #00ff88' : `0 0 8px ${color}`,
+                            transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)' 
+                          }} />
+                        </div>
+                      </div>
+                    )}
+
+                    <button
+                      className={`premium-shop-btn ${(!roleHeld && canAfford) ? 'ready-to-claim' : ''}`}
+                      disabled={isDisabled}
+                      onClick={() => !isDisabled && startClaim(item, catCurrency || 'wp')}
+                      style={{
+                        marginTop: roleHeld || balForCat == null ? 'auto' : '0',
+                        background: isDisabled ? 'rgba(255,255,255,0.04)' : `linear-gradient(135deg, ${color}44, ${color}11)`,
+                        border: `1px solid ${isDisabled ? 'rgba(255,255,255,0.1)' : color}`,
+                        color: isDisabled ? '#555' : '#fff',
+                        boxShadow: isDisabled ? 'none' : `0 0 15px ${accent}`,
+                        textShadow: isDisabled ? 'none' : `0 0 8px ${color}`,
+                        cursor: isDisabled ? 'not-allowed' : 'pointer',
+                        padding: '12px',
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      {roleHeld
+                        ? '🔒 Role already held'
+                        : (!canAfford && balForCat != null)
+                          ? `Need ${(item.cost - balForCat).toLocaleString()} more`
+                          : isVbCat ? '💎 REDEEM NOW' : '✨ CLAIM REWARD'
+                      }
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+
+      <style>{`
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        .premium-shop-card {
+          position: relative;
+          overflow: hidden;
+          background: rgba(17, 25, 40, 0.6);
+          backdrop-filter: blur(12px);
+          border-radius: 14px;
+          padding: 18px 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .premium-shop-card::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          padding: 1.5px;
+          background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.05) 100%);
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          pointer-events: none;
+        }
+        .premium-shop-card:hover {
+          transform: translateY(-5px) scale(1.02);
+          box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+          z-index: 10;
+        }
+        .premium-shop-card.affordable {
+          background: linear-gradient(145deg, rgba(30, 40, 60, 0.8), rgba(17, 25, 40, 0.9));
+        }
+        .premium-shop-card.unaffordable {
+          opacity: 0.65;
+          filter: grayscale(40%);
+        }
+        .premium-shop-btn {
+          margin-top: auto;
+          padding: 10px;
+          border-radius: 8px;
+          font-family: 'Orbitron', sans-serif;
+          font-size: 0.85rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+        .premium-shop-btn::after {
+          content: '';
+          position: absolute;
+          top: -50%; left: -50%; width: 200%; height: 200%;
+          background: linear-gradient(rgba(255,255,255,0), rgba(255,255,255,0.2), rgba(255,255,255,0));
+          transform: rotate(45deg);
+          animation: btn-shine 3s infinite;
+        }
+        @keyframes btn-shine {
+          0% { transform: translateX(-100%) rotate(45deg); }
+          100% { transform: translateX(100%) rotate(45deg); }
+        }
+        .premium-shop-btn:disabled {
+          cursor: not-allowed;
+          background: rgba(255,255,255,0.05) !important;
+          border-color: rgba(255,255,255,0.1) !important;
+          color: #666 !important;
+          box-shadow: none !important;
+        }
+        .premium-shop-btn:disabled::after { display: none; }
+        .premium-shop-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          filter: brightness(1.2);
+        }
+        .premium-shop-btn.ready-to-claim {
+          animation: pulse-glow 2s infinite;
+        }
+        @keyframes pulse-glow {
+          0% { box-shadow: 0 0 10px rgba(0,255,136,0.2); }
+          50% { box-shadow: 0 0 25px rgba(0,255,136,0.6); }
+          100% { box-shadow: 0 0 10px rgba(0,255,136,0.2); }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+const EconomyDashboard = () => {
+  const [activeTab, setActiveTab] = useState('bank');
+
+  const [economyData, setEconomyData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  React.useEffect(() => {
+    const fetchEconomyData = async () => {
+      try {
+        const response = await fetch('/api/economy');
+        if (!response.ok) throw new Error('Failed to fetch live data');
+        const data = await response.json();
+        setEconomyData(data);
+      } catch (err) {
+        console.error('Error fetching economy data:', err);
+        setError('Failed to load live market data. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEconomyData();
+    // Auto-refresh every 30s so balances/leaderboards reflect redemptions and
+    // trades quickly (the bot rebuilds /api/economy ~10s after any change).
+    const interval = setInterval(fetchEconomyData, 30 * 1000);
+    // Also refresh when the user returns to the tab.
+    const onVis = () => { if (!document.hidden) fetchEconomyData(); };
+    document.addEventListener('visibilitychange', onVis);
+    return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVis); };
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#00d4ff', fontFamily: 'Orbitron', fontSize: '2rem' }}>
+        <div>Loading Live Market Data...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#ff0080', fontFamily: 'Orbitron', fontSize: '1.5rem' }}>
+        {error}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <StarfieldBackground />
+      <div style={{ textAlign: 'center', marginBottom: '50px', position: 'relative' }}>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '300px', height: '100px', background: 'radial-gradient(ellipse, rgba(0,212,255,0.15) 0%, transparent 70%)', zIndex: -1, filter: 'blur(20px)' }}></div>
+        <h1 className="gradient-text" style={{ fontSize: '3.5rem', margin: '0', letterSpacing: '2px', textShadow: '0 0 30px rgba(0,212,255,0.4)' }}>Wave Shop</h1>
+        <p style={{ color: '#a8b2d1', fontSize: '1.2rem', marginTop: '10px', fontWeight: '300', letterSpacing: '1px' }}>Live Central Bank & Global Market Dashboard</p>
+      </div>
+
+      {/* Live market stats bar */}
+      <div className="ticker-wrap" style={{ marginBottom: '24px' }}>
+        <div className="ticker-label">
+          <div className="ticker-label-dot"></div>
+          MARKET
+        </div>
+        <div className="ticker-scroll-area">
+          <div className="ticker">
+            {Array.from({length: 3}).map((_, i) => (
+              <div key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '20px', paddingRight: '40px' }}>
+                <span style={{ color: '#00ff88', fontFamily: 'JetBrains Mono', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1px' }}>BANK FEE</span>
+                <span style={{ color: '#b0bdd4', fontFamily: 'JetBrains Mono', fontSize: '0.8rem', fontWeight: 700 }}>{economyData.central_bank.fee_rate}</span>
+                <span style={{ color: 'rgba(0,255,136,0.25)', fontSize: '0.5rem', padding: '0 8px' }}>◆</span>
+                <span style={{ color: '#00ff88', fontFamily: 'JetBrains Mono', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1px' }}>P2P TAX</span>
+                <span style={{ color: '#b0bdd4', fontFamily: 'JetBrains Mono', fontSize: '0.8rem', fontWeight: 700 }}>{economyData.central_bank.p2p_tax}</span>
+                <span style={{ color: 'rgba(0,255,136,0.25)', fontSize: '0.5rem', padding: '0 8px' }}>◆</span>
+                <span style={{ color: '#00ff88', fontFamily: 'JetBrains Mono', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1px' }}>RESERVES</span>
+                <span style={{ color: '#00ff88', fontFamily: 'JetBrains Mono', fontSize: '0.8rem', fontWeight: 700 }}>
+                  <img src="/assets/wave-logo.png" style={{ height: '12px', verticalAlign: 'middle', marginTop: '-3px', marginRight: '5px', opacity: 0.9 }} alt="WP" />
+                  {economyData.central_bank.reserves_wp.toLocaleString()}
+                </span>
+                <span style={{ color: 'rgba(0,255,136,0.25)', fontSize: '0.5rem', padding: '0 8px' }}>◆</span>
+                <span style={{ color: '#00ff88', fontFamily: 'JetBrains Mono', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1px' }}>BOND YIELD</span>
+                <span style={{ color: '#00ff88', fontFamily: 'JetBrains Mono', fontSize: '0.8rem', fontWeight: 700 }}>UP TO 100%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '40px', flexWrap: 'wrap' }}>
+        {['bank', 'shop'].map(tab => (
+          <button
+            key={tab}
+            className="tab-button"
+            onClick={() => setActiveTab(tab)}
+            style={{
+              background: activeTab === tab ? (tab === 'shop' ? 'rgba(255,170,0,0.15)' : 'rgba(0, 212, 255, 0.15)') : 'rgba(17, 25, 40, 0.6)',
+              border: `1px solid ${activeTab === tab ? (tab === 'shop' ? 'rgba(255,170,0,0.8)' : 'rgba(0,212,255,0.8)') : 'rgba(255,255,255,0.1)'}`,
+              color: activeTab === tab ? (tab === 'shop' ? '#ffaa00' : '#00d4ff') : '#a8b2d1',
+              boxShadow: activeTab === tab ? (tab === 'shop' ? '0 0 20px rgba(255,170,0,0.4), inset 0 0 10px rgba(255,170,0,0.1)' : '0 0 20px rgba(0,212,255,0.4), inset 0 0 10px rgba(0,212,255,0.1)') : 'none',
+            }}
+          >
+            {tab === 'bank' && '🏦 Bank'}
+            {tab === 'shop' && '🛒 Shop'}
+          </button>
+        ))}
+      </div>
+
+      <div className="glass-panel" style={{ minHeight: '400px' }}>
+
+        {activeTab === 'bank' && (
+          <div>
+
+            {/* ── Bank header ── */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '6px', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <h2 style={{ margin: '0 0 6px', color: '#00ff88', textShadow: '0 0 18px rgba(0,255,136,0.4)', fontFamily: 'Orbitron' }}>🏦 Bank</h2>
+                <p style={{ color: '#8892b0', margin: 0, fontSize: '0.88rem' }}>
+                  Collects a <span style={{ color: '#ffaa00' }}>{economyData.central_bank.fee_rate}</span> fee on all trades · <span style={{ color: '#ffaa00' }}>{economyData.central_bank.p2p_tax}</span> tax on P2P transfers
+                </p>
+              </div>
+            </div>
+
+            {/* ── Reserve stat cards ── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', margin: '24px 0 36px' }}>
+              {[
+                { label: 'WP RESERVES', val: economyData.central_bank.reserves_wp.toLocaleString(), unit: 'Wave Points', color: '#00d4ff', border: 'rgba(0,212,255,0.2)', glow: '0 0 20px rgba(0,212,255,0.1)', logo: 'assets/wave-logo.png' },
+              ].map(c => (
+                <div key={c.label} className="stat-card hover-lift" style={{ textAlign: 'center', border: `1px solid ${c.border}`, boxShadow: c.glow, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', minHeight: '180px' }}>
+                  {c.logo && (
+                    <img src={c.logo} alt={c.label} style={{ width: '48px', height: '48px', objectFit: 'contain', opacity: 0.7, marginBottom: '8px' }} />
+                  )}
+                  <div>
+                    <div style={{ color: '#555', fontSize: '0.65rem', fontFamily: 'Orbitron', letterSpacing: '2px', marginBottom: '12px' }}>{c.label}</div>
+                    <div style={{ fontSize: '2.2rem', fontWeight: 'bold', fontFamily: 'JetBrains Mono', color: c.color, textShadow: `0 0 12px ${c.color}44` }}>{c.val}</div>
+                    <div style={{ color: '#555', fontSize: '0.72rem', fontFamily: 'JetBrains Mono', marginTop: '8px' }}>{c.unit}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* ── Bond Vault ── */}
+            <div style={{ marginBottom: '40px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+                <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, transparent, rgba(0,255,136,0.35))' }} />
+                <span style={{ color: '#00ff88', fontFamily: 'Orbitron', fontSize: '0.72rem', letterSpacing: '3px', whiteSpace: 'nowrap' }}>🔒 BOND VAULT</span>
+                <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, rgba(0,255,136,0.35), transparent)' }} />
+              </div>
+              <p style={{ color: '#555', fontSize: '0.8rem', marginBottom: '14px', lineHeight: 1.5 }}>
+                Lock Wave Points for a fixed term and earn a guaranteed return. The Central Bank underwrites every bond.
+              </p>
+              <BondWidget />
+            </div>
+
+            {/* ── Active Bondholders ── */}
+            {economyData.bondholders.length > 0 && (
+              <div style={{ marginBottom: '36px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(0,255,136,0.12)' }} />
+                  <span style={{ color: '#00ff88', fontFamily: 'Orbitron', fontSize: '0.72rem', letterSpacing: '3px', whiteSpace: 'nowrap' }}>ACTIVE BONDHOLDERS</span>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(0,255,136,0.12)' }} />
+                </div>
+                <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(0,255,136,0.14)', background: 'rgba(0,0,0,0.25)', maxHeight: '400px', overflowY: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ background: 'rgba(0,255,136,0.07)', fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '1.5px' }}>
+                        {['#','Holder','Locked','Unlocks','Expected Yield'].map((h, i) => (
+                          <th key={h} style={{ padding: '11px 14px', textAlign: i > 1 ? 'right' : 'left', color: h === 'Expected Yield' ? '#00ff88' : '#555' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {economyData.bondholders.map((user, idx) => {
+                        const rc = idx === 0 ? '#ffaa00' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : '#555';
+                        const d = !user.maturity ? '—' : (() => { const days = Math.ceil((new Date(user.maturity) - Date.now()) / 86400000); return days > 1 ? `${days}d` : days === 1 ? '1d' : 'Due!'; })();
+                        return (
+                          <tr key={idx} onClick={() => user.user_id && (window.location.href=`profile.html?id=${user.user_id}`)} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: user.user_id ? 'pointer' : 'default', transition: 'background 0.15s' }} onMouseEnter={e=>e.currentTarget.style.background='rgba(0,255,136,0.04)'} onMouseLeave={e=>e.currentTarget.style.background=''}>
+                            <td style={{ padding: '12px 14px', color: rc, fontFamily: 'JetBrains Mono', fontWeight: 'bold', fontSize: '0.85rem', width: '36px' }}>#{idx+1}</td>
+                            <td style={{ padding: '12px 14px', fontSize: '0.92rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {user.avatar_url && <img src={user.avatar_url} style={{ width: '26px', height: '26px', borderRadius: '50%', border: '1.5px solid #7d99bd', objectFit: 'cover', flexShrink: 0 }} onError={(e)=>{e.target.style.display="none"}} alt="" />}
+                                {user.name}
+                              </div>
+                            </td>
+                            <td style={{ padding: '12px 14px', textAlign: 'right', color: '#8892b0', fontFamily: 'JetBrains Mono', fontSize: '0.88rem' }}>{user.locked.toLocaleString()} WP</td>
+                            <td style={{ padding: '12px 14px', textAlign: 'right', fontFamily: 'JetBrains Mono', fontSize: '0.85rem', color: d === 'Due!' ? '#ffaa00' : '#555' }}>{d}</td>
+                            <td style={{ padding: '12px 14px', textAlign: 'right', color: '#00ff88', fontFamily: 'JetBrains Mono', fontWeight: 700 }}>+{user.yield.toLocaleString()} WP</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* ── WP + VBucks leaderboards side by side ── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))', gap: '24px', marginBottom: '40px' }}>
+
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(0,212,255,0.12)' }} />
+                  <span style={{ color: '#00d4ff', fontFamily: 'Orbitron', fontSize: '0.7rem', letterSpacing: '3px', whiteSpace: 'nowrap' }}>WP HOLDERS</span>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(0,212,255,0.12)' }} />
+                </div>
+                <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(0,212,255,0.12)', background: 'rgba(0,0,0,0.25)', maxHeight: '400px', overflowY: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ background: 'rgba(0,212,255,0.06)', fontSize: '0.67rem', textTransform: 'uppercase', letterSpacing: '1.5px' }}>
+                        <th style={{ padding: '10px 14px', textAlign: 'left', color: '#555' }}>Holder</th>
+                        <th style={{ padding: '10px 14px', textAlign: 'right', color: '#00d4ff' }}>WP</th>
+                        <th style={{ padding: '10px 14px', textAlign: 'right', color: '#00ff88' }}>Yield/Day</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {economyData.leaderboard.map((user, idx) => {
+                        const rc = idx === 0 ? '#ffaa00' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : '#555';
+                        const apr = getApr(user.wp);
+                        const dailyYield = apr > 0 ? (user.wp * apr / 100 / 365) : 0;
+                        return (
+                          <tr key={idx} onClick={() => user.user_id && (window.location.href=`profile.html?id=${user.user_id}`)} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: user.user_id ? 'pointer' : 'default', transition: 'background 0.15s' }} onMouseEnter={e=>e.currentTarget.style.background='rgba(0,212,255,0.04)'} onMouseLeave={e=>e.currentTarget.style.background=''}>
+                            <td style={{ padding: '11px 14px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ color: rc, fontWeight: 'bold', fontFamily: 'JetBrains Mono', fontSize: '0.8rem', minWidth: '28px' }}>#{idx+1}</span>
+                                {user.avatar_url && <img src={user.avatar_url} style={{ width: '26px', height: '26px', borderRadius: '50%', border: '1.5px solid #7d99bd', objectFit: 'cover', flexShrink: 0 }} onError={(e)=>{e.target.style.display="none"}} alt="" />}
+                                <span style={{ fontSize: '0.88rem' }}>{user.name}</span>
+                              </div>
+                            </td>
+                            <td style={{ padding: '11px 14px', textAlign: 'right', color: '#00d4ff', fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize: '0.9rem' }}>{user.wp.toLocaleString()}</td>
+                            <td style={{ padding: '11px 14px', textAlign: 'right', fontFamily: 'JetBrains Mono', fontSize: '0.75rem' }}>
+                              {apr > 0
+                                ? <span style={{ color: '#00ff88' }}>+{dailyYield.toFixed(2)} WP/day</span>
+                                : <span style={{ color: '#333' }}>—</span>}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+
+            <BankYieldCalc />
+
+          </div>
+        )}
+
+
+
+        {activeTab === 'shop' && <ShopTab />}
+
+
+      </div>
+    </div>
+  );
+};
+
+const root = ReactDOM.createRoot(document.getElementById('economy-root'));
+root.render(<EconomyDashboard />);
+</script>
+<script src="wave-guide.js"></script>
+<script src="wave-nav.js"></script>
+</body>
+</html>
+

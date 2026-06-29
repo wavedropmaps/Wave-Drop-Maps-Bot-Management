@@ -1,0 +1,148 @@
+specification {
+  element actor    { style { shape person } }
+  element system
+  element service
+  element database { style { shape cylinder } }
+  element queue    { style { shape queue } }
+  element edge      { style { shape browser } }
+
+  relationship async { line dotted }
+
+  tag deprecated
+  tag crossbot
+}
+
+model {
+
+  // ─── People ───────────────────────────────────────────────
+  staff = actor 'Staff member' 'Drop-map staff across the 3 guilds — earn points, get strikes & rewards'
+  viewer = actor 'Hub viewer' 'Staff member viewing the leaderboards in a browser'
+
+  // ─── Discord ──────────────────────────────────────────────
+  discord = system 'Discord' 'discord.py gateway across 3 guilds' {
+    description 'Staff Hub 1041450125391835186 + two source guilds. Prefix > commands.'
+  }
+
+  // ─── The Bot ──────────────────────────────────────────────
+  bot = system 'Wave Management Bot' 'The Discord staff-management bot' {
+    technology 'Python / discord.py'
+
+    main = service 'main.py' 'Entry point' {
+      description 'Boots the bot, loads cogs, monkey-patches user.send → DM queue, rate-limit tracking'
+    }
+
+    cogs = service 'commands/ cogs' 'Game & admin systems' {
+      description 'Strikes, VBucks, Wave Points, Loot Routes, Surge Routes, Drop Map, Reviewing, predictions, power hour, central bank, config'
+    }
+
+    tasks = service 'tasks/ background loops' 'Scheduled jobs & queues' {
+      description 'weekly_checks/roles, leaderboard_updater, staff_hub_writer, economy_sync, loot/surge routes, reply-DM duty, week rollover'
+    }
+
+    core = service 'core/ helpers' 'Shared helpers & config' {
+      description 'helpers, constants, caching, logging, surge/tips config, wave_logging_push'
+    }
+  }
+
+  // ─── Sibling bot (same PC) ────────────────────────────────
+  logistics = system 'Wave Logistics Bot' 'Sibling bot on the same machine' {
+    #crossbot
+    description 'Shares the DM queue and feeds the loot/surge queue codes consumed by this bot'
+  }
+
+  // ─── Databases ────────────────────────────────────────────
+  mainDb = database 'bot_database.db' 'Single source of truth' {
+    technology 'SQLite · WAL · async pool'
+    description 'All systems — strikes, wallets, points, routes, logging. Surge/economy/tips modules all target this same file.'
+  }
+
+  dmQueueDb = queue 'dm_shared_queue.db' 'Cross-bot DM queue' {
+    #crossbot
+    technology 'SQLite on C:/Desktop'
+    description 'Shared outbound-DM queue so both bots load-balance sends without double-firing or hitting rate limits'
+  }
+
+  // ─── Command trackers ─────────────────────────────────────
+  trackers = system 'command-trackers/' 'Data trackers shelled out to' {
+    description 'drop-map-research, guild-stats, market-research — each owns its own data.db; cogs invoke their scripts'
+  }
+
+  // ─── Website serving stack ────────────────────────────────
+  flask = service 'web_api.py' 'Flask origin @ 127.0.0.1:5000' {
+    description 'Serves static pages from website/ + bot-written JSON at /api/<key>. X-API-Key gated, never queries the DB.'
+  }
+
+  jsonFiles = database 'website/data/*.json' 'Bot-built payloads' {
+    style { shape storage }
+    description 'Per-page JSON the bot writes (it needs live guild names/avatars/roles SQL alone cannot give)'
+  }
+
+  supervisor = service 'staff_hub_serve.py' 'Supervisor' {
+    description 'Starts Flask + cloudflared, rewrites the rotating TUNNEL_URL into both workers, wrangler-deploys them, restarts on death'
+  }
+
+  tunnel = service 'cloudflared tunnel' 'Quick tunnel' {
+    description 'Rotating trycloudflare.com URL → 127.0.0.1:5000'
+  }
+
+  edge = edge 'Cloudflare Pages' 'Edge gate (two sites)' {
+    description 'Discord OAuth + signed 30-day HMAC cookie; attaches X-API-Key and proxies to the tunnel'
+    hub = edge 'wavedropmaps.pages.dev' 'Wave Staff Hub — 9 leaderboard pages'
+    logsite = edge 'wave-logging.pages.dev' 'Wave-Logging dashboard'
+  }
+
+  // ─── Relationships ────────────────────────────────────────
+  staff -> discord 'runs > commands'
+  discord -> main 'gateway events'
+
+  main -> cogs 'loads & dispatches'
+  main -> tasks 'starts loops'
+  cogs -> core 'uses helpers'
+  tasks -> core 'uses helpers'
+  cogs -> mainDb 'reads / writes state'
+  tasks -> mainDb 'reads / writes state'
+  cogs -> trackers 'shells out to scripts'
+
+  cogs -> discord 'replies, roles, embeds'
+  tasks -> discord 'posts leaderboards, strikes, DMs'
+
+  main -> dmQueueDb 'enqueues every user.send()'
+  dmQueueDb -> main 'worker claims & delivers' { #crossbot }
+  logistics -> dmQueueDb 'shares the queue' { #crossbot }
+  logistics -> mainDb 'feeds loot/surge queue codes' { #crossbot }
+
+  tasks -> jsonFiles 'writes per-page JSON'
+  flask -> jsonFiles 'serves at /api/<key>'
+  supervisor -> flask 'runs & restarts'
+  supervisor -> tunnel 'runs & rewrites URL'
+  supervisor -> edge 'wrangler deploys workers'
+  tunnel -> flask 'proxies :5000'
+  edge -> tunnel 'proxies with X-API-Key'
+  viewer -> edge 'opens hub in browser'
+}
+
+views {
+  view index {
+    title 'Wave Management Bot — whole-system landscape'
+    include *
+    autoLayout LeftRight
+  }
+
+  view of bot {
+    title 'Inside the bot — main, cogs, tasks, core'
+    include *
+    autoLayout TopBottom
+  }
+
+  view website {
+    title 'Website data flow — bot → JSON → Flask → tunnel → edge → browser'
+    include viewer, tasks, jsonFiles, flask, supervisor, tunnel, edge, edge.hub, edge.logsite
+    autoLayout LeftRight
+  }
+
+  view crossbot {
+    title 'Cross-bot coupling — shared DM queue + loot/surge bridge'
+    include staff, discord, bot, main, logistics, dmQueueDb, mainDb
+    autoLayout LeftRight
+  }
+}

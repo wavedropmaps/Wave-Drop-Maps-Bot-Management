@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Wave Staff Hub</title>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://wavedropmaps.github.io/wave-leaderboard/"/>
+<meta property="og:title" content="🌊 Wave Staff Hub"/>
+<meta property="og:description" content="Unified Wave staff hub. Staff Sheet archive, Lifetime Activity, Weekly Activity leaderboard, and Wave Economy 2.0 — all in one place."/>
+<meta property="og:image" content="https://wavedropmaps.github.io/wave-leaderboard/preview.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="Wave Staff Hub"/>
+<meta name="theme-color" content="#00d4ff"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://wavedropmaps.github.io/wave-leaderboard/preview.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800;900&family=Exo+2:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --c-primary:#00D4FF;
+  --c-secondary:#FFD93D;
+  --c-tertiary:#FF4D4D;
+  --c-pink:#FF0080;
+  --c-purple:#A855F7;
+  --c-green:#00FF88;
+  --c-bg:#050C16;
+  --c-text:#cdd9e8;
+  --c-text-dim:#7a98b0;
+  --c-text-faint:#4a6080;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:var(--c-bg);font-family:'Exo 2',sans-serif;color:var(--c-text);overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+
+/* ── Background Orbs ────────────────────────────────────────────────── */
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;}
+.orb1{width:900px;height:900px;background:radial-gradient(circle,rgba(0,212,255,0.08) 0%,transparent 65%);top:-320px;left:-320px;animation:orb1 18s ease-in-out infinite;}
+.orb2{width:1100px;height:1100px;background:radial-gradient(circle,rgba(255,0,128,0.06) 0%,transparent 65%);bottom:-420px;right:-420px;animation:orb2 22s ease-in-out infinite;}
+.orb3{width:700px;height:700px;background:radial-gradient(circle,rgba(168,85,247,0.055) 0%,transparent 65%);top:40%;left:50%;transform:translate(-50%,-50%);animation:orb3 14s ease-in-out infinite;}
+@keyframes orb1{0%,100%{transform:translate(0,0)}50%{transform:translate(80px,60px)}}
+@keyframes orb2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-90px)}}
+@keyframes orb3{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.4)}}
+
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
+.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px);opacity:.25;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes titleShimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes cardRise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes waveBob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-6px) rotate(4deg)}}
+
+/* ── Layout ─────────────────────────────────────────────────────────── */
+.hub{position:relative;z-index:10;max-width:1180px;margin:0 auto;padding:40px 20px 100px;animation:fadeUp 0.5s ease;}
+
+.banner-wrap{text-align:center;padding:50px 20px 24px;}
+
+.banner{
+  display:flex;align-items:center;justify-content:center;gap:0.2em;flex-wrap:wrap;
+  font-family:'Orbitron',monospace;font-size:clamp(38px,8vw,82px);font-weight:900;
+  letter-spacing:6px;text-transform:uppercase;
+  margin-bottom:14px;line-height:1.05;
+}
+.banner-text{
+  background:linear-gradient(90deg,#00d4ff,#ff0080,#a855f7,#ffd93d,#00d4ff);
+  background-size:400% auto;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:titleShimmer 5s linear infinite;
+}
+.banner-sub{
+  font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--c-text-dim);
+  letter-spacing:5px;text-transform:uppercase;
+}
+
+/* Wave emoji renders with its native full-color glyph — no gradient bleed */
+.wave-icon{
+  display:inline-block;
+  font-size:0.85em;line-height:1;
+  filter:drop-shadow(0 0 14px rgba(0,212,255,0.45));
+  animation:waveBob 3.6s ease-in-out infinite;
+  transform-origin:50% 60%;
+}
+
+/* ── Card Grid ──────────────────────────────────────────────────────── */
+.card-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:24px;max-width:1100px;margin:40px auto 0;padding:0 14px;
+}
+.nav-card{
+  position:relative;overflow:hidden;cursor:pointer;display:block;
+  background:linear-gradient(160deg,rgba(5,12,22,0.92),rgba(5,12,22,0.6));
+  border:1px solid var(--card-color,var(--c-primary));
+  border-radius:18px;padding:32px 24px;
+  transition:all 0.35s cubic-bezier(.34,1.56,.64,1);
+  --glow:var(--card-glow,rgba(0,212,255,0.4));
+  animation:cardRise 0.5s ease both;
+}
+.nav-card:nth-child(1){animation-delay:0.05s;}
+.nav-card:nth-child(2){animation-delay:0.15s;}
+.nav-card:nth-child(3){animation-delay:0.25s;}
+.nav-card:nth-child(4){animation-delay:0.35s;}
+.nav-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--card-color,var(--c-primary)),transparent);
+  opacity:0.7;
+}
+.nav-card::after{
+  content:'';position:absolute;inset:0;border-radius:17px;
+  background:radial-gradient(circle at top left,var(--card-color,var(--c-primary)) 0%,transparent 60%);
+  opacity:0.06;pointer-events:none;
+}
+.nav-card:hover{
+  transform:translateY(-8px);
+  box-shadow:0 16px 44px rgba(0,0,0,0.55),0 0 34px var(--glow);
+}
+.nav-card-icon{
+  font-size:46px;line-height:1;margin-bottom:16px;
+  filter:drop-shadow(0 0 18px var(--glow));text-align:center;
+}
+.nav-card-title{
+  font-family:'Orbitron',monospace;font-weight:900;font-size:19px;
+  letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:10px;
+  text-shadow:0 0 14px var(--glow);text-align:center;
+}
+.nav-card-desc{
+  font-family:'Exo 2',sans-serif;font-size:13px;color:var(--c-text-dim);line-height:1.55;
+  margin-bottom:20px;text-align:center;
+}
+.nav-card-cta{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:2.5px;color:var(--card-color,var(--c-primary));
+  text-transform:uppercase;
+}
+.nav-card-cta::after{content:'→';transition:transform 0.25s;}
+.nav-card:hover .nav-card-cta::after{transform:translateX(6px);}
+
+.nav-card.card-staff   {--card-color:#00D4FF;--card-glow:rgba(0,212,255,0.45);}
+.nav-card.card-lifetime{--card-color:#FFD93D;--card-glow:rgba(255,217,61,0.45);}
+.nav-card.card-duties  {--card-color:#FF4D4D;--card-glow:rgba(255,77,77,0.45);}
+.nav-card.card-economy {--card-color:#00FF88;--card-glow:rgba(0,255,136,0.45);}
+
+/* ── Bonus Links ────────────────────────────────────────────────────── */
+.bonus-strip{
+  display:flex;justify-content:center;gap:10px;margin:40px auto 0;
+  flex-wrap:wrap;max-width:900px;padding:0 14px;
+}
+.bonus-link{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  border-radius:18px;padding:6px 14px;color:var(--c-text-dim);
+  letter-spacing:1.5px;text-transform:uppercase;transition:all 0.2s;
+}
+.bonus-link:hover{
+  background:rgba(0,212,255,0.08);border-color:rgba(0,212,255,0.3);
+  color:#fff;transform:translateY(-2px);
+}
+
+footer{text-align:center;padding:40px 20px 40px;color:#3a5070;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;border-top:1px solid rgba(0,212,255,.07);background:linear-gradient(0deg,rgba(0,212,255,.025) 0%,transparent 100%);}
+footer .ucf-code{color:#00d4ff;font-weight:700;letter-spacing:3px;text-shadow:0 0 10px rgba(0,212,255,.8),0 0 22px rgba(0,212,255,.4),0 0 40px rgba(0,212,255,.15);}
+footer .ucf-sub{display:block;margin-top:8px;font-size:9px;letter-spacing:1.5px;color:#1e2e42;}
+
+@media(max-width:720px){
+  .banner{letter-spacing:3px;}
+  .nav-card{padding:24px 20px;}
+  .nav-card-icon{font-size:36px;}
+  .nav-card-title{font-size:16px;}
+}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="scanlines"></div>
+
+<main class="hub">
+  <div class="banner-wrap">
+    <h1 class="banner"><span class="wave-icon">🌊</span><span class="banner-text">WAVE STAFF HUB</span></h1>
+    <p class="banner-sub">Wave Drop Maps · Staff Activity Center</p>
+  </div>
+
+  <div class="card-grid">
+    <a class="nav-card card-staff" href="staff_sheet.html">
+      <div class="nav-card-icon">📋</div>
+      <div class="nav-card-title">Staff Sheet</div>
+      <div class="nav-card-desc">Weekly staff activity report with sortable table and full historical archive.</div>
+      <div class="nav-card-cta">Open Staff Sheet</div>
+    </a>
+    <a class="nav-card card-lifetime" href="milestones.html">
+      <div class="nav-card-icon">🏆</div>
+      <div class="nav-card-title">Lifetime Activity</div>
+      <div class="nav-card-desc">Power Points, milestone badges, and Hall of Fame across all duties.</div>
+      <div class="nav-card-cta">View Rankings</div>
+    </a>
+    <a class="nav-card card-duties" href="duties_leaderboard.html">
+      <div class="nav-card-icon">⚔️</div>
+      <div class="nav-card-title">Weekly Activity</div>
+      <div class="nav-card-desc">Live weekly leaderboards for messages, roles, requests, and mod commands.</div>
+      <div class="nav-card-cta">See This Week</div>
+    </a>
+    <a class="nav-card card-economy" href="economy.html">
+      <div class="nav-card-icon">💰</div>
+      <div class="nav-card-title">Economy &amp; Wave Point Shop</div>
+      <div class="nav-card-desc">Wave Points market, Central Bank reserves, lottery pot, bond holders, and the in-Discord Wave Point shop.</div>
+      <div class="nav-card-cta">Trade Live</div>
+    </a>
+  </div>
+
+  <div class="bonus-strip">
+    <a class="bonus-link" href="loot_routes_leaderboard.html">🗺️ Loot Routes</a>
+    <a class="bonus-link" href="surge_routes_leaderboard.html">⚡ Surge Routes</a>
+    <a class="bonus-link" href="reviewing_leaderboard_final.html">🔍 Drop Map Reviewing</a>
+    <a class="bonus-link" href="tips_tricks_leaderboard.html">💡 Tips & Tricks</a>
+  </div>
+
+  <footer>Use Code <span class="ucf-code">wavedropmaps</span> in the Item Shop!<span class="ucf-sub">◈ Powered by the Wave Management Bot ◈</span></footer>
+</main>
+<script src="wave-guide.js"></script>
+</body>
+</html>

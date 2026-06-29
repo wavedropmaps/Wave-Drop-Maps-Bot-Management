@@ -1,0 +1,178 @@
+{
+  "market": {
+    "wp_vb": {
+      "rate": "20 WP = 100 VB",
+      "trend": "-33.3%",
+      "isUp": false,
+      "current_tier": 2,
+      "previous_tier": 3,
+      "tier_change": -1,
+      "pct_change": -33.33,
+      "supply_ratio": 1.6792,
+      "total_wp": 3871,
+      "total_other": 6500,
+      "pct_24h": 33.3,
+      "pct_7d": 33.3,
+      "pct_30d": null,
+      "fmt_24h": "+33.3%",
+      "fmt_7d": "+33.3%",
+      "fmt_30d": null
+    },
+    "lrp_wp": {
+      "rate": "1 LRP = 6 WP",
+      "trend": "No change",
+      "isUp": true,
+      "current_tier": 1,
+      "previous_tier": 1,
+      "tier_change": 0,
+      "pct_change": 0.0,
+      "supply_ratio": 0.0411,
+      "total_wp": 3871,
+      "total_other": 159,
+      "pct_24h": 0.0,
+      "pct_7d": 0.0,
+      "pct_30d": null,
+      "fmt_24h": "0.0%",
+      "fmt_7d": "0.0%",
+      "fmt_30d": null
+    },
+    "srp_wp": {
+      "rate": "1 SRP = 5 WP",
+      "trend": "No change",
+      "isUp": true,
+      "current_tier": 1,
+      "previous_tier": 3,
+      "tier_change": 0,
+      "pct_change": 0.0,
+      "supply_ratio": 0.0021,
+      "total_wp": 3871,
+      "total_other": 8,
+      "pct_24h": 0.0,
+      "pct_7d": null,
+      "pct_30d": null,
+      "fmt_24h": "0.0%",
+      "fmt_7d": null,
+      "fmt_30d": null
+    },
+    "ttp_wp": {
+      "rate": "1 TTP = 50 WP",
+      "trend": "0.0%",
+      "isUp": true,
+      "current_tier": 1,
+      "previous_tier": null,
+      "tier_change": 0,
+      "pct_change": 0.0,
+      "supply_ratio": 0.0,
+      "total_wp": 3871,
+      "total_other": 0.0,
+      "pct_24h": null,
+      "pct_7d": null,
+      "pct_30d": null,
+      "fmt_24h": null,
+      "fmt_7d": null,
+      "fmt_30d": null
+    }
+  },
+  "central_bank": {
+    "reserves_wp": 30,
+    "reserves_lrp": 0,
+    "reserves_vb": 196,
+    "reserves_srp": 0,
+    "fee_rate": "5.0%",
+    "ptv_tax": "50.0%",
+    "p2p_tax": "10.0%"
+  },
+  "leaderboard": [
+    {
+      "name": "Slax",
+      "wp": 1680,
+      "apr": 15.0,
+      "daily_earn": 0.6904,
+      "days_until_payment": 1,
+      "next_payment_pts": 0.6904,
+      "eligible": true
+    },
+    {
+      "name": "EXM meandme7634567",
+      "wp": 784,
+      "apr": 10.0,
+      "daily_earn": 0.2148,
+      "days_until_payment": 2,
+      "next_payment_pts": 0.4296,
+      "eligible": true
+    },
+    {
+      "name": "Tay ur boy",
+      "wp": 471,
+      "apr": 7.0,
+      "daily_earn": 0.0903,
+      "days_until_payment": 3,
+      "next_payment_pts": 0.271,
+      "eligible": true
+    },
+    {
+      "name": "! Free Drop Maps Bio",
+      "wp": 417,
+      "apr": 7.0,
+      "daily_earn": 0.08,
+      "days_until_payment": 9,
+      "next_payment_pts": 0.7198,
+      "eligible": true
+    },
+    {
+      "name": "Fantastic",
+      "wp": 96,
+      "apr": 5.0,
+      "daily_earn": 0.0132,
+      "days_until_payment": 36,
+      "next_payment_pts": 0.4734,
+      "eligible": true
+    },
+    {
+      "name": "Numifv!",
+      "wp": 65,
+      "apr": 5.0,
+      "daily_earn": 0.0089,
+      "days_until_payment": 99,
+      "next_payment_pts": 0.8815,
+      "eligible": true
+    },
+    {
+      "name": "Jo4co Dbz\u01c3",
+      "wp": 52,
+      "apr": 5.0,
+      "daily_earn": 0.0071,
+      "days_until_payment": 128,
+      "next_payment_pts": 0.9118,
+      "eligible": true
+    },
+    {
+      "name": "Psychosystems",
+      "wp": 50,
+      "apr": 5.0,
+      "daily_earn": 0.0068,
+      "days_until_payment": 132,
+      "next_payment_pts": 0.9041,
+      "eligible": true
+    },
+    {
+      "name": "tyro11k",
+      "wp": 47,
+      "apr": 0.0,
+      "daily_earn": 0.0,
+      "days_until_payment": null,
+      "next_payment_pts": 0,
+      "eligible": false
+    },
+    {
+      "name": "It\u2019s Dolphin",
+      "wp": 40,
+      "apr": 0.0,
+      "daily_earn": 0.0,
+      "days_until_payment": null,
+      "next_payment_pts": 0,
+      "eligible": false
+    }
+  ],
+  "bondholders": []
+}

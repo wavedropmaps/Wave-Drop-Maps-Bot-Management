@@ -1,0 +1,109 @@
+specification {
+  element master
+  element hub
+  element folder
+
+  element master { style { shape rectangle color primary } }
+  element hub { style { shape rectangle color secondary } }
+  element folder { style { shape storage color secondary } }
+
+  relationship routes
+  relationship contains
+}
+
+model {
+  // Master instruction file
+  agentsmd = master 'AGENTS.md' 'Single source of truth' {
+    technology 'Markdown at repo root'
+    description 'Lean router: rules + Codebase Map + sorting logic for organizing all ai-hub folders'
+  }
+
+  // The AI Hub
+  aihub = hub 'ai-hub/' 'Central AI work product hub' {
+    technology 'Organized by type per AGENTS.md sorting rule'
+  }
+
+  // All 7 folders
+  skills = folder 'skills/' 'Portable cross-agent skills' {
+    technology 'Markdown .md/.mdc files'
+    description 'Reusable skills for Claude Code, Cursor, Antigravity, etc.'
+  }
+
+  memory = folder 'memory/' 'Cross-session AI brain' {
+    technology 'Markdown documentation'
+    description 'bot-infrastructure/ (systems, core-files, background-tasks, command-trackers), global-memory/, session-summaries/, goals/'
+  }
+
+  docs = folder 'docs/' 'Deep system documentation' {
+    technology 'Markdown + architecture models (.c4 files)'
+    description 'Per-system deep dives, referenced by AGENTS.md Codebase Map'
+  }
+
+  research = folder 'research/' 'Research output' {
+    technology 'Markdown + data files'
+    description 'Topic research, data gathering by subfolders (fortnite-gg/, etc)'
+  }
+
+  plans = folder 'plans/' 'Forward-looking specs' {
+    technology 'Markdown plans & roadmaps'
+    description 'What to build/change; superpowers/ planning specs, old-plans/ archive'
+  }
+
+  scratch = folder 'scratch/' 'Throwaway experiments' {
+    technology 'Anything'
+    description 'Session work, temporary AI experiments, debugging output'
+  }
+
+  gates = folder 'gates/' 'Validation & security gates' {
+    technology 'Python scripts'
+    description 'validate.py (feature validation), security_check.py (pre-commit checks)'
+  }
+
+  scripts = folder 'scripts/' 'Utility scripts' {
+    technology 'Python, shell'
+    description 'Background task runners, data migration helpers, automation scripts'
+  }
+
+  deprecated = folder 'deprecated/' 'Retired materials' {
+    technology 'Archived'
+    description 'Dead code, old docs, superseded materials kept for reference'
+  }
+
+  // Relationships: AGENTS.md -> each folder
+  agentsmd -[routes]-> skills 'skill registry'
+  agentsmd -[routes]-> memory 'documents all bot systems & infrastructure'
+  agentsmd -[routes]-> docs 'Codebase Map points here'
+  agentsmd -[routes]-> research 'references research output'
+  agentsmd -[routes]-> plans 'forward-looking roadmaps'
+  agentsmd -[routes]-> gates 'validation gate enforcement'
+  agentsmd -[routes]-> scripts 'utility automation'
+  agentsmd -[routes]-> scratch 'temporary work'
+  agentsmd -[routes]-> deprecated 'retired materials'
+
+  // ai-hub contains all 9 folders
+  aihub -[contains]-> skills
+  aihub -[contains]-> memory
+  aihub -[contains]-> docs
+  aihub -[contains]-> research
+  aihub -[contains]-> plans
+  aihub -[contains]-> gates
+  aihub -[contains]-> scripts
+  aihub -[contains]-> scratch
+  aihub -[contains]-> deprecated
+}
+
+views {
+  view index {
+    title 'AGENTS.md routes all ai-hub/ folders'
+    description 'AGENTS.md is the master orchestrator; ai-hub/ contains all work products organized by type'
+    include agentsmd, aihub, skills, memory, docs, research, plans, scratch, deprecated
+    autoLayout LeftRight
+  }
+
+  view of aihub {
+    title 'ai-hub/ — All 7 folders explained'
+    description 'Each folder organized by type (sorting rule from AGENTS.md)'
+    include *
+    autoLayout TopBottom
+  }
+}

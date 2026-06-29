@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Wave Staff Hub</title>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Wave Staff Hub"/>
+<meta property="og:description" content="Unified Wave staff hub — leaderboards, economy, weekly reports and more."/>
+<meta property="og:image" content="https://wavedropmaps.pages.dev/preview.png?v=3"/>
+<meta property="twitter:card" content="summary_large_image"/>
+<meta property="twitter:image" content="https://wavedropmaps.pages.dev/preview.png?v=3"/>
+<meta name="theme-color" content="#00d4ff"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="dns-prefetch" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="preload" as="image" href="hub-img1.jpg"/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+/* ── Reset ───────────────────────────────────────────────────────────── */
+html,body{min-height:100%;background:#040b14;overflow-x:hidden;color:#cdd9e8;}
+a{color:inherit;text-decoration:none;}
+
+/* ── Navigation (liquid glass) ───────────────────────────────────────── */
+#wave-nav{
+  position:fixed;top:0;left:0;right:0;height:52px;z-index:10000;
+  background:rgba(4,9,18,0.97);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(0,212,255,0.13);
+  box-shadow:0 2px 28px rgba(0,0,0,0.65);
+  transition:all 0.3s ease;
+  display:flex;align-items:center;
+}
+#wave-nav-logo{
+  flex-shrink:0;display:flex;align-items:center;gap:9px;
+  padding:0 20px 0 18px;
+  border-right:1px solid rgba(255,255,255,0.07);
+  height:100%;text-decoration:none;
+}
+#wave-nav-logo .wn-wave{font-size:19px;line-height:1;filter:drop-shadow(0 0 10px rgba(0,212,255,0.5));}
+#wave-nav-logo .wn-text{
+  font-family:'Instrument Serif',serif;font-size:19px;font-weight:400;
+  letter-spacing:0.5px;color:#fff;
+}
+#wave-nav-tabs{
+  display:flex;align-items:center;height:100%;
+  overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;flex:1;
+}
+#wave-nav-tabs::-webkit-scrollbar{display:none;}
+.wn-tab{
+  display:flex;align-items:center;height:100%;padding:0 14px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;
+  color:rgba(122,152,176,0.7);text-decoration:none;
+  border-bottom:2px solid transparent;box-sizing:border-box;
+  transition:color 0.18s,border-color 0.18s;cursor:pointer;
+}
+.wn-tab:hover{color:rgba(205,217,232,0.95);}
+.wn-tab.wn-active{color:#fff;border-bottom-color:rgba(255,255,255,0.28);}
+/* Zero out any padding injected by subpages; keep only nav offset */
+body{padding:0!important;padding-top:52px!important;padding-bottom:36px!important;}
+/* Hide back-to-hub remnants inside the PJAX app frame */
+#app .wsh-back,#app a[href="/"]{display:none!important;}
+@media(max-width:640px){
+  #wave-nav-logo .wn-text{display:none;}
+  #wave-nav-logo{padding:0 12px;}
+  .wn-tab{padding:0 10px;font-size:9px;letter-spacing:1px;}
+}
+
+/* ── Hub view ─────────────────────────────────────────────────────────── */
+#hub-view{
+  position:relative;
+  height:calc(100vh - 52px - 36px);
+  overflow:hidden;
+  background:#040b14;
+}
+
+/* ── Hub hero text overlay ───────────────────────────────────────────── */
+#hub-hero{
+  position:absolute;bottom:0;left:0;right:0;z-index:10;
+  padding:0 6vw 7vh;
+  /* bottom vignette so text reads on any image */
+  background:linear-gradient(to top,
+    rgba(4,11,20,0.82) 0%,
+    rgba(4,11,20,0.40) 55%,
+    transparent 100%);
+  animation:hubHeroIn 1.2s cubic-bezier(0.22,1,0.36,1) 0.3s both;
+}
+@keyframes hubHeroIn{
+  from{opacity:0;transform:translateY(22px);}
+  to  {opacity:1;transform:translateY(0);}
+}
+.hub-eyebrow-tag{
+  display:block;
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(9px,1.1vw,12px);
+  font-weight:700;
+  letter-spacing:0.35em;
+  text-transform:uppercase;
+  color:rgba(0,212,255,0.82);
+  margin-bottom:10px;
+}
+.hub-display-title{
+  display:block;
+  font-family:'Instrument Serif',serif;
+  font-style:italic;
+  font-size:clamp(48px,8.5vw,112px);
+  font-weight:400;
+  line-height:0.9;
+  color:#fff;
+  letter-spacing:-0.02em;
+  text-shadow:
+    0 2px 32px rgba(0,0,0,0.55),
+    0 0 80px rgba(0,212,255,0.12);
+}
+@media(max-width:640px){
+  #hub-hero{padding:0 24px 40px;}
+  .hub-display-title{font-size:clamp(38px,11vw,56px);}
+}
+.hub-slide{
+  position:absolute;inset:0;
+  background-size:cover;
+  background-position:center;
+  opacity:0;
+  animation:hubFade 18s infinite;
+}
+.hub-slide:nth-child(1){ background-image:url('hub-img1.jpg'); animation-delay:0s; }
+.hub-slide:nth-child(2){ animation-delay:6s; }
+.hub-slide:nth-child(3){ animation-delay:12s; }
+.hub-slide:nth-child(4){ animation-delay:18s; }
+.hub-slide:nth-child(5){ animation-delay:24s; }
+.hub-slide:nth-child(6){ animation-delay:30s; }
+
+/* 6 images × 6s = 36s total cycle */
+.hub-slide{ animation-duration:36s; }
+
+@keyframes hubFade{
+  0%        { opacity:0;   transform:scale(1.00); }
+  5%        { opacity:1;   transform:scale(1.00); }
+  14%       { opacity:1;   transform:scale(1.04); }
+  19%       { opacity:0;   transform:scale(1.05); }
+  100%      { opacity:0;   transform:scale(1.05); }
+}
+
+#wave-announce-banner{position:fixed;top:52px;left:0;right:0;height:36px;z-index:9999;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.wab-pill{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,rgba(0,28,50,0.99) 0%,rgba(0,12,32,0.99) 100%);border:1px solid rgba(0,212,255,0.55);border-radius:5px;padding:0 8px 0 14px;height:27px;pointer-events:all;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;box-shadow:0 0 0 1px rgba(0,212,255,0.08),0 0 22px rgba(0,212,255,0.22),0 2px 14px rgba(0,0,0,0.75);}
+.wab-star{color:#00d4ff;font-size:12px;flex-shrink:0;filter:drop-shadow(0 0 5px rgba(0,212,255,0.9));animation:wab-pulse 2.4s ease-in-out infinite;}
+.wab-text{background:linear-gradient(90deg,#c8eeff,#00d4ff,#c8eeff);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:wab-shimmer 3.5s linear infinite;white-space:nowrap;}
+.wab-sub{-webkit-text-fill-color:unset;color:rgba(160,205,225,0.72);font-size:9.5px;letter-spacing:1.1px;font-weight:400;background:none;-webkit-background-clip:unset;background-clip:unset;animation:none;white-space:nowrap;}
+.wab-close{background:none;border:none;cursor:pointer;color:rgba(122,152,176,0.55);font-size:15px;line-height:1;padding:2px 3px;margin-left:3px;transition:color 0.15s;flex-shrink:0;}
+.wab-close:hover{color:rgba(200,235,255,0.95);}
+@keyframes wab-pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+@keyframes wab-shimmer{0%{background-position:0% center;}100%{background-position:200% center;}}
+@media(max-width:480px){.wab-sub{display:none;}}
+
+/* ── App view (PJAX target) ──────────────────────────────────────────── */
+#app{
+  position:relative;z-index:2;
+  min-height:calc(100vh - 52px - 36px);
+  /* No background — let each subpage's injected body gradient show through */
+  transition:opacity 0.26s ease,transform 0.26s ease;
+}
+
+/* ── Loading indicator ────────────────────────────────────────────────── */
+#spa-loader{
+  display:none;position:fixed;top:52px;left:0;right:0;height:2px;z-index:9999;
+  background:linear-gradient(90deg,#00d4ff,#0080ff,#00d4ff);
+  background-size:300% 100%;
+  animation:loaderSlide 1.2s linear infinite;
+}
+@keyframes loaderSlide{0%{background-position:200% 0}100%{background-position:-100% 0}}
+</style>
+<style>.wave-logo-inline { width: 1.1em !important; height: 1.1em !important; vertical-align: -0.15em !important; display: inline-block !important; object-fit: contain !important; }</style>
+</head>
+<body>
+
+<!-- Progress loader bar -->
+<div id="spa-loader"></div>
+
+<!-- Navigation -->
+<nav id="wave-nav" aria-label="Wave Staff Hub navigation">
+  <a href="index.html" id="wave-nav-logo" title="Wave Staff Hub">
+    <span class="wn-wave"><img src="/assets/wave-logo.png" class="wave-logo-inline" alt="Wave"></span>
+    <span class="wn-text">Wave</span>
+  </a>
+  <div id="wave-nav-tabs" role="list">
+    <a class="wn-tab" data-hash="economy">Wave Shop</a>
+    <a class="wn-tab" data-hash="activity">Activity</a>
+    <a class="wn-tab" data-hash="events">Events</a>
+    <a class="wn-tab wn-active" data-hash="hub">Home</a>
+    <a class="wn-tab" data-hash="duty-needs">Duties Needed</a>
+    <a class="wn-tab" data-hash="team">Team</a>
+    <a class="wn-tab" data-hash="loot">Loot Routes</a>
+    <a class="wn-tab" data-hash="surge">Surge Routes</a>
+    <a class="wn-tab" data-hash="tips">Tips &amp; Tricks</a>
+    <a class="wn-tab" data-hash="rules">Rules</a>
+  </div>
+</nav>
+
+<div id="wave-announce-banner" style="display:none">
+  <div class="wab-pill">
+    <span class="wab-star">✦</span>
+    <span class="wab-text">Wave 4 Year Anniversary</span>
+    <span class="wab-star">✦</span>
+    <span class="wab-sub">Thank you to everyone in this server for an amazing journey!</span>
+    <button class="wab-close" id="wave-announce-close" aria-label="Dismiss banner">×</button>
+  </div>
+</div>
+<script>
+(function(){
+  var KEY='wave-banner-dismissed-4yr';
+  if(!localStorage.getItem(KEY)){
+    document.getElementById('wave-announce-banner').style.display='';
+    document.body.classList.add('has-banner');
+    document.getElementById('wave-announce-close').addEventListener('click',function(){
+      document.getElementById('wave-announce-banner').style.display='none';
+      document.body.classList.remove('has-banner');
+      localStorage.setItem(KEY,'1');
+    });
+  }
+})();
+</script>
+
+<!-- Hub: crossfade slideshow -->
+<div id="hub-view">
+  <div class="hub-slide"></div>
+  <div class="hub-slide"></div>
+  <div class="hub-slide"></div>
+  <div class="hub-slide"></div>
+  <div class="hub-slide"></div>
+  <div class="hub-slide"></div>
+  <div id="hub-hero">
+    <span class="hub-eyebrow-tag">Wave Drop Maps</span>
+    <span class="hub-display-title">Staff Hub.</span>
+  </div>
+</div>
+
+<!-- Sub-page content injected here by wave-shell.js -->
+<div id="app" style="display:none"></div>
+
+<script>
+(function(){
+  var LAZY = ['hub-img2.jpg','hub-img3.jpg','hub-img4.jpg','hub-img5.jpg','hub-img6.jpg'];
+  // Load remaining slides after the first one has had time to display
+  setTimeout(function(){
+    var slides = document.querySelectorAll('.hub-slide');
+    LAZY.forEach(function(src, i){
+      var img = new Image();
+      img.onload = function(){ if(slides[i+1]) slides[i+1].style.backgroundImage = "url('"+src+"')"; };
+      img.src = src;
+    });
+  }, 1500);
+})();
+</script>
+<style>
+.ucf-ticker-wrap{position:fixed;bottom:0;left:0;right:0;z-index:9998;width:100%;overflow:hidden;background:rgba(5,12,22,0.97);border-top:1px solid rgba(0,212,255,0.2);height:36px;display:flex;align-items:center;box-shadow:0 -8px 24px rgba(0,0,0,0.6);backdrop-filter:blur(16px);margin-top:0;}
+.ucf-ticker-label{flex-shrink:0;display:flex;align-items:center;gap:7px;padding:0 16px;height:100%;background:rgba(0,212,255,0.07);border-right:1px solid rgba(0,212,255,0.18);font-family:'Orbitron',monospace;font-size:0.56rem;font-weight:700;letter-spacing:2.5px;color:#00d4ff;text-transform:uppercase;white-space:nowrap;}
+.ucf-ticker-dot{width:5px;height:5px;border-radius:50%;background:#00d4ff;box-shadow:0 0 6px #00d4ff;animation:ucf-pulse 1.8s ease-in-out infinite;}
+@keyframes ucf-pulse{0%,100%{opacity:1}50%{opacity:0.25}}
+.ucf-ticker-scroll{flex:1;overflow:hidden;height:100%;display:flex;align-items:center;}
+.ucf-ticker{display:inline-flex;align-items:center;white-space:nowrap;animation:ucf-scroll 30s linear infinite;font-family:'JetBrains Mono',monospace;font-size:0.68rem;letter-spacing:2px;color:#00d4ff;font-weight:700;padding:0 60px;}
+.ucf-ticker:hover{animation-play-state:paused;}
+@keyframes ucf-scroll{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+.ucf-ticker-code{text-shadow:0 0 8px rgba(0,212,255,0.55);}
+</style>
+<div class="ucf-ticker-wrap">
+  <div class="ucf-ticker-label"><div class="ucf-ticker-dot"></div>LIVE</div>
+  <div class="ucf-ticker-scroll"><div class="ucf-ticker">Use code &nbsp;<span class="ucf-ticker-code">Wavedropmaps</span>&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;in the Fortnite item shop&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;Use code &nbsp;<span class="ucf-ticker-code">Wavedropmaps</span>&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;in the Fortnite item shop</div></div>
+</div>
+<script src="wave-shell.js"></script>
+<script src="wave-user-menu.js?v=3"></script>
+<script src="wave-guide.js"></script>
+
+</body>
+</html>

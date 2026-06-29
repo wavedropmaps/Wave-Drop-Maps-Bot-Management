@@ -1,0 +1,32 @@
+---
+description: When the user says "put website down", stop the Wave Staff Hub Flask stack (do not just acknowledge).
+alwaysApply: true
+---
+
+# "Put website down" = stop the Staff Hub web stack
+
+When the user says **"put website down"**, **"website down"**, **"take the site down"**, or similar — **execute the shutdown immediately**. Do not only explain how; run the commands.
+
+## What to stop
+
+The live site is `staff_hub_serve.py` (supervisor) + Flask (`web_api.py` on `:5000`) + `cloudflared` tunnel. Stopping Flask alone is not enough — kill the full stack.
+
+## How (PowerShell, repo root)
+
+```powershell
+$bot = 'C:\Users\kiere\Desktop\Wave Management Bot'
+Get-CimInstance Win32_Process -Filter "Name='python.exe'" |
+    Where-Object { $_.CommandLine -match 'staff_hub_serve\.py|web_api\.py' } |
+    ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+Stop-Process -Name cloudflared -Force -ErrorAction SilentlyContinue
+Get-Process wscript -ErrorAction SilentlyContinue | Stop-Process -Force
+```
+
+## Verify it's down
+
+- `http://localhost:5000/ping` should fail / refuse connection
+- Report result to the user
+
+## Opposite command
+
+**"put website up"** / **"bring the site back"** → run `restart_staff_hub.ps1` from repo root.

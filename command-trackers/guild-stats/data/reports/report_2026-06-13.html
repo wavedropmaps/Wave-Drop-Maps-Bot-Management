@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wave Guild Stats — 2026-06-13</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f1117;color:#e0e0e0;padding:24px}
+h1{font-size:1.6rem;margin-bottom:4px;color:#fff}
+.sub{color:#888;font-size:.85rem;margin-bottom:28px}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:#1a1d27;border-radius:12px;padding:20px 24px}
+.stat-card .label{font-size:.75rem;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.stat-card .value{font-size:2rem;font-weight:700;color:#fff;letter-spacing:-.02em}
+.stat-card .delta{font-size:.85rem;margin-top:6px}
+.pos{color:#4caf50}.neg{color:#f44336}.dim{color:#555}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+.card{background:#1a1d27;border-radius:12px;padding:20px}
+.card h2{font-size:.9rem;color:#aaa;margin-bottom:16px;text-transform:uppercase;letter-spacing:.06em}
+.chart-wrap{position:relative;height:280px}
+.chart-tall{position:relative;height:340px}
+.full{grid-column:1/-1}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.85rem;min-width:900px}
+th{text-align:left;padding:9px 11px;color:#888;border-bottom:1px solid #2a2d3a;
+    font-weight:500;text-transform:uppercase;font-size:.72rem;letter-spacing:.05em;
+    cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{color:#ccc}
+th .arr{margin-left:3px;opacity:.25;font-size:.65rem}
+th.sort-asc .arr,th.sort-desc .arr{opacity:1}
+td{padding:9px 11px;border-bottom:1px solid #1e2130;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#1e2130}
+.tier{display:inline-block;padding:2px 7px;border-radius:8px;font-size:.75rem;font-weight:600}
+.tier-0{background:#1e2130;color:#666}.tier-1{background:#1b2a1b;color:#6abf69}
+.tier-2{background:#1a2535;color:#64b5f6}.tier-3{background:#2a1f35;color:#ce93d8}
+.heatmap{overflow-x:auto}
+.hm-row{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.hm-label{width:180px;min-width:180px;color:#888;text-align:right;padding-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hm-cells{display:flex;gap:2px}
+.hm-cell{width:14px;height:14px;border-radius:2px;cursor:default;flex-shrink:0}
+.hm-dates{display:flex;gap:2px;margin-left:184px;margin-bottom:4px}
+.hm-date{width:14px;text-align:center;font-size:.6rem;color:#555;transform:rotate(-60deg);transform-origin:bottom left;height:20px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.full{grid-column:1}.stat-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.stat-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<h1>Wave Discord Guild Stats</h1>
+<p class="sub">Generated 2026-06-13 04:28 UTC &nbsp;·&nbsp; 2026-06-13 → 2026-06-13 (90d window)</p>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="label">Total Members</div>
+    <div class="value">139,990</div>
+    <div class="delta pos">+0 past 7d</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Online Now</div>
+    <div class="value">15,447</div>
+    <div class="delta dim">11.0% of total</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Total Boosts</div>
+    <div class="value">66</div>
+    <div class="delta dim">across 2 servers</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Snapshot Window</div>
+    <div class="value" style="font-size:1.1rem;padding-top:6px">2026-06-13<br><span style="color:#555">→</span><br>2026-06-13</div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card full">
+    <h2>Member Count Over Time — Per Server</h2>
+    <div class="chart-tall"><canvas id="mcChart"></canvas></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card full">
+    <h2>Combined Total Members Over Time</h2>
+    <div class="chart-wrap"><canvas id="totalChart"></canvas></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Online Count Over Time</h2>
+    <div class="chart-wrap"><canvas id="ocChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Online Ratio (% of members online)</h2>
+    <div class="chart-wrap"><canvas id="ratioChart"></canvas></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Boost Count Over Time</h2>
+    <div class="chart-wrap"><canvas id="boostChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Growth Velocity (week-over-week %)</h2>
+    <div class="chart-wrap"><canvas id="velChart"></canvas></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card full">
+    <h2>Server Summary</h2>
+    <div class="tbl-wrap">
+    <table id="summaryTable">
+      <thead><tr>
+        <th data-col="name"          data-type="str">Server          <span class="arr">↕</span></th>
+        <th data-col="members"       data-type="num">Members         <span class="arr">↕</span></th>
+        <th data-col="online"        data-type="num">Online          <span class="arr">↕</span></th>
+        <th data-col="online_pct"    data-type="num">Online %        <span class="arr">↕</span></th>
+        <th data-col="boost_count"   data-type="num">Boosts          <span class="arr">↕</span></th>
+        <th data-col="boost_tier"    data-type="num">Tier            <span class="arr">↕</span></th>
+        <th data-col="channel_count" data-type="num">Channels        <span class="arr">↕</span></th>
+        <th data-col="role_count"    data-type="num">Roles           <span class="arr">↕</span></th>
+        <th data-col="mpd"           data-type="num">Members/Day     <span class="arr">↕</span></th>
+        <th data-col="d7"            data-type="num">7d Change       <span class="arr">↕</span></th>
+        <th data-col="p7"            data-type="num">7d %            <span class="arr">↕</span></th>
+        <th data-col="d30"           data-type="num">30d Change      <span class="arr">↕</span></th>
+        <th data-col="p30"           data-type="num">30d %           <span class="arr">↕</span></th>
+        <th data-col="proj"          data-type="num">Proj. 30d       <span class="arr">↕</span></th>
+        <th data-col="last_seen"     data-type="str">Last Snapshot   <span class="arr">↕</span></th>
+      </tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card full">
+    <h2>Online Activity Heatmap (darker = more online)</h2>
+    <div class="heatmap" id="heatmap"></div>
+  </div>
+</div>
+
+<script>
+const COLORS  = ["#4e79a7", "#f28e2b", "#59a14f", "#e15759", "#76b7b2", "#edc948"];
+const DATES   = ["2026-06-13"];
+const MC_DS   = [{"label": "Wave Free Dropmaps!", "data": [109369], "borderColor": "#4e79a7", "backgroundColor": "#4e79a722", "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "data": [30621], "borderColor": "#f28e2b", "backgroundColor": "#f28e2b22", "tension": 0.3, "fill": false, "spanGaps": true}];
+const TOT_DS  = [{"label": "Combined", "data": [139990], "borderColor": "#86bcb6", "backgroundColor": "#86bcb622", "tension": 0.3, "fill": true, "spanGaps": true}];
+const OC_DS   = [{"label": "Wave Free Dropmaps!", "data": [11870], "borderColor": "#4e79a7", "backgroundColor": "#4e79a722", "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "data": [3577], "borderColor": "#f28e2b", "backgroundColor": "#f28e2b22", "tension": 0.3, "fill": false, "spanGaps": true}];
+const VEL_DS  = [{"label": "Wave Free Dropmaps!", "data": [null], "borderColor": "#4e79a7", "backgroundColor": "transparent", "tension": 0.3, "fill": false, "spanGaps": false, "pointRadius": 3}, {"label": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "data": [null], "borderColor": "#f28e2b", "backgroundColor": "transparent", "tension": 0.3, "fill": false, "spanGaps": false, "pointRadius": 3}];
+const BOOST_DS= [{"label": "Wave Free Dropmaps!", "data": [39], "borderColor": "#4e79a7", "backgroundColor": "#4e79a744", "tension": 0.3, "fill": true, "spanGaps": true}, {"label": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "data": [27], "borderColor": "#f28e2b", "backgroundColor": "#f28e2b44", "tension": 0.3, "fill": true, "spanGaps": true}];
+const RATIO   = [{"name": "Wave Free Dropmaps!", "ratio": 10.9}, {"name": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "ratio": 11.7}];
+const HM_DATA = [{"name": "Wave Free Dropmaps!", "vals": [11870], "max": 11870}, {"name": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "vals": [3577], "max": 3577}];
+const HM_DATES= ["2026-06-13"];
+const RAW_ROWS= [{"name": "Wave Free Dropmaps!", "members": 109369, "online": 11870, "online_pct": 10.9, "boost_count": 39, "boost_tier": 3, "channel_count": 269, "role_count": 89, "mpd": null, "d7": null, "p7": null, "d30": null, "p30": null, "proj": null, "last_seen": "2026-06-13 04:16 UTC"}, {"name": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "members": 30621, "online": 3577, "online_pct": 11.7, "boost_count": 27, "boost_tier": 3, "channel_count": 435, "role_count": 82, "mpd": null, "d7": null, "p7": null, "d30": null, "p30": null, "proj": null, "last_seen": "2026-06-13 04:16 UTC"}];
+
+const AXIS = {
+  x:{ticks:{color:'#888',maxTicksLimit:16},grid:{color:'#2a2d3a'}},
+  y:{ticks:{color:'#888'},grid:{color:'#2a2d3a'}},
+};
+const LEG = {labels:{color:'#ccc',font:{size:11},usePointStyle:true,pointStyle:'line',boxWidth:24,padding:14}};
+
+function mkLine(id, ds, extraOpts={}) {
+  new Chart(id, {type:'line',
+    data:{labels:DATES,datasets:ds},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:LEG},
+      scales:{...AXIS, y:{...AXIS.y, ticks:{color:'#888',callback:v=>v?.toLocaleString()}}},
+      ...extraOpts,
+    }
+  });
+}
+
+mkLine('mcChart',   MC_DS);
+mkLine('totalChart',TOT_DS);
+mkLine('ocChart',   OC_DS);
+mkLine('boostChart',BOOST_DS);
+mkLine('velChart',  VEL_DS, {
+  scales:{
+    x:AXIS.x,
+    y:{ticks:{color:'#888',callback:v=>v+'%'},grid:{color:'#2a2d3a'},
+       afterDataLimits(s){const r=Math.max(Math.abs(s.min),Math.abs(s.max),1);s.min=-r;s.max=r;}}
+  },
+  plugins:{legend:LEG,tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y?.toFixed(2)}%`}}}
+});
+
+new Chart('ratioChart',{type:'bar',
+  data:{
+    labels: RATIO.map(r=>r.name),
+    datasets:[{
+      label:'Online %',
+      data: RATIO.map(r=>r.ratio),
+      backgroundColor: RATIO.map((_,i)=>COLORS[i%COLORS.length]+'cc'),
+      borderRadius:4,
+    }]
+  },
+  options:{
+    indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.x.toFixed(1)}%`}}},
+    scales:{
+      x:{ticks:{color:'#888',callback:v=>v+'%'},grid:{color:'#2a2d3a'}},
+      y:{ticks:{color:'#ccc',font:{size:11}},grid:{color:'#2a2d3a'}},
+    }
+  }
+});
+
+// Heatmap
+(function(){
+  const wrap = document.getElementById('heatmap');
+  if(!HM_DATES.length){wrap.innerHTML='<p style="color:#555;padding:8px">Not enough data yet.</p>';return;}
+  const hdr = document.createElement('div'); hdr.className='hm-dates';
+  HM_DATES.forEach(d=>{
+    const el=document.createElement('div'); el.className='hm-date'; el.textContent=d.slice(5); hdr.appendChild(el);
+  });
+  wrap.appendChild(hdr);
+  HM_DATA.forEach(srv=>{
+    const row=document.createElement('div'); row.className='hm-row';
+    const lbl=document.createElement('div'); lbl.className='hm-label'; lbl.textContent=srv.name; row.appendChild(lbl);
+    const cells=document.createElement('div'); cells.className='hm-cells';
+    srv.vals.forEach((v,i)=>{
+      const c=document.createElement('div'); c.className='hm-cell';
+      if(v==null){ c.style.background='#1a1d27'; }
+      else{
+        const intensity=v/srv.max;
+        c.style.background=`rgba(78,121,167,${(30+intensity*200)/255})`;
+        c.title=`${srv.name} · ${HM_DATES[i]}: ${v.toLocaleString()} online`;
+      }
+      cells.appendChild(c);
+    });
+    row.appendChild(cells); wrap.appendChild(row);
+  });
+})();
+
+// Table
+const TIER_LABELS = ['None','Level 1','Level 2','Level 3'];
+const TIER_CSS    = ['tier-0','tier-1','tier-2','tier-3'];
+let sortCol='members', sortDir=-1;
+
+function fmtN(v, sfx='', dec=0) {
+  if(v===null||v===undefined) return '<span class="dim">—</span>';
+  const abs = dec>0 ? Math.abs(v).toFixed(dec) : Math.abs(v).toLocaleString();
+  const sign = v>0?'+':v<0?'-':'';
+  const cls  = v>0?'pos':v<0?'neg':'';
+  return cls ? `<span class="${cls}">${sign}${abs}${sfx}</span>` : `${abs}${sfx}`;
+}
+
+function renderTable(rows) {
+  const sorted = [...rows].sort((a,b)=>{
+    const av=a[sortCol], bv=b[sortCol];
+    if(av==null) return 1; if(bv==null) return -1;
+    return (typeof av==='string' ? av.localeCompare(bv) : av-bv)*sortDir;
+  });
+  document.getElementById('tableBody').innerHTML = sorted.map(r=>{
+    const tier = r.boost_tier ?? 0;
+    return `<tr>
+      <td><b>${r.name}</b></td>
+      <td>${r.members?r.members.toLocaleString():'—'}</td>
+      <td>${r.online?r.online.toLocaleString():'—'}</td>
+      <td>${r.online_pct!=null?r.online_pct.toFixed(1)+'%':'—'}</td>
+      <td>${r.boost_count??'—'}</td>
+      <td><span class="tier ${TIER_CSS[tier]}">${TIER_LABELS[tier]}</span></td>
+      <td>${r.channel_count??'<span class="dim">—</span>'}</td>
+      <td>${r.role_count??'<span class="dim">—</span>'}</td>
+      <td>${fmtN(r.mpd,'',1)}</td>
+      <td>${fmtN(r.d7)}</td>
+      <td>${fmtN(r.p7,'%',2)}</td>
+      <td>${fmtN(r.d30)}</td>
+      <td>${fmtN(r.p30,'%',2)}</td>
+      <td>${r.proj!=null?r.proj.toLocaleString():'<span class="dim">—</span>'}</td>
+      <td>${r.last_seen}</td>
+    </tr>`;
+  }).join('');
+}
+
+document.querySelectorAll('#summaryTable th[data-col]').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const col=th.dataset.col;
+    sortDir = sortCol===col ? -sortDir : -1;
+    sortCol = col;
+    document.querySelectorAll('#summaryTable th').forEach(t=>{
+      t.classList.remove('sort-asc','sort-desc');
+      t.querySelector('.arr').textContent='↕';
+    });
+    th.classList.add(sortDir===-1?'sort-desc':'sort-asc');
+    th.querySelector('.arr').textContent = sortDir===-1?'↓':'↑';
+    renderTable(RAW_ROWS);
+  });
+});
+renderTable(RAW_ROWS);
+const dflt = document.querySelector('#summaryTable th[data-col="members"]');
+dflt.classList.add('sort-desc'); dflt.querySelector('.arr').textContent='↓';
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+{
+  "receive_log_channel_ids": [
+    1411027953046781982
+  ],
+  "send_log_channel_ids": [
+    1411032010494967838
+  ],
+  "automated_checks": {
+    "enabled": true,
+    "source_guilds": [
+      988564962802810961,
+      971731167621574666
+    ],
+    "report_guild_id": 1041450125391835186,
+    "channels": {
+      "role_giver_report_channel": 1201782668216500246,
+      "map_request_report_channel": 1213937694921728020
+    },
+    "schedule": {
+      "half_week_hours": 72,
+      "full_week_hours": 168
+    }
+  },
+  "guild_configs": {
+    "988564962802810961": {
+      "request_channel_id": 1210837226884300820,
+      "modlogs_channel_id": 1211081636314226689,
+      "logging_channel_id": 1422733468986507427,
+      "allowed_command_channels": [
+        1210746994394669097,
+        1301481065067708497,
+        1493874248081739836,
+        1507612863144001626
+      ],
+      "reply_dm_channel_id": 1210798761329295440,
+      "reply_dm_staff_role_id": 1210810135249817610,
+      "reply_dm_autopurge_enabled": true,
+      "reply_dm_autodelete_enabled": true,
+      "reply_dm_whitelist_ids": [
+        879559318649839636
+      ],
+      "reply_dm_staff_role_ids": [
+        1210810135249817610,
+        1210811203098517614
+      ]
+    },
+    "971731167621574666": {
+      "request_channel_id": 1131190441040162837,
+      "modlogs_channel_id": 1230840488173502464,
+      "logging_channel_id": 1422733581523881984,
+      "allowed_command_channels": [
+        1188093268144177263,
+        1301483525735845949,
+        1410623011740188834
+      ],
+      "reply_dm_channel_id": 1188088624345002035,
+      "reply_dm_staff_role_id": 1188103229599404052,
+      "reply_dm_autodelete_enabled": true,
+      "reply_dm_staff_role_ids": [
+        1188103229599404052,
+        1105881928344801313
+      ]
+    },
+    "1041450125391835186": {
+      "request_channel_id": null,
+      "modlogs_channel_id": null,
+      "logging_channel_id": 1469242312986067096,
+      "allowed_command_channels": [
+        1041584423264596009,
+        1457426628404707481,
+        1231194591231742032,
+        1476107492080615557,
+        1041583707020066907,
+        1455491030018429043,
+        1508427793648717987,
+        1510959512939663390,
+        1510959431012057329,
+        1514199159845031956,
+        1514199624481509396
+      ]
+    }
+  },
+  "staff_roles_config": {
+    "request_helpers": [
+      "Map Request Helper"
+    ],
+    "general_staff": [
+      "Trial Staff",
+      "Staff"
+    ],
+    "role_givers": [
+      "Role Giver"
+    ]
+  },
+  "global_dates": {
+    "start_date": "28/06/2026",
+    "end_date": "05/07/2026",
+    "timezone": "UTC"
+  },
+  "strike_system": {
+    "enabled": true,
+    "strike_channel_id": 1466983611117994094,
+    "message_ids": {
+      "rules": 1469922069713256541,
+      "role": 1469923995544715336,
+      "req": 1469924077845348379
+    }
+  },
+  "vbucks_system": {
+    "enabled": true,
+    "channels": {
+      "role": 1467087929468784660,
+      "req": 1467087539490783285
+    },
+    "message_ids": {
+      "role": 1503031029005553834,
+      "req": 1503031032855924747
+    },
+    "rewards": {
+      "req": {
+        "1": 200,
+        "2": 100
+      },
+      "role": {
+        "1": 250,
+        "2": 200,
+        "3": 150,
+        "4": 100,
+        "5": 50
+      }
+    },
+    "leaderboard_message_ids": {
+      "role_live": 1470350191918845986,
+      "req_live": 1470350224852516874
+    }
+  },
+  "staff_sheet_config": {
+    "screenshot_channel_id": 1041583454820761610,
+    "screenshot_channel_ids": [
+      1041583454820761610,
+      1367843951125463040
+    ]
+  },
+  "global": {
+    "start_date": "28/06/2026",
+    "end_date": "05/07/2026",
+    "timezone": "UTC"
+  },
+  "github": {
+    "token": "",
+    "username": "wavedropmaps",
+    "repo": "wave-leaderboard",
+    "logging_repo": "Wave-Logging",
+    "branch": "main"
+  },
+  "dm_queue": {
+    "shared_db_path": "C:/Users/kiere/Desktop/dm_shared_queue.db",
+    "log_channel_id": 1503714231566991441
+  },
+  "roboflow": {
+    "api_key": "",
+    "workspace": "wave-drop-maps-workspace",
+    "project": "drop-spot-detection",
+    "version": 3,
+    "confidence": 60,
+    "overlap": 50
+  }
+}

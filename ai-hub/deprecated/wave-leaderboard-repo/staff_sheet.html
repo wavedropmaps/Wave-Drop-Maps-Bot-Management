@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Wave Staff — Staff Sheet Archive</title>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://wavedropmaps.github.io/wave-leaderboard/staff_sheet.html"/>
+<meta property="og:title" content="🌊 Wave Staff — Staff Sheet Archive"/>
+<meta property="og:description" content="Weekly staff performance reports with sortable table and full historical archive."/>
+<meta name="theme-color" content="#00d4ff"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800;900&family=Exo+2:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --c-primary:#00D4FF;
+  --c-secondary:#FFD93D;
+  --c-tertiary:#FF4D4D;
+  --c-pink:#FF0080;
+  --c-purple:#A855F7;
+  --c-green:#00FF88;
+  --c-bg:#050C16;
+  --c-panel:rgba(5,12,22,0.85);
+  --c-text:#cdd9e8;
+  --c-text-dim:#7a98b0;
+  --c-text-faint:#4a6080;
+  --c-border:rgba(0,212,255,0.2);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:var(--c-bg);font-family:'Exo 2',sans-serif;color:var(--c-text);overflow-x:hidden;}
+button{font-family:inherit;color:inherit;}
+
+/* ── Background ─────────────────────────────────────────────────────── */
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;}
+.orb1{width:900px;height:900px;background:radial-gradient(circle,rgba(0,212,255,0.07) 0%,transparent 65%);top:-320px;left:-320px;animation:orb1 18s ease-in-out infinite;}
+.orb2{width:1100px;height:1100px;background:radial-gradient(circle,rgba(255,0,128,0.055) 0%,transparent 65%);bottom:-420px;right:-420px;animation:orb2 22s ease-in-out infinite;}
+.orb3{width:700px;height:700px;background:radial-gradient(circle,rgba(168,85,247,0.05) 0%,transparent 65%);top:40%;left:50%;transform:translate(-50%,-50%);animation:orb3 14s ease-in-out infinite;}
+@keyframes orb1{0%,100%{transform:translate(0,0)}50%{transform:translate(80px,60px)}}
+@keyframes orb2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-90px)}}
+@keyframes orb3{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.4)}}
+
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
+.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px);opacity:.25;}
+
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:#050C16;}
+::-webkit-scrollbar-thumb{background:linear-gradient(#00d4ff,#a855f7,#ff0080);border-radius:3px;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes titleShimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* ── Back to Hub Button ─────────────────────────────────────────────── */
+.wsh-back{position:fixed;top:14px;left:14px;z-index:9999;
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(5,12,22,0.92);backdrop-filter:blur(10px);
+  border:1px solid rgba(0,212,255,0.4);border-radius:24px;
+  padding:8px 16px;color:#00d4ff;
+  font-family:'Orbitron',monospace;font-size:10px;font-weight:700;
+  letter-spacing:2.5px;text-transform:uppercase;text-decoration:none;
+  box-shadow:0 0 14px rgba(0,212,255,0.25),0 4px 18px rgba(0,0,0,0.55);
+  transition:all 0.25s;}
+.wsh-back:hover{background:rgba(0,212,255,0.15);color:#fff;
+  transform:translateY(-2px);
+  box-shadow:0 0 24px rgba(0,212,255,0.55),0 6px 22px rgba(0,0,0,0.65);}
+.wsh-back::before{content:'←';font-size:13px;line-height:1;}
+@media(max-width:520px){.wsh-back{padding:6px 12px;font-size:9px;letter-spacing:2px;top:10px;left:10px;}}
+
+/* ── Page Header ────────────────────────────────────────────────────── */
+.page-header{text-align:center;padding:64px 20px 30px;position:relative;z-index:10;}
+.page-badge{
+  display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:4px;color:var(--c-primary);text-transform:uppercase;
+  border:1px solid rgba(0,212,255,0.35);border-radius:24px;
+  padding:6px 16px;margin-bottom:18px;
+}
+.page-title{
+  display:flex;align-items:center;justify-content:center;gap:0.2em;flex-wrap:wrap;
+  font-family:'Orbitron',monospace;font-size:clamp(28px,5vw,52px);font-weight:900;
+  letter-spacing:5px;text-transform:uppercase;
+  margin-bottom:10px;line-height:1.05;
+}
+.title-text{
+  background:linear-gradient(90deg,#00d4ff,#ffd93d,#00d4ff);
+  background-size:300% auto;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:titleShimmer 5s linear infinite;
+}
+.title-icon{
+  display:inline-block;font-size:0.85em;line-height:1;
+  filter:drop-shadow(0 0 12px rgba(0,212,255,0.4));
+}
+.page-sub{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c-text-dim);letter-spacing:3px;text-transform:uppercase;}
+
+/* ── Layout ─────────────────────────────────────────────────────────── */
+.container{position:relative;z-index:10;max-width:1180px;margin:0 auto;padding:0 20px 80px;animation:fadeIn 0.4s ease;}
+
+.panel{
+  background:var(--c-panel);
+  border:1px solid var(--c-border);
+  border-radius:20px;backdrop-filter:blur(20px);
+  box-shadow:0 15px 50px rgba(0,0,0,0.55);
+}
+.panel-header{
+  padding:22px 26px;border-bottom:1px solid rgba(0,212,255,0.13);
+  background:linear-gradient(90deg,rgba(0,212,255,0.08),transparent);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;
+}
+.panel-title{
+  font-family:'Orbitron',monospace;font-size:18px;font-weight:800;letter-spacing:3px;
+  text-transform:uppercase;color:var(--c-primary);
+  text-shadow:0 0 14px rgba(0,212,255,0.4);
+  display:flex;align-items:center;gap:10px;
+}
+
+/* ── Hybrid Archive UI ──────────────────────────────────────────────── */
+.archive-controls{display:flex;flex-direction:column;gap:8px;position:relative;}
+.archive-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--c-text-faint);letter-spacing:2px;text-transform:uppercase;}
+.week-scroller{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.week-btn{
+  background:rgba(5,12,22,0.8);border:1px solid rgba(0,212,255,0.3);
+  color:#5a7a9a;padding:9px 18px;border-radius:18px;
+  font-family:'Orbitron',monospace;font-weight:700;font-size:10px;
+  cursor:pointer;white-space:nowrap;transition:all 0.25s;letter-spacing:1px;
+}
+.week-btn:hover{background:rgba(0,212,255,0.1);color:#fff;transform:translateY(-2px);}
+.week-btn.active{background:rgba(0,212,255,0.2);border-color:var(--c-primary);color:var(--c-primary);box-shadow:0 0 14px rgba(0,212,255,0.4),inset 0 0 10px rgba(0,212,255,0.1);}
+
+.archive-dropdown-btn{
+  background:transparent;border:1px dashed rgba(0,212,255,0.5);color:var(--c-primary);
+  padding:9px 18px;border-radius:18px;
+  font-family:'Orbitron',monospace;font-weight:700;font-size:10px;letter-spacing:1px;
+  cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.25s;
+}
+.archive-dropdown-btn:hover,.archive-dropdown-btn.open{
+  background:rgba(0,212,255,0.1);border-style:solid;box-shadow:0 0 14px rgba(0,212,255,0.3);
+}
+.archive-dropdown-btn.has-old-active{border-color:var(--c-primary);color:#fff;background:rgba(0,212,255,0.12);border-style:solid;}
+.archive-dropdown-menu{
+  display:none;position:absolute;top:calc(100% + 8px);right:0;
+  width:320px;max-height:420px;overflow-y:auto;
+  background:rgba(5,12,22,0.97);border:1px solid rgba(0,212,255,0.3);
+  border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,0.8);
+  backdrop-filter:blur(20px);z-index:100;padding:14px;
+  animation:fadeDown 0.2s ease forwards;
+}
+.archive-dropdown-menu.show{display:block;}
+.archive-dropdown-menu::-webkit-scrollbar{width:4px;}
+.archive-dropdown-menu::-webkit-scrollbar-thumb{background:var(--c-primary);border-radius:2px;}
+.archive-group{margin-bottom:12px;}
+.archive-group-title{
+  font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--c-secondary);
+  letter-spacing:2.5px;margin-bottom:7px;
+  border-bottom:1px solid rgba(255,217,61,0.2);padding-bottom:4px;
+}
+.archive-item{
+  display:block;width:100%;text-align:left;background:transparent;border:none;
+  padding:7px 10px;color:#8aa0b0;font-family:'Exo 2',sans-serif;font-size:13px;
+  cursor:pointer;border-radius:6px;transition:all 0.18s;
+}
+.archive-item:hover{background:rgba(0,212,255,0.1);color:#fff;padding-left:14px;}
+.archive-item.active{background:linear-gradient(90deg,rgba(0,212,255,0.15),transparent);color:var(--c-primary);border-left:3px solid var(--c-primary);border-radius:0 6px 6px 0;}
+
+/* ── Meta Bar ───────────────────────────────────────────────────────── */
+.staff-meta-bar{
+  padding:14px 26px;display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;
+  background:rgba(0,212,255,0.03);border-bottom:1px solid rgba(0,212,255,0.08);
+}
+.staff-meta-bar .item{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--c-text-dim);}
+.staff-meta-bar .item strong{color:#fff;}
+
+/* ── Table ──────────────────────────────────────────────────────────── */
+.staff-table-wrap{overflow-x:auto;padding:16px 22px 24px;}
+.staff-table{width:100%;border-collapse:separate;border-spacing:0 6px;min-width:880px;}
+.staff-table thead th{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--c-text-dim);padding:12px 14px;text-align:left;
+  background:rgba(0,0,0,0.4);cursor:pointer;user-select:none;transition:color 0.18s;
+}
+.staff-table thead th:hover{color:var(--c-primary);}
+.staff-table thead th .arrow{display:inline-block;margin-left:4px;opacity:0.45;font-size:9px;}
+.staff-table thead th.sort-asc .arrow,
+.staff-table thead th.sort-desc .arrow{opacity:1;color:var(--c-primary);}
+.staff-table thead th:first-child{border-radius:10px 0 0 10px;}
+.staff-table thead th:last-child{border-radius:0 10px 10px 0;}
+.staff-table tbody tr{background:rgba(255,255,255,0.02);transition:all 0.18s;cursor:pointer;}
+.staff-table tbody tr:hover{background:rgba(0,212,255,0.07);transform:translateX(4px);}
+.staff-table tbody td{padding:13px 14px;font-size:13.5px;border-top:1px solid rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.02);}
+.staff-table tbody td:first-child{border-radius:10px 0 0 10px;border-left:1px solid rgba(255,255,255,0.02);font-weight:700;color:#fff;}
+.staff-table tbody td:last-child{border-radius:0 10px 10px 0;border-right:1px solid rgba(255,255,255,0.02);}
+
+.col-name{font-family:'Exo 2',sans-serif;font-weight:800;font-size:15px;color:#fff;text-shadow:0 0 14px rgba(0,212,255,0.18);}
+.col-name .name-wrap{display:flex;align-items:center;gap:11px;min-width:0;}
+.col-name .name-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.staff-avatar,.staff-avatar-fb{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  border:1.5px solid rgba(0,212,255,0.4);
+  background:linear-gradient(135deg,rgba(0,212,255,0.18),rgba(0,212,255,0.04));
+  box-shadow:0 0 10px rgba(0,212,255,0.22);
+  vertical-align:middle;
+}
+.staff-avatar{object-fit:cover;}
+.staff-avatar-fb{
+  display:inline-flex;align-items:center;justify-content:center;
+  color:#00d4ff;font-family:'Orbitron',monospace;font-weight:900;font-size:13px;
+}
+/* Podium row avatars get the medal color */
+.staff-table tbody tr.top-1 .staff-avatar,
+.staff-table tbody tr.top-1 .staff-avatar-fb{border-color:#ffd700;box-shadow:0 0 12px rgba(255,215,0,0.55);}
+.staff-table tbody tr.top-2 .staff-avatar,
+.staff-table tbody tr.top-2 .staff-avatar-fb{border-color:#c0c8d4;box-shadow:0 0 12px rgba(192,200,212,0.45);}
+.staff-table tbody tr.top-3 .staff-avatar,
+.staff-table tbody tr.top-3 .staff-avatar-fb{border-color:#cd7f32;box-shadow:0 0 12px rgba(205,127,50,0.45);}
+.col-msg  {color:var(--c-green);   font-family:'Orbitron',monospace;font-weight:700;font-size:14px;text-shadow:0 0 8px rgba(0,255,136,0.35);}
+.col-days {color:var(--c-purple);  font-family:'Orbitron',monospace;font-weight:700;font-size:14px;text-shadow:0 0 8px rgba(168,85,247,0.4);}
+.col-rmsg {color:var(--c-green);   font-family:'Orbitron',monospace;font-weight:700;font-size:13px;text-shadow:0 0 6px rgba(0,255,136,0.3);}
+.col-rdays{color:var(--c-purple);  font-family:'Orbitron',monospace;font-weight:700;font-size:13px;text-shadow:0 0 6px rgba(168,85,247,0.35);}
+.col-mod  {color:var(--c-tertiary);font-family:'Orbitron',monospace;font-weight:700;font-size:14px;text-shadow:0 0 8px rgba(255,77,77,0.4);}
+.col-imp  {color:#ff80c0;          font-family:'Orbitron',monospace;font-weight:700;font-size:13px;text-shadow:0 0 7px rgba(255,128,192,0.35);}
+
+/* ── Role Badge (tier-colored chip) ────────────────────────────────── */
+.role-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:1.2px;text-transform:uppercase;
+  padding:5px 11px;border-radius:6px;white-space:nowrap;
+  border:1px solid var(--tc,#3a4a60);background:var(--tb,rgba(58,74,96,0.12));
+  color:var(--tc,#9caab8);
+  box-shadow:0 0 10px var(--tg,transparent),inset 0 0 8px rgba(0,0,0,0.25);
+}
+.role-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--tc);box-shadow:0 0 6px var(--tc);}
+.role-badge.t-board  {--tc:#ffd700;--tb:rgba(255,215,0,0.10);--tg:rgba(255,215,0,0.25);}
+.role-badge.t-head   {--tc:#ff0080;--tb:rgba(255,0,128,0.10);--tg:rgba(255,0,128,0.25);}
+.role-badge.t-mgmt   {--tc:#a855f7;--tb:rgba(168,85,247,0.10);--tg:rgba(168,85,247,0.25);}
+.role-badge.t-sradmin{--tc:#00d4ff;--tb:rgba(0,212,255,0.12);--tg:rgba(0,212,255,0.28);}
+.role-badge.t-admin  {--tc:#00d4ff;--tb:rgba(0,212,255,0.07);--tg:rgba(0,212,255,0.16);}
+.role-badge.t-srsup  {--tc:#00ff88;--tb:rgba(0,255,136,0.09);--tg:rgba(0,255,136,0.20);}
+.role-badge.t-sup    {--tc:#5aa9ff;--tb:rgba(90,169,255,0.08);--tg:rgba(90,169,255,0.18);}
+.role-badge.t-staff  {--tc:#b6c4d4;--tb:rgba(182,196,212,0.06);--tg:rgba(182,196,212,0.10);}
+.role-badge.t-trial  {--tc:#7a98b0;--tb:rgba(122,152,176,0.05);--tg:rgba(122,152,176,0.08);}
+
+/* ── Rank Total Medallion ──────────────────────────────────────────── */
+.rank-medal{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:46px;height:34px;padding:0 10px;
+  border-radius:8px;
+  font-family:'Orbitron',monospace;font-weight:900;font-size:16px;
+  background:linear-gradient(135deg,rgba(255,217,61,0.18),rgba(255,217,61,0.04));
+  border:1px solid rgba(255,217,61,0.35);
+  color:var(--c-secondary);
+  text-shadow:0 0 10px rgba(255,217,61,0.5);
+  box-shadow:0 0 14px rgba(255,217,61,0.15),inset 0 0 10px rgba(255,217,61,0.05);
+}
+.rank-medal.r-100{
+  background:linear-gradient(135deg,rgba(255,217,61,0.35),rgba(255,170,0,0.12));
+  border-color:rgba(255,217,61,0.7);color:#fff;
+  text-shadow:0 0 16px rgba(255,217,61,0.9);
+  box-shadow:0 0 24px rgba(255,217,61,0.45),inset 0 0 14px rgba(255,217,61,0.18);
+}
+.rank-medal.r-low{
+  background:rgba(120,140,165,0.06);border-color:rgba(120,140,165,0.25);color:#8aa0b8;
+  text-shadow:none;box-shadow:none;
+}
+
+/* ── Spreadsheet-Style Column Color Coding ─────────────────────────── */
+/* Header tints — strong saturation like the Google Sheet header row */
+.staff-table thead th:nth-child(1){background:linear-gradient(180deg,rgba(0,212,255,0.22),rgba(0,212,255,0.10));color:#7ec8e3;border-top:1px solid rgba(0,212,255,0.35);}
+.staff-table thead th:nth-child(2){background:linear-gradient(180deg,rgba(90,169,255,0.22),rgba(90,169,255,0.10));color:#9dc4ff;border-top:1px solid rgba(90,169,255,0.35);}
+.staff-table thead th:nth-child(3){background:linear-gradient(180deg,rgba(0,255,136,0.22),rgba(0,255,136,0.10));color:#7be0a8;border-top:1px solid rgba(0,255,136,0.35);}
+.staff-table thead th:nth-child(4){background:linear-gradient(180deg,rgba(168,85,247,0.22),rgba(168,85,247,0.10));color:#c5a3f5;border-top:1px solid rgba(168,85,247,0.35);}
+.staff-table thead th:nth-child(5){background:linear-gradient(180deg,rgba(0,255,136,0.15),rgba(0,255,136,0.06));color:#7be0a8;border-top:1px solid rgba(0,255,136,0.25);}
+.staff-table thead th:nth-child(6){background:linear-gradient(180deg,rgba(168,85,247,0.15),rgba(168,85,247,0.06));color:#c5a3f5;border-top:1px solid rgba(168,85,247,0.25);}
+.staff-table thead th:nth-child(7){background:linear-gradient(180deg,rgba(255,77,77,0.20),rgba(255,77,77,0.09));color:#ff9a9a;border-top:1px solid rgba(255,77,77,0.35);}
+.staff-table thead th:nth-child(8){background:linear-gradient(180deg,rgba(255,170,0,0.25),rgba(255,170,0,0.10));color:#ffc266;border-top:1px solid rgba(255,170,0,0.45);}
+.staff-table thead th:nth-child(9){background:linear-gradient(180deg,rgba(255,128,192,0.20),rgba(255,128,192,0.08));color:#ffaad4;border-top:1px solid rgba(255,128,192,0.35);}
+
+/* Body cell tints — every cell in a column gets its column's color, like the spreadsheet */
+.staff-table tbody td:nth-child(1){background-color:rgba(0,212,255,0.05);}
+.staff-table tbody td:nth-child(2){background-color:rgba(90,169,255,0.04);}
+.staff-table tbody td:nth-child(3){background-color:rgba(0,255,136,0.07);}
+.staff-table tbody td:nth-child(4){background-color:rgba(168,85,247,0.07);}
+.staff-table tbody td:nth-child(5){background-color:rgba(0,255,136,0.035);}
+.staff-table tbody td:nth-child(6){background-color:rgba(168,85,247,0.035);}
+.staff-table tbody td:nth-child(7){background-color:rgba(255,77,77,0.06);}
+.staff-table tbody td:nth-child(8){background-color:rgba(255,170,0,0.11);}
+.staff-table tbody td:nth-child(9){background-color:rgba(255,128,192,0.05);}
+
+/* Tier-colored thin left bar on the first cell — keeps the role-tier signal */
+.staff-table tbody tr td:first-child{border-left:3px solid var(--row-c,transparent);}
+.staff-table tbody tr.row-board  {--row-c:#ffd700;}
+.staff-table tbody tr.row-head   {--row-c:#ff0080;}
+.staff-table tbody tr.row-mgmt   {--row-c:#a855f7;}
+.staff-table tbody tr.row-sradmin{--row-c:#00d4ff;}
+.staff-table tbody tr.row-admin  {--row-c:rgba(0,212,255,0.55);}
+.staff-table tbody tr.row-srsup  {--row-c:#00ff88;}
+.staff-table tbody tr.row-sup    {--row-c:#5aa9ff;}
+.staff-table tbody tr.row-staff  {--row-c:rgba(182,196,212,0.55);}
+.staff-table tbody tr.row-trial  {--row-c:rgba(122,152,176,0.4);}
+
+.staff-table tbody td{padding:14px 14px;}
+.staff-table tbody tr{background:transparent;}
+.staff-table tbody tr:hover td{filter:brightness(1.35);}
+.staff-table tbody tr:hover{transform:translateX(4px);box-shadow:0 6px 22px rgba(0,0,0,0.4);}
+
+/* Top-3 podium emphasis — extra glow on the first cell instead of full-row background
+   so the column tints stay visible */
+.staff-table tbody tr.top-1 td:first-child{border-left:5px solid #ffd700;box-shadow:inset 0 0 16px rgba(255,217,61,0.18);}
+.staff-table tbody tr.top-2 td:first-child{border-left:5px solid #c0c8d4;box-shadow:inset 0 0 16px rgba(192,200,212,0.14);}
+.staff-table tbody tr.top-3 td:first-child{border-left:5px solid #cd7f32;box-shadow:inset 0 0 16px rgba(205,127,50,0.14);}
+
+/* ── Average Row (gold footer, matches the spreadsheet's bottom row) ── */
+.staff-table tbody tr.avg-row{
+  background:linear-gradient(90deg,rgba(255,217,61,0.22),rgba(255,170,0,0.14)) !important;
+  border-top:2px solid rgba(255,217,61,0.55);
+}
+.staff-table tbody tr.avg-row:hover{transform:none;}
+.staff-table tbody tr.avg-row td{
+  background:transparent !important;
+  color:#ffd93d !important;
+  font-family:'Orbitron',monospace !important;
+  font-weight:900 !important;
+  letter-spacing:1.5px;
+  border-top:1px solid rgba(255,217,61,0.4);
+  border-bottom:1px solid rgba(255,217,61,0.4);
+  padding:16px 14px;
+  text-shadow:0 0 12px rgba(255,217,61,0.45);
+}
+.staff-table tbody tr.avg-row td:first-child{
+  border-left:4px solid #ffd93d;
+  text-transform:uppercase;font-size:12px;letter-spacing:3px;
+}
+
+.empty-state{text-align:center;padding:60px 20px;color:#0d1825;font-family:'Orbitron',monospace;letter-spacing:0.25em;font-size:11px;}
+.loading{display:flex;flex-direction:column;align-items:center;gap:14px;padding:60px 20px;color:var(--c-primary);font-family:'Orbitron',monospace;letter-spacing:0.25em;font-size:12px;}
+.loading::before{content:'';width:36px;height:36px;border:2px solid rgba(0,212,255,0.18);border-top-color:var(--c-primary);border-radius:50%;animation:spin 0.8s linear infinite;}
+
+@media(max-width:720px){
+  .panel-header{padding:16px 18px;}
+  .panel-title{font-size:14px;}
+  .page-header{padding:54px 18px 22px;}
+}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="scanlines"></div>
+
+<a href="index.html" class="wsh-back" title="Back to Wave Staff Hub">Hub</a>
+
+<header class="page-header">
+  <div class="page-badge">◈ Weekly Staff Activity Report</div>
+  <h1 class="page-title"><span class="title-icon">📋</span><span class="title-text">Staff Sheet Archive</span></h1>
+  <p class="page-sub">Recent · Historical · Sortable</p>
+</header>
+
+<div class="container">
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">📋 Staff Performance Report</div>
+      <div class="archive-controls">
+        <div class="archive-label">📂 Select Historical Week</div>
+        <div class="week-scroller">
+          <div id="recentScroller" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+          <button class="archive-dropdown-btn" id="dropdownBtn" type="button">
+            <span>Older Archives</span><span style="font-size:8px;">▾</span>
+          </button>
+          <div class="archive-dropdown-menu" id="dropdownMenu"></div>
+        </div>
+      </div>
+    </div>
+    <div class="staff-meta-bar" id="staffMetaBar"></div>
+    <div class="staff-table-wrap">
+      <table class="staff-table">
+        <thead>
+          <tr id="staffHead">
+            <th data-key="name">Staff Name<span class="arrow">⇅</span></th>
+            <th data-key="role" class="sort-asc" title="Sorted by Discord role hierarchy (Founder → Trial Staff)">Role<span class="arrow">▲</span></th>
+            <th data-key="messages">Messages<span class="arrow">⇅</span></th>
+            <th data-key="days_active">Days Active<span class="arrow">⇅</span></th>
+            <th data-key="rank_messages">Rank (Msg)<span class="arrow">⇅</span></th>
+            <th data-key="rank_days">Rank (Days)<span class="arrow">⇅</span></th>
+            <th data-key="mod_commands">Mod Cmds<span class="arrow">⇅</span></th>
+            <th data-key="rank_total">Rank Total<span class="arrow">⇅</span></th>
+            <th data-key="improvement_points">Imp. Points<span class="arrow">⇅</span></th>
+          </tr>
+        </thead>
+        <tbody id="staffBody">
+          <tr><td colspan="9"><div class="loading">Loading staff sheets</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  index: 'staff_sheets_index.json',
+  week:  (id) => `staff_sheets/${id}.json`
+};
+
+// Mirrors ROLE_HIERARCHY in Wave Management Bot/tasks/staff_sheet.py
+// Index = priority (0 = highest rank). Roles not in the list sort to the bottom.
+const ROLE_HIERARCHY = [
+  'Fruss','Founder','Owner','Executive Director',
+  'Head Operations | Management','Head Staff | Management','Head Marketing | Management',
+  'Head Drop Map Reviewing','Head Drop Map Testing','Head Drop Map Creation',
+  'Head Loot Routes','Head Tips and Tricks','Head Surge Routes','Head Logistics',
+  'Head Promotions',
+  'Staff Insights','Head Staff Insights','Head Recruiter','Head of Learning & Development',
+  'Management','Head Admin','Senior Admin','Admin',
+  'Senior Support','Support','Staff','Trial Staff'
+];
+function roleRank(r){
+  const s = String(r || '').toLowerCase().trim();
+  if (!s) return 9999;
+  const i = ROLE_HIERARCHY.findIndex(x => x.toLowerCase() === s);
+  return i === -1 ? 9998 : i;
+}
+// Map a role to a visual tier so the badge + row accent can be color-coded.
+function roleTier(role){
+  const r = String(role||'').toLowerCase().trim();
+  if (!r) return 'none';
+  if (/^fruss$|founder|owner|executive director/.test(r))  return 'board';
+  if (/^management$/.test(r))                              return 'mgmt';
+  if (/head admin|senior admin/.test(r))                   return 'sradmin';
+  if (/^head |head of /.test(r))                           return 'head';
+  if (/staff insights|learning/.test(r))                   return 'head';
+  if (/admin/.test(r))                                     return 'admin';
+  if (/senior support/.test(r))                            return 'srsup';
+  if (/support/.test(r))                                   return 'sup';
+  if (/trial/.test(r))                                     return 'trial';
+  if (/staff/.test(r))                                     return 'staff';
+  return 'other';
+}
+
+const state = {
+  index: null,
+  week: null,
+  activeId: null,
+  // Default mirrors the actual Google Sheet: role hierarchy first,
+  // rank_total descending as tiebreaker.
+  sort: {key:'role', dir:'asc'}
+};
+
+function $(s, r){ return (r||document).querySelector(s); }
+function $$(s, r){ return Array.from((r||document).querySelectorAll(s)); }
+function el(tag, attrs={}, ...kids){
+  const e = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs)){
+    if (k === 'class') e.className = v;
+    else if (k === 'style' && typeof v === 'object') Object.assign(e.style, v);
+    else if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2), v);
+    else if (v !== false && v != null) e.setAttribute(k, v);
+  }
+  for (const k of kids.flat()){
+    if (k == null || k === false) continue;
+    e.appendChild(k.nodeType ? k : document.createTextNode(k));
+  }
+  return e;
+}
+function fmtFull(n){ return (n||0).toLocaleString(); }
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function load(){
+  try {
+    const r = await fetch(DATA.index + '?t=' + Date.now());
+    if (!r.ok) throw 0;
+    state.index = await r.json();
+  } catch(e){
+    state.index = [];
+  }
+  renderControls();
+  const recent = (state.index || []).filter(w => w.isRecent);
+  const first = recent[0] || state.index[0];
+  if (!first){
+    renderEmpty();
+    return;
+  }
+  await selectWeek(first.id);
+}
+
+function renderControls(){
+  const recentBox = $('#recentScroller');
+  const dropMenu = $('#dropdownMenu');
+  recentBox.innerHTML = '';
+  dropMenu.innerHTML = '';
+
+  if (!state.index || state.index.length === 0){
+    recentBox.appendChild(el('div', {class:'archive-label', style:{padding:'10px 4px'}}, 'No archived weeks yet'));
+    $('#dropdownBtn').style.display = 'none';
+    return;
+  }
+
+  const recent = state.index.filter(w => w.isRecent).length
+    ? state.index.filter(w => w.isRecent).slice(0,4)
+    : state.index.slice(0,4);
+  const recentIds = new Set(recent.map(w => w.id));
+
+  recent.forEach(w => {
+    const btn = el('button', {
+      class: 'week-btn' + (w.id === state.activeId ? ' active' : ''),
+      type: 'button',
+      onclick: () => selectWeek(w.id)
+    }, w.label || w.id);
+    btn.dataset.id = w.id;
+    recentBox.appendChild(btn);
+  });
+
+  const older = state.index.filter(w => !recentIds.has(w.id));
+  const groups = {};
+  for (const w of older){
+    const g = w.group || 'Archive';
+    (groups[g] = groups[g] || []).push(w);
+  }
+  if (older.length === 0){
+    $('#dropdownBtn').style.display = 'none';
+  } else {
+    $('#dropdownBtn').style.display = '';
+    for (const [g, items] of Object.entries(groups)){
+      dropMenu.appendChild(el('div', {class:'archive-group'},
+        el('div', {class:'archive-group-title'}, g.toUpperCase()),
+        el('div', {}, ...items.map(w =>
+          el('button', {
+            class: 'archive-item' + (w.id === state.activeId ? ' active' : ''),
+            type: 'button',
+            onclick: () => selectWeek(w.id)
+          }, w.label || w.id)
+        ))
+      ));
+    }
+  }
+}
+
+document.addEventListener('click', e => {
+  const ddBtn = $('#dropdownBtn');
+  if (!ddBtn) return;
+  if (e.target.closest('#dropdownBtn')){
+    $('#dropdownMenu').classList.toggle('show');
+    ddBtn.classList.toggle('open');
+    return;
+  }
+  if (!e.target.closest('.archive-controls')){
+    $('#dropdownMenu')?.classList.remove('show');
+    ddBtn.classList.remove('open');
+  }
+});
+
+async function selectWeek(id){
+  state.activeId = id;
+  $$('.week-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+  $$('.archive-item').forEach(b => b.classList.toggle('active', b.textContent === (state.index.find(w=>w.id===id)?.label || '')));
+  const ddBtn = $('#dropdownBtn');
+  if (ddBtn){
+    const isOld = state.index.find(w => w.id===id && !w.isRecent);
+    ddBtn.classList.toggle('has-old-active', !!isOld);
+    $('#dropdownMenu').classList.remove('show');
+    ddBtn.classList.remove('open');
+  }
+  const body = $('#staffBody');
+  body.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--c-primary);font-family:Orbitron,monospace;letter-spacing:0.2em;">LOADING WEEK…</td></tr>';
+  try {
+    const r = await fetch(DATA.week(id) + '?t=' + Date.now());
+    if (!r.ok) throw 0;
+    state.week = await r.json();
+  } catch(e){
+    renderEmpty('Failed to load week ' + id);
+    return;
+  }
+  renderMeta();
+  renderTable();
+}
+
+function renderEmpty(msg){
+  $('#staffMetaBar').innerHTML = '';
+  $('#staffBody').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:60px;color:var(--c-text-faint);font-family:Orbitron,monospace;letter-spacing:0.25em;font-size:11px;">${msg || 'No staff sheet data yet — run a weekly export from the Wave Management Bot to populate this archive.'}</td></tr>`;
+}
+
+function renderMeta(){
+  const meta = state.week?._meta || {};
+  const w = state.index?.find(x => x.id === state.activeId);
+  const bar = $('#staffMetaBar');
+  bar.innerHTML = '';
+  const parts = [];
+  if (w?.label) parts.push(`<span class="item">📅 <strong>${escapeHtml(w.label)}</strong></span>`);
+  if (meta.start_date && meta.end_date) parts.push(`<span class="item">🗓️ ${escapeHtml(meta.start_date)} → ${escapeHtml(meta.end_date)}</span>`);
+  if (meta.last_updated){
+    try {
+      parts.push(`<span class="item">⏱️ Updated <strong>${new Date(meta.last_updated).toLocaleString()}</strong></span>`);
+    } catch(e){}
+  }
+  parts.push(`<span class="item">👥 <strong>${(state.week?.staff||[]).length}</strong> staff</span>`);
+  bar.innerHTML = parts.join('');
+}
+
+$$('#staffHead th[data-key]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.key;
+    if (state.sort.key === key){
+      state.sort.dir = state.sort.dir === 'asc' ? 'desc' : 'asc';
+    } else {
+      state.sort.key = key;
+      state.sort.dir = (key === 'name' || key === 'role') ? 'asc' : 'desc';
+    }
+    renderTable();
+  });
+});
+
+function renderTable(){
+  const body = $('#staffBody');
+  body.innerHTML = '';
+  $$('#staffHead th').forEach(th => {
+    th.classList.remove('sort-asc','sort-desc');
+    const arrow = $('.arrow', th);
+    if (arrow) arrow.textContent = '⇅';
+    if (th.dataset.key === state.sort.key){
+      th.classList.add('sort-' + state.sort.dir);
+      if (arrow) arrow.textContent = state.sort.dir === 'asc' ? '▲' : '▼';
+    }
+  });
+
+  const rows = (state.week?.staff || []).slice();
+  const {key, dir} = state.sort;
+  rows.sort((a,b) => {
+    // Role column: sort by Discord role hierarchy, NOT alphabetically.
+    // Rank Total acts as a tiebreaker within the same role (matching staff_sheet.py).
+    if (key === 'role'){
+      const ar = roleRank(a.role), br = roleRank(b.role);
+      if (ar !== br) return dir==='asc' ? ar - br : br - ar;
+      return (b.rank_total||0) - (a.rank_total||0);
+    }
+    const av = a[key], bv = b[key];
+    if (typeof av === 'number' && typeof bv === 'number') return dir==='asc'? av-bv : bv-av;
+    const as = (av||'').toString().toLowerCase(), bs = (bv||'').toString().toLowerCase();
+    return dir==='asc' ? as.localeCompare(bs) : bs.localeCompare(as);
+  });
+
+  if (rows.length === 0){ renderEmpty(); return; }
+
+  rows.forEach((s, i) => {
+    const isRankTotalDesc = state.sort.key === 'rank_total' && state.sort.dir === 'desc';
+    const podiumCls = isRankTotalDesc ? (i===0?'top-1':i===1?'top-2':i===2?'top-3':'') : '';
+    const medal = isRankTotalDesc ? (i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'') : '';
+    const tier = roleTier(s.role);
+    const rowCls = ['row-' + tier, podiumCls].filter(Boolean).join(' ');
+    const rt = s.rank_total;
+    const rtCls = (rt == null) ? 'r-low' : (rt >= 100 ? 'r-100' : (rt < 40 ? 'r-low' : ''));
+    const tr = el('tr', {class: rowCls, style:{animation:`fadeUp 0.32s ${i*0.025}s both`, opacity:'0'}});
+    const initial = escapeHtml((s.name || '?')[0].toUpperCase());
+    const av = s.avatar_url
+      ? `<img class="staff-avatar" src="${escapeHtml(s.avatar_url)}" alt="" loading="lazy" onerror="this.outerHTML='<span class=&quot;staff-avatar-fb&quot;>${initial}</span>'">`
+      : `<span class="staff-avatar-fb">${initial}</span>`;
+    tr.innerHTML = `
+      <td class="col-name"><div class="name-wrap">${av}<span class="name-text">${medal}${escapeHtml(s.name || '')}</span></div></td>
+      <td><span class="role-badge t-${tier}">${escapeHtml(String(s.role || '—'))}</span></td>
+      <td class="col-msg">${fmtFull(s.messages)}</td>
+      <td class="col-days">${s.days_active || 0}/7</td>
+      <td class="col-rmsg">${s.rank_messages != null ? s.rank_messages+'%' : '—'}</td>
+      <td class="col-rdays">${s.rank_days != null ? s.rank_days+'%' : '—'}</td>
+      <td class="col-mod">${fmtFull(s.mod_commands)}</td>
+      <td><span class="rank-medal ${rtCls}">${rt ?? '—'}</span></td>
+      <td class="col-imp">${s.improvement_points > 0 ? '+'+s.improvement_points : '—'}</td>`;
+    body.appendChild(tr);
+  });
+
+  // ── Average row (matches the gold footer row in the Google Sheet) ──
+  if (rows.length > 0){
+    const avg = (key) => Math.round(rows.reduce((s,r) => s + (Number(r[key])||0), 0) / rows.length);
+    const tr = el('tr', {class:'avg-row', style:{animation:`fadeUp 0.4s ${rows.length*0.025 + 0.05}s both`, opacity:'0'}});
+    tr.innerHTML = `
+      <td>Average</td>
+      <td>—</td>
+      <td>${fmtFull(avg('messages'))}</td>
+      <td>${avg('days_active')}/7</td>
+      <td>${avg('rank_messages')}%</td>
+      <td>${avg('rank_days')}%</td>
+      <td>${fmtFull(avg('mod_commands'))}</td>
+      <td>${avg('rank_total')}</td>
+      <td>+${avg('improvement_points')}</td>`;
+    body.appendChild(tr);
+  }
+}
+
+load();
+</script>
+<script src="wave-guide.js"></script>
+<style>
+.ucf-footer{position:relative;z-index:10;text-align:center;padding:28px 16px 48px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#3a5070;border-top:1px solid rgba(0,212,255,.07);background:linear-gradient(0deg,rgba(0,212,255,.025) 0%,transparent 100%);}
+.ucf-footer .ucf-code{color:#00d4ff;font-weight:700;letter-spacing:3px;text-shadow:0 0 10px rgba(0,212,255,.8),0 0 22px rgba(0,212,255,.4),0 0 40px rgba(0,212,255,.15);}
+</style>
+<footer class="ucf-footer">Use Code <span class="ucf-code">wavedropmaps</span> in the Item Shop!</footer>
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wave Guild Stats — 2026-06-16</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0A0E14;--panel:#0F1419;--panel-2:#131922;
+  --border:#1F2630;--border-2:#283040;
+  --text:#E6EDF3;--muted:#8B98A6;--muted-2:#5A6573;
+  --accent:#4A9EFF;--accent-2:#7C5CFF;
+  --good:#3FB68B;--warn:#E8A23B;--bad:#E5484D;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Consolas,monospace;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--sans);font-size:13px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;min-height:100vh;
+}
+header.topbar{
+  display:flex;align-items:center;gap:16px;padding:10px 20px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,var(--panel) 0%,var(--bg) 100%);
+  position:sticky;top:0;z-index:10;
+  backdrop-filter:saturate(180%) blur(8px);
+}
+.topbar .brand{
+  font-weight:600;letter-spacing:-0.01em;font-size:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.topbar .brand::before{
+  content:"";display:inline-block;width:8px;height:8px;
+  background:var(--good);border-radius:2px;box-shadow:0 0 12px var(--good);
+}
+.topbar .pill{
+  padding:4px 10px;border-radius:6px;
+  background:var(--panel-2);border:1px solid var(--border);
+  color:var(--muted);font-size:12px;font-family:var(--mono);
+  margin-left:auto;
+}
+main{padding:24px 20px;max-width:1400px;margin:0 auto}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px}
+.kpi{padding:16px;min-width:0}
+.kpi .label{color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:.08em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .value{font-family:var(--mono);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;margin-top:6px;line-height:1.1;color:var(--accent)}
+.kpi .delta{font-family:var(--mono);font-size:12px;margin-top:4px}
+.kpi .sub{color:var(--muted);font-size:11px;margin-top:4px}
+.row{display:grid;gap:16px;margin-bottom:16px}
+.row.cols-2{grid-template-columns:1fr 1fr}
+.card h2{margin:0 0 14px;font-size:13px;font-weight:600;color:var(--text)}
+.card h3{margin:0 0 4px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.chart-wrap{position:relative;height:280px}
+.chart-tall{position:relative;height:340px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.06em;cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{color:var(--text)}
+th .arr{margin-left:3px;opacity:.3;font-size:.65em}
+th.sort-asc .arr,th.sort-desc .arr{opacity:1;color:var(--accent)}
+tbody tr{transition:background 100ms}
+tbody tr:hover{background:var(--panel-2)}
+td{color:var(--text);white-space:nowrap}
+.pos{color:var(--good)}.neg{color:var(--bad)}.dim{color:var(--muted-2)}
+.tier{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-family:var(--mono);font-weight:500}
+.tier-0{background:rgba(74,158,255,0.05);color:var(--muted-2)}
+.tier-1{background:rgba(63,182,139,0.1);color:var(--good);border:1px solid rgba(63,182,139,0.3)}
+.tier-2{background:rgba(74,158,255,0.1);color:var(--accent);border:1px solid rgba(74,158,255,0.3)}
+.tier-3{background:rgba(124,92,255,0.1);color:var(--accent-2);border:1px solid rgba(124,92,255,0.3)}
+.heatmap{overflow-x:auto}
+.hm-row{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.hm-label{width:180px;min-width:180px;color:var(--muted);text-align:right;padding-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.hm-cells{display:flex;gap:2px}
+.hm-cell{width:14px;height:14px;border-radius:3px;cursor:default;flex-shrink:0}
+.hm-dates{display:flex;gap:2px;margin-left:184px;margin-bottom:4px}
+.hm-date{width:14px;text-align:center;font-size:9px;color:var(--muted-2);transform:rotate(-60deg);transform-origin:bottom left;height:20px}
+@media(max-width:900px){.kpi-row{grid-template-columns:1fr 1fr}.row.cols-2{grid-template-columns:1fr}}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">Wave Guild Stats</div>
+  <div class="pill">2026-06-16 06:36 UTC</div>
+</header>
+<main>
+
+<div class="kpi-row">
+  <div class="card kpi">
+    <div class="label">Total Members</div>
+    <div class="value">139,788</div>
+    <div class="delta pos">+0 past 7d</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Online Now</div>
+    <div class="value" style="color:var(--good)">10,385</div>
+    <div class="sub">7.4% of total</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Total Boosts</div>
+    <div class="value" style="color:var(--warn)">65</div>
+    <div class="sub">across 2 servers</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Snapshot Window</div>
+    <div class="value" style="font-size:13px;color:var(--muted);font-family:var(--mono);padding-top:4px">2026-06-13<br>→ 2026-06-16</div>
+    <div class="sub">90d window</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="card">
+    <h2>Member Count Over Time — Per Server</h2>
+    <div class="chart-tall"><canvas id="mcChart"></canvas></div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="card">
+    <h2>Combined Total Members Over Time</h2>
+    <div class="chart-wrap"><canvas id="totalChart"></canvas></div>
+  </div>
+</div>
+
+<div class="row cols-2">
+  <div class="card">
+    <h2>Online Count Over Time</h2>
+    <div class="chart-wrap"><canvas id="ocChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Online Ratio (% of members online)</h2>
+    <div class="chart-wrap"><canvas id="ratioChart"></canvas></div>
+  </div>
+</div>
+
+<div class="row cols-2">
+  <div class="card">
+    <h2>Boost Count Over Time</h2>
+    <div class="chart-wrap"><canvas id="boostChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Growth Velocity (week-over-week %)</h2>
+    <div class="chart-wrap"><canvas id="velChart"></canvas></div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:16px">
+  <h2>Server Summary</h2>
+  <div style="overflow-x:auto">
+  <table id="summaryTable" style="min-width:900px">
+    <thead><tr>
+      <th data-col="name"          data-type="str">Server          <span class="arr">↕</span></th>
+      <th data-col="members"       data-type="num">Members         <span class="arr">↕</span></th>
+      <th data-col="online"        data-type="num">Online          <span class="arr">↕</span></th>
+      <th data-col="online_pct"    data-type="num">Online %        <span class="arr">↕</span></th>
+      <th data-col="boost_count"   data-type="num">Boosts          <span class="arr">↕</span></th>
+      <th data-col="boost_tier"    data-type="num">Tier            <span class="arr">↕</span></th>
+      <th data-col="channel_count" data-type="num">Channels        <span class="arr">↕</span></th>
+      <th data-col="role_count"    data-type="num">Roles           <span class="arr">↕</span></th>
+      <th data-col="mpd"           data-type="num">Members/Day     <span class="arr">↕</span></th>
+      <th data-col="d7"            data-type="num">7d Change       <span class="arr">↕</span></th>
+      <th data-col="p7"            data-type="num">7d %            <span class="arr">↕</span></th>
+      <th data-col="d30"           data-type="num">30d Change      <span class="arr">↕</span></th>
+      <th data-col="p30"           data-type="num">30d %           <span class="arr">↕</span></th>
+      <th data-col="proj"          data-type="num">Proj. 30d       <span class="arr">↕</span></th>
+      <th data-col="last_seen"     data-type="str">Last Snapshot   <span class="arr">↕</span></th>
+    </tr></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Online Activity Heatmap</h2>
+  <div style="margin-bottom:12px;font-size:11px;color:var(--muted-2)">Darker = more online</div>
+  <div class="heatmap" id="heatmap"></div>
+</div>
+
+<script>
+const COLORS  = ["#4A9EFF", "#7C5CFF", "#3FB68B", "#E8A23B", "#E5484D", "#5BCEDA"];
+const DATES   = ["2026-06-13", "2026-06-15", "2026-06-16"];
+const MC_DS   = [{"label": "Wave Free Dropmaps!", "data": [109369, 109238, 109206], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "data": [30621, 30592, 30582], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}];
+const TOT_DS  = [{"label": "Combined", "data": [139990, 139830, 139788], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF1f", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2.5}];
+const OC_DS   = [{"label": "Wave Free Dropmaps!", "data": [11870, 8317, 7909], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "data": [3577, 2510, 2476], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}];
+const VEL_DS  = [{"label": "Wave Free Dropmaps!", "data": [null, null, null], "borderColor": "#4A9EFF", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "data": [null, null, null], "borderColor": "#7C5CFF", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}];
+const BOOST_DS= [{"label": "Wave Free Dropmaps!", "data": [39, 38, 37], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF40", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "data": [27, 28, 28], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF40", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}];
+const RATIO   = [{"name": "Wave Free Dropmaps!", "ratio": 7.2}, {"name": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "ratio": 8.1}];
+const HM_DATA = [{"name": "Wave Free Dropmaps!", "vals": [11870, 8317, 7909], "max": 11870}, {"name": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "vals": [3577, 2510, 2476], "max": 3577}];
+const HM_DATES= ["2026-06-13", "2026-06-15", "2026-06-16"];
+const RAW_ROWS= [{"name": "Wave Free Dropmaps!", "members": 109206, "online": 7909, "online_pct": 7.2, "boost_count": 37, "boost_tier": 3, "channel_count": 268, "role_count": 89, "mpd": null, "d7": null, "p7": null, "d30": null, "p30": null, "proj": 107528, "last_seen": "2026-06-16 06:36 UTC"}, {"name": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "members": 30582, "online": 2476, "online_pct": 8.1, "boost_count": 28, "boost_tier": 3, "channel_count": 435, "role_count": 82, "mpd": null, "d7": null, "p7": null, "d30": null, "p30": null, "proj": 30186, "last_seen": "2026-06-16 06:36 UTC"}];
+
+const GRID = {color:'#1F2630'};
+const TICK = {color:'#8B98A6',font:{size:11,family:"'JetBrains Mono',monospace"}};
+const TIP  = {
+  backgroundColor:'#0F1419',borderColor:'#283040',borderWidth:1,
+  titleColor:'#E6EDF3',bodyColor:'#8B98A6',
+  titleFont:{family:"'Inter',sans-serif",size:12},
+  bodyFont:{family:"'JetBrains Mono',monospace",size:12},
+  padding:{x:12,y:8},
+};
+const AXIS = {
+  x:{ticks:{...TICK,maxTicksLimit:16},grid:GRID},
+  y:{ticks:{...TICK,callback:v=>v?.toLocaleString()},grid:GRID},
+};
+const LEG = {labels:{color:'#8B98A6',font:{size:11,family:"'Inter',sans-serif"},usePointStyle:true,pointStyle:'line',boxWidth:20,padding:16}};
+
+function mkLine(id, ds, extraOpts={}) {
+  new Chart(id, {type:'line',
+    data:{labels:DATES,datasets:ds},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:LEG,tooltip:TIP},
+      scales:AXIS,...extraOpts,
+    }
+  });
+}
+
+mkLine('mcChart',   MC_DS);
+mkLine('totalChart',TOT_DS);
+mkLine('ocChart',   OC_DS);
+mkLine('boostChart',BOOST_DS);
+mkLine('velChart',  VEL_DS, {
+  plugins:{legend:LEG,tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y?.toFixed(2)}%`}}},
+  scales:{x:AXIS.x,y:{ticks:{...TICK,callback:v=>v+'%'},grid:GRID,afterDataLimits(s){const r=Math.max(Math.abs(s.min),Math.abs(s.max),1);s.min=-r;s.max=r;}}}
+});
+
+new Chart('ratioChart',{type:'bar',
+  data:{
+    labels: RATIO.map(r=>r.name),
+    datasets:[{
+      label:'Online %',
+      data: RATIO.map(r=>r.ratio),
+      backgroundColor: RATIO.map((_,i)=>COLORS[i%COLORS.length]+'40'),
+      borderColor: RATIO.map((_,i)=>COLORS[i%COLORS.length]),
+      borderWidth:1,borderRadius:4,
+    }]
+  },
+  options:{
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.parsed.x.toFixed(1)}%`}}},
+    scales:{
+      x:{ticks:{...TICK,callback:v=>v+'%'},grid:GRID},
+      y:{ticks:{color:'#8B98A6',font:{size:11}},grid:{color:'transparent'}},
+    }
+  }
+});
+
+// Heatmap
+(function(){
+  const wrap = document.getElementById('heatmap');
+  if(!HM_DATES.length){wrap.innerHTML='<p style="color:var(--muted-2);padding:8px">Not enough data yet.</p>';return;}
+  const hdr = document.createElement('div'); hdr.className='hm-dates';
+  HM_DATES.forEach(d=>{
+    const el=document.createElement('div'); el.className='hm-date'; el.textContent=d.slice(5); hdr.appendChild(el);
+  });
+  wrap.appendChild(hdr);
+  HM_DATA.forEach(srv=>{
+    const row=document.createElement('div'); row.className='hm-row';
+    const lbl=document.createElement('div'); lbl.className='hm-label'; lbl.textContent=srv.name; row.appendChild(lbl);
+    const cells=document.createElement('div'); cells.className='hm-cells';
+    srv.vals.forEach((v,i)=>{
+      const c=document.createElement('div'); c.className='hm-cell';
+      if(v==null){ c.style.background='#131922'; }
+      else{
+        const intensity=v/srv.max;
+        c.style.background=`rgba(74,158,255,${(.08+intensity*.65).toFixed(2)})`;
+        c.title=`${srv.name} · ${HM_DATES[i]}: ${v.toLocaleString()} online`;
+      }
+      cells.appendChild(c);
+    });
+    row.appendChild(cells); wrap.appendChild(row);
+  });
+})();
+
+// Table
+const TIER_LABELS = ['None','Level 1','Level 2','Level 3'];
+const TIER_CSS    = ['tier-0','tier-1','tier-2','tier-3'];
+let sortCol='members', sortDir=-1;
+
+function fmtN(v, sfx='', dec=0) {
+  if(v===null||v===undefined) return '<span class="dim">—</span>';
+  const abs = dec>0 ? Math.abs(v).toFixed(dec) : Math.abs(v).toLocaleString();
+  const sign = v>0?'+':v<0?'-':'';
+  const cls  = v>0?'pos':v<0?'neg':'';
+  return cls ? `<span class="${cls}">${sign}${abs}${sfx}</span>` : `${abs}${sfx}`;
+}
+
+function renderTable(rows) {
+  const sorted = [...rows].sort((a,b)=>{
+    const av=a[sortCol], bv=b[sortCol];
+    if(av==null) return 1; if(bv==null) return -1;
+    return (typeof av==='string' ? av.localeCompare(bv) : av-bv)*sortDir;
+  });
+  document.getElementById('tableBody').innerHTML = sorted.map(r=>{
+    const tier = r.boost_tier ?? 0;
+    return `<tr>
+      <td><b>${r.name}</b></td>
+      <td style="font-family:var(--mono)">${r.members?r.members.toLocaleString():'—'}</td>
+      <td style="font-family:var(--mono)">${r.online?r.online.toLocaleString():'—'}</td>
+      <td style="font-family:var(--mono)">${r.online_pct!=null?r.online_pct.toFixed(1)+'%':'—'}</td>
+      <td style="font-family:var(--mono)">${r.boost_count??'—'}</td>
+      <td><span class="tier ${TIER_CSS[tier]}">${TIER_LABELS[tier]}</span></td>
+      <td style="font-family:var(--mono)">${r.channel_count??'<span class="dim">—</span>'}</td>
+      <td style="font-family:var(--mono)">${r.role_count??'<span class="dim">—</span>'}</td>
+      <td style="font-family:var(--mono)">${fmtN(r.mpd,'',1)}</td>
+      <td style="font-family:var(--mono)">${fmtN(r.d7)}</td>
+      <td style="font-family:var(--mono)">${fmtN(r.p7,'%',2)}</td>
+      <td style="font-family:var(--mono)">${fmtN(r.d30)}</td>
+      <td style="font-family:var(--mono)">${fmtN(r.p30,'%',2)}</td>
+      <td style="font-family:var(--mono)">${r.proj!=null?r.proj.toLocaleString():'<span class="dim">—</span>'}</td>
+      <td style="color:var(--muted-2);font-family:var(--mono);font-size:11px">${r.last_seen}</td>
+    </tr>`;
+  }).join('');
+}
+
+document.querySelectorAll('#summaryTable th[data-col]').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const col=th.dataset.col;
+    sortDir = sortCol===col ? -sortDir : -1;
+    sortCol = col;
+    document.querySelectorAll('#summaryTable th').forEach(t=>{
+      t.classList.remove('sort-asc','sort-desc');
+      t.querySelector('.arr').textContent='↕';
+    });
+    th.classList.add(sortDir===-1?'sort-desc':'sort-asc');
+    th.querySelector('.arr').textContent = sortDir===-1?'↓':'↑';
+    renderTable(RAW_ROWS);
+  });
+});
+renderTable(RAW_ROWS);
+const dflt = document.querySelector('#summaryTable th[data-col="members"]');
+dflt.classList.add('sort-desc'); dflt.querySelector('.arr').textContent='↓';
+</script>
+</main>
+</body>
+</html>

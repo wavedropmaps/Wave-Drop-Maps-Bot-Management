@@ -1,0 +1,37 @@
+[
+  {
+    "id": "surge-route-maker",
+    "name": "Surge Route Maker",
+    "description": "",
+    "difficulty": "",
+    "status": 3
+  },
+  {
+    "id": "loot-route-maker",
+    "name": "Loot Route Maker",
+    "description": "Makes loot routes for wave",
+    "difficulty": "Easy",
+    "status": 1
+  },
+  {
+    "id": "tips-tricks-helper",
+    "name": "Tips and Tricks Helper",
+    "description": "Adds tips & tricks in improvement for fn",
+    "difficulty": "Medium",
+    "status": 1
+  },
+  {
+    "id": "map-request-helper",
+    "name": "Map Request Helper",
+    "description": "Helps members find drop maps",
+    "difficulty": "Medium",
+    "status": 3
+  },
+  {
+    "id": "promoters",
+    "name": "Promoters",
+    "description": "Makes vfx or gfx or gets partnerships",
+    "difficulty": "Pre-existing skill set needed",
+    "status": 1
+  }
+]

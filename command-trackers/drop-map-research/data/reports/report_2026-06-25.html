@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Drop Map Market Research — 2026-06-25</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0A0E14;--panel:#0F1419;--panel-2:#131922;
+  --border:#1F2630;--border-2:#283040;
+  --text:#E6EDF3;--muted:#8B98A6;--muted-2:#5A6573;
+  --accent:#4A9EFF;--accent-2:#7C5CFF;
+  --good:#3FB68B;--warn:#E8A23B;--bad:#E5484D;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Consolas,monospace;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--sans);font-size:13px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;min-height:100vh;
+}
+header.topbar{
+  display:flex;align-items:center;gap:16px;padding:10px 20px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,var(--panel) 0%,var(--bg) 100%);
+  position:sticky;top:0;z-index:10;
+  backdrop-filter:saturate(180%) blur(8px);
+}
+.topbar .brand{
+  font-weight:600;letter-spacing:-0.01em;font-size:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.topbar .brand::before{
+  content:"";display:inline-block;width:8px;height:8px;
+  background:var(--accent);border-radius:2px;box-shadow:0 0 12px var(--accent);
+}
+.topbar .pill{
+  padding:4px 10px;border-radius:6px;
+  background:var(--panel-2);border:1px solid var(--border);
+  color:var(--muted);font-size:12px;font-family:var(--mono);
+  margin-left:auto;
+}
+main{padding:24px 20px;max-width:1500px;margin:0 auto}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px}
+.kpi{padding:16px;min-width:0}
+.kpi .label{color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:.08em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .value{font-family:var(--mono);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;margin-top:6px;line-height:1.1;color:var(--accent)}
+.kpi .sub{color:var(--muted);font-size:11px;margin-top:4px}
+.row{display:grid;gap:16px;margin-bottom:16px}
+.row.cols-2{grid-template-columns:1fr 1fr}
+.row.full{grid-template-columns:1fr}
+.card h2{margin:0 0 14px;font-size:13px;font-weight:600;color:var(--text)}
+.card h3{margin:0 0 4px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.chart-wrap{position:relative;height:280px}
+.chart-tall{position:relative;height:360px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.06em;cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{color:var(--text)}
+th .arr{margin-left:3px;opacity:.3;font-size:.65em}
+th.sort-asc .arr,th.sort-desc .arr{opacity:1;color:var(--accent)}
+tbody tr{transition:background 100ms}
+tbody tr:hover{background:var(--panel-2)}
+td{color:var(--text);white-space:nowrap}
+.pos{color:var(--good)}.neg{color:var(--bad)}.dim{color:var(--muted-2)}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-family:var(--mono);font-weight:500}
+.badge-hit{background:rgba(63,182,139,0.1);color:var(--good);border:1px solid rgba(63,182,139,0.3)}
+.badge-miss{background:rgba(229,72,77,0.1);color:var(--bad);border:1px solid rgba(229,72,77,0.3)}
+.badge-pend{background:rgba(74,158,255,0.08);color:var(--muted);border:1px solid var(--border)}
+.heatmap{overflow-x:auto;padding-top:4px}
+.hm-row{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.hm-label{width:190px;min-width:190px;color:var(--muted);text-align:right;padding-right:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.hm-cells{display:flex;gap:2px}
+.hm-cell{width:13px;height:13px;border-radius:3px;cursor:default;flex-shrink:0}
+.hm-dates{display:flex;gap:2px;margin-left:200px;margin-bottom:6px}
+.hm-date{width:13px;text-align:center;font-size:9px;color:var(--muted-2);transform:rotate(-60deg);transform-origin:bottom left;height:18px}
+hr.divider{border:0;border-top:1px solid var(--border);margin:20px 0}
+.badge-wave{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-family:var(--mono);font-weight:500;background:rgba(74,158,255,0.08);color:var(--accent);border:1px solid rgba(74,158,255,0.3)}
+.badge-new{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-family:var(--mono);font-weight:500;background:rgba(63,182,139,0.1);color:var(--good);border:1px solid rgba(63,182,139,0.3)}
+.conv-grid{display:grid;gap:10px}
+.conv-card{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:8px;border:1px solid var(--border)}
+.conv-card.threat-ahead{background:rgba(229,72,77,0.06);border-color:rgba(229,72,77,0.25)}
+.conv-card.threat-catching{background:rgba(232,162,59,0.06);border-color:rgba(232,162,59,0.25)}
+.conv-card.threat-safe{background:rgba(63,182,139,0.06);border-color:rgba(63,182,139,0.2)}
+.conv-icon{font-size:18px;line-height:1;padding-top:2px;flex-shrink:0}
+.conv-name{font-weight:600;margin-bottom:4px}
+.conv-detail{color:var(--muted);font-size:12px;line-height:1.5}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.row.cols-2{grid-template-columns:1fr}}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr}}
+
+.alert-bar{background:rgba(229,72,77,0.08);border:1px solid rgba(229,72,77,0.3);border-radius:8px;padding:12px 16px;margin-bottom:16px}
+.alert-bar ul{margin:6px 0 0 18px;color:var(--text);font-size:12px}
+.alert-bar .title{color:var(--bad);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.threat-banner{background:rgba(232,162,59,0.08);border-bottom:1px solid rgba(232,162,59,0.25);padding:10px 20px;font-size:13px;color:var(--text)}
+.threat-banner b{color:var(--warn)}
+.guild-banner{background:rgba(63,182,139,0.06);border-bottom:1px solid rgba(63,182,139,0.2);padding:10px 20px;font-size:13px;color:var(--text)}
+.col-advanced{display:none}
+.table-toolbar{display:flex;justify-content:flex-end;margin-bottom:10px}
+.table-toolbar button{background:var(--panel-2);border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px}
+.table-toolbar button:hover{color:var(--text);border-color:var(--border-2)}
+.multiples-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.multiple-card{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:10px}
+.multiple-card h4{font-size:11px;color:var(--muted);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.multiple-card canvas{width:100%!important;height:100px!important}
+.norm-note{color:var(--muted-2);font-size:11px;margin-top:8px}
+.coverage-banner{background:rgba(232,162,59,0.08);border:1px solid rgba(232,162,59,0.28);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text)}
+.coverage-banner .title{color:var(--warn);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.coverage-banner ul{margin:4px 0 0 18px;color:var(--muted)}
+.entrant-badge{display:inline-block;font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(124,92,255,0.15);color:var(--accent-2);margin-left:6px;vertical-align:middle}
+.entrant-note{background:rgba(124,92,255,0.06);border:1px solid rgba(124,92,255,0.2);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--muted)}
+.cross-card{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px}
+.cross-card .label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+.cross-card .val{font-family:var(--mono);font-size:16px;margin-top:4px;color:var(--accent)}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">Drop Map Market Research</div>
+  <div class="pill">2026-06-25 14:05 UTC</div>
+</header>
+
+<main>
+<div class="coverage-banner"><div class="title">Data coverage</div><ul><li><b>Titan Free Dropmaps & Tips</b> tracked since 2026-06-12 — prior days used smaller market roster.</li><li><b>Free Dropmaps</b> tracked since 2026-06-12 — prior days used smaller market roster.</li><li><b>NA Drops</b> tracked since 2026-06-12 — prior days used smaller market roster.</li><li><b>Nova Free Dropmaps & Tips</b> tracked since 2026-06-12 — prior days used smaller market roster.</li><li><b>SenanF Improvement Server</b> tracked since 2026-06-12 — prior days used smaller market roster.</li></ul></div>
+
+
+<div class="kpi-row">
+  <div class="card kpi">
+    <div class="label">Servers Tracked</div>
+    <div class="value">9</div>
+    <div class="sub">2026-06-23 → 2026-06-25</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Total Members (all)</div>
+    <div class="value">171,681</div>
+    <div class="sub">across all tracked servers</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Wave Members</div>
+    <div class="value">108,672</div>
+    <div class="sub">Wave Free Dropmaps</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Wave Market Rank</div>
+    <div class="value" style="color:var(--good)">#1</div>
+    <div class="sub">not enough history</div>
+  </div>
+</div>
+
+<div class="kpi-row" style="margin-top:0">
+  <div class="card kpi">
+    <div class="label">Data Points</div>
+    <div class="value">27</div>
+    <div class="sub">total snapshots stored</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Competitive Position</div>
+    <div class="value" style="font-size:14px;color:var(--good)">
+      All clear</div>
+    <div class="sub">No competitors gaining</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Fastest Accelerating</div>
+    <div class="value" style="font-size:14px;color:var(--warn)">—</div>
+    <div class="sub">Not enough history</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Snapshot Window</div>
+    <div class="value" style="font-size:13px;color:var(--muted);font-family:var(--mono);padding-top:4px">2026-06-23<br>→ 2026-06-25</div>
+    <div class="sub">90d window</div>
+  </div>
+</div>
+
+<div class="kpi-row">
+  <div class="card kpi">
+    <div class="label">Wave Share Δ (7d)</div>
+    <div class="value" style="color:var(--good)">—</div>
+    <div class="sub">share points vs 7 days ago</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Market HHI</div>
+    <div class="value" style="font-size:16px">4251.0</div>
+    <div class="sub">Moderately concentrated</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Growth Capture (7d)</div>
+    <div class="value" style="font-size:12px;line-height:1.3;padding-top:4px">—</div>
+    <div class="sub">who won incremental growth</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Prediction Scorecard</div>
+    <div class="value" style="font-size:14px">—</div>
+    <div class="sub">Wave 30-day targets</div>
+  </div>
+</div>
+
+<div class="kpi-row">
+  <div class="card kpi">
+    <div class="label">Wave Boost Health</div>
+    <div class="value" style="font-size:13px">Tier 3 · 34 boosts · 271 ch</div>
+    <div class="sub">from guild-dash snapshot</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Online Metrics</div>
+    <div class="value" style="font-size:12px;color:var(--muted)">Online metrics partially time-adjusted toward 14:00 UTC (3/7 canonical days — accuracy improves as 14:05 UTC collects accumulate).</div>
+    <div class="sub">avg raw 17.2% online now</div>
+  </div>
+</div>
+
+<div class="row cols-2">
+  <div class="card">
+    <h2>Market Share (current)</h2>
+    <h3>Share of total members by server</h3>
+    <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Online Engagement Ratio</h2>
+    <h3>Online members as a % of total members</h3>
+    <div class="chart-wrap"><canvas id="ratioChart"></canvas></div>
+  </div>
+</div>
+
+<div class="row full">
+  <div class="card">
+    <h2>Member Growth Over Time</h2>
+    <h3>Per-server mini charts (shared scale)</h3>
+    <div class="multiples-grid" id="mcMultiples"></div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="card">
+    <h2>Online Activity Over Time</h2>
+    <h3>Concurrent online members per server</h3>
+    <div class="chart-tall"><canvas id="onlineChart"></canvas></div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="card">
+    <h2>Market Share Over Time</h2>
+    <h3>Each server's % of total tracked members</h3>
+    <div class="chart-tall"><canvas id="stackedChart"></canvas></div>
+  </div>
+</div>
+
+<div class="row cols-2">
+  <div class="card">
+    <h2>Growth Velocity</h2>
+    <h3>Week-over-week % growth rate per server</h3>
+    <div class="chart-wrap"><canvas id="velChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Engagement Trend Over Time</h2>
+    <h3>Online % per server — rising = healthier community</h3>
+    <div class="chart-wrap"><canvas id="engChart"></canvas></div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:16px">
+  <h2>Server Summary</h2>
+  <h3 style="margin-bottom:14px">Click any column header to sort · Accel = growth acceleration (members/day/day)</h3>
+  <div class="table-toolbar"><button type="button" id="expandBtn">Show all columns</button></div>
+  <div style="overflow-x:auto">
+  <table id="mainTable" style="min-width:1200px">
+    <thead><tr>
+      <th data-col="name"            data-type="str">Server<span class="arr">↕</span></th>
+      <th data-col="members"         data-type="num">Members<span class="arr">↕</span></th>
+      <th data-col="share"           data-type="num">Share %<span class="arr">↕</span></th>
+      <th data-col="s7"              data-type="num">Share Δ 7d<span class="arr">↕</span></th>
+      <th data-col="d7"              data-type="num">7d Δ<span class="arr">↕</span></th>
+      <th data-col="mpd"             data-type="num">Mem/Day<span class="arr">↕</span></th>
+      <th data-col="discovery_rank"  data-type="num" class="col-advanced">Discovery<span class="arr">↕</span></th>
+      <th data-col="online"          data-type="num" class="col-advanced">Online<span class="arr">↕</span></th>
+      <th data-col="online_pct"      data-type="num" class="col-advanced">Online %<span class="arr">↕</span></th>
+      <th data-col="eng_trend"       data-type="num" class="col-advanced">Eng. Trend<span class="arr">↕</span></th>
+      <th data-col="accel"           data-type="num" class="col-advanced">Accel<span class="arr">↕</span></th>
+      <th data-col="p7"              data-type="num" class="col-advanced">7d %<span class="arr">↕</span></th>
+      <th data-col="d30"             data-type="num" class="col-advanced">30d Δ<span class="arr">↕</span></th>
+      <th data-col="p30"             data-type="num" class="col-advanced">30d %<span class="arr">↕</span></th>
+      <th data-col="s30"             data-type="num" class="col-advanced">Share Δ 30d<span class="arr">↕</span></th>
+      <th data-col="proj"            data-type="num" class="col-advanced">Proj 30d<span class="arr">↕</span></th>
+      <th data-col="last_seen"       data-type="str" class="col-advanced">Last Seen<span class="arr">↕</span></th>
+    </tr></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  </div>
+</div>
+
+
+<div class="card" style="margin-bottom:16px">
+  <h2>Discovery Search Rank Over Time</h2>
+  <h3>Lower rank = higher position on Discord Discover (Discover-scraped servers only)</h3>
+  <div class="chart-tall"><canvas id="rankChart"></canvas></div>
+</div>
+
+<div class="card" style="margin-bottom:16px">
+  <h2>Online Activity Heatmap</h2>
+  <h3 style="margin-bottom:12px">Normalized toward 14:00 UTC · tooltip shows raw online count</h3>
+  <div class="heatmap" id="heatmap"></div>
+</div>
+
+<div class="card" style="margin-bottom:16px">
+  <h2>Convergence Analysis</h2>
+  <h3 style="margin-bottom:14px">Wave Free Dropmaps vs each competitor at current growth rates</h3>
+  <div class="conv-grid">
+    <div class="conv-card threat-safe"><span class="conv-icon">✅</span><div><div class="conv-name">Free Dropmaps</div><div class="conv-detail">Gap: <b>91,834</b> members · Wave pulling ahead at <b>+0.0/day</b></div></div></div>
+<div class="conv-card threat-safe"><span class="conv-icon">✅</span><div><div class="conv-name">DROPMAPS EHLAN</div><div class="conv-detail">Gap: <b>96,668</b> members · Wave pulling ahead at <b>+0.0/day</b></div></div></div>
+<div class="conv-card threat-safe"><span class="conv-icon">✅</span><div><div class="conv-name">Nova Free Dropmaps & Tips</div><div class="conv-detail">Gap: <b>97,449</b> members · Wave pulling ahead at <b>+0.0/day</b></div></div></div>
+<div class="conv-card threat-safe"><span class="conv-icon">✅</span><div><div class="conv-name">DROP MAZTER</div><div class="conv-detail">Gap: <b>98,562</b> members · Wave pulling ahead at <b>+0.0/day</b></div></div></div>
+<div class="conv-card threat-safe"><span class="conv-icon">✅</span><div><div class="conv-name">Titan Free Dropmaps & Tips</div><div class="conv-detail">Gap: <b>101,364</b> members · Wave pulling ahead at <b>+0.0/day</b></div></div></div>
+<div class="conv-card threat-safe"><span class="conv-icon">✅</span><div><div class="conv-name">NA Drops</div><div class="conv-detail">Gap: <b>106,034</b> members · Wave pulling ahead at <b>+0.0/day</b></div></div></div>
+<div class="conv-card threat-safe"><span class="conv-icon">✅</span><div><div class="conv-name">SenanF Improvement Server</div><div class="conv-detail">Gap: <b>106,870</b> members · Wave pulling ahead at <b>+0.0/day</b></div></div></div>
+<div class="conv-card threat-safe"><span class="conv-icon">✅</span><div><div class="conv-name">dropmap.net</div><div class="conv-detail">Gap: <b>107,586</b> members · Wave pulling ahead at <b>+0.0/day</b></div></div></div>
+
+  </div>
+</div>
+
+<div class="card">
+  <h2>30-Day Predictions</h2>
+  <h3 style="margin-bottom:14px">Auto-generated member count targets</h3>
+  <div style="overflow-x:auto">
+  <table style="min-width:700px">
+    <thead><tr>
+      <th>Server</th><th>Made On</th><th>Target Date</th>
+      <th>Baseline</th><th>Predicted</th><th>Actual</th><th>Result</th>
+    </tr></thead>
+    <tbody id="predBody"></tbody>
+  </table>
+  </div>
+</div>
+
+<script>
+const COLORS = ["#4A9EFF", "#7C5CFF", "#3FB68B", "#E8A23B", "#E5484D", "#5BCEDA", "#F472B6", "#60A5FA", "#FBBF24", "#34D399", "#FB923C", "#F87171"];
+const PIE_LABELS    = ["Wave Free Dropmaps", "Free Dropmaps", "DROPMAPS EHLAN", "Nova Free Dropmaps & Tips", "DROP MAZTER", "Titan Free Dropmaps & Tips", "NA Drops", "SenanF Improvement Server", "dropmap.net"];
+const PIE_VALUES    = [108672, 16838, 12004, 11223, 10110, 7308, 2638, 1802, 1086];
+const PIE_COLORS    = ["#4A9EFF", "#7C5CFF", "#3FB68B", "#E8A23B", "#E5484D", "#5BCEDA", "#F472B6", "#60A5FA", "#FBBF24"];
+const LINE_LABELS   = ["2026-06-23", "2026-06-24", "2026-06-25"];
+const LINE_DS       = [{"label": "DROP MAZTER", "data": [10126, 10129, 10110], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "DROPMAPS EHLAN", "data": [12011, 12006, 12004], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Free Dropmaps", "data": [16851, 16847, 16838], "borderColor": "#3FB68B", "backgroundColor": "#3FB68B1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "NA Drops", "data": [2626, 2632, 2638], "borderColor": "#E8A23B", "backgroundColor": "#E8A23B1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Nova Free Dropmaps & Tips", "data": [11235, 11229, 11223], "borderColor": "#E5484D", "backgroundColor": "#E5484D1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "SenanF Improvement Server", "data": [1801, 1803, 1802], "borderColor": "#5BCEDA", "backgroundColor": "#5BCEDA1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Titan Free Dropmaps & Tips", "data": [7297, 7294, 7308], "borderColor": "#F472B6", "backgroundColor": "#F472B61f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Wave Free Dropmaps", "data": [108831, 108756, 108672], "borderColor": "#60A5FA", "backgroundColor": "#60A5FA1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "dropmap.net", "data": [1085, 1087, 1086], "borderColor": "#FBBF24", "backgroundColor": "#FBBF241f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}];
+const STACK_DS      = [{"label": "DROP MAZTER", "data": [5.89, 5.9, 5.89], "_raw": [10126, 10129, 10110], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF55", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "DROPMAPS EHLAN", "data": [6.99, 6.99, 6.99], "_raw": [12011, 12006, 12004], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF55", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "Free Dropmaps", "data": [9.8, 9.81, 9.81], "_raw": [16851, 16847, 16838], "borderColor": "#3FB68B", "backgroundColor": "#3FB68B55", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "NA Drops", "data": [1.53, 1.53, 1.54], "_raw": [2626, 2632, 2638], "borderColor": "#E8A23B", "backgroundColor": "#E8A23B55", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "Nova Free Dropmaps & Tips", "data": [6.54, 6.54, 6.54], "_raw": [11235, 11229, 11223], "borderColor": "#E5484D", "backgroundColor": "#E5484D55", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "SenanF Improvement Server", "data": [1.05, 1.05, 1.05], "_raw": [1801, 1803, 1802], "borderColor": "#5BCEDA", "backgroundColor": "#5BCEDA55", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "Titan Free Dropmaps & Tips", "data": [4.25, 4.25, 4.26], "_raw": [7297, 7294, 7308], "borderColor": "#F472B6", "backgroundColor": "#F472B655", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "Wave Free Dropmaps", "data": [63.32, 63.31, 63.3], "_raw": [108831, 108756, 108672], "borderColor": "#60A5FA", "backgroundColor": "#60A5FA55", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "dropmap.net", "data": [0.63, 0.63, 0.63], "_raw": [1085, 1087, 1086], "borderColor": "#FBBF24", "backgroundColor": "#FBBF2455", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}];
+const VEL_DS        = [{"label": "DROP MAZTER", "data": [null, null, null], "borderColor": "#4A9EFF", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "DROPMAPS EHLAN", "data": [null, null, null], "borderColor": "#7C5CFF", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Free Dropmaps", "data": [null, null, null], "borderColor": "#3FB68B", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "NA Drops", "data": [null, null, null], "borderColor": "#E8A23B", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Nova Free Dropmaps & Tips", "data": [null, null, null], "borderColor": "#E5484D", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "SenanF Improvement Server", "data": [null, null, null], "borderColor": "#5BCEDA", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Titan Free Dropmaps & Tips", "data": [null, null, null], "borderColor": "#F472B6", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Wave Free Dropmaps", "data": [null, null, null], "borderColor": "#60A5FA", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "dropmap.net", "data": [null, null, null], "borderColor": "#FBBF24", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}];
+const ENG_DS        = [{"label": "DROP MAZTER", "data": [30.0, 26.4, 24.7], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "DROPMAPS EHLAN", "data": [29.8, 20.8, 24.2], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Free Dropmaps", "data": [11.7, 13.0, 11.5], "borderColor": "#3FB68B", "backgroundColor": "#3FB68B1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "NA Drops", "data": [22.0, 24.8, 20.8], "borderColor": "#E8A23B", "backgroundColor": "#E8A23B1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Nova Free Dropmaps & Tips", "data": [29.6, 32.3, 28.5], "borderColor": "#E5484D", "backgroundColor": "#E5484D1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "SenanF Improvement Server", "data": [6.7, 8.0, 6.7], "borderColor": "#5BCEDA", "backgroundColor": "#5BCEDA1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Titan Free Dropmaps & Tips", "data": [21.0, 23.0, 21.1], "borderColor": "#F472B6", "backgroundColor": "#F472B61f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Wave Free Dropmaps", "data": [25.8, 17.7, 15.3], "borderColor": "#60A5FA", "backgroundColor": "#60A5FA1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "dropmap.net", "data": [11.3, 13.3, 10.9], "borderColor": "#FBBF24", "backgroundColor": "#FBBF241f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}];
+const ONLINE_DS     = [{"label": "DROP MAZTER", "data": [3038, 2674, 2501], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "DROPMAPS EHLAN", "data": [3585, 2492, 2901], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Free Dropmaps", "data": [1967, 2191, 1935], "borderColor": "#3FB68B", "backgroundColor": "#3FB68B1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "NA Drops", "data": [578, 652, 549], "borderColor": "#E8A23B", "backgroundColor": "#E8A23B1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Nova Free Dropmaps & Tips", "data": [3330, 3629, 3202], "borderColor": "#E5484D", "backgroundColor": "#E5484D1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "SenanF Improvement Server", "data": [120, 145, 121], "borderColor": "#5BCEDA", "backgroundColor": "#5BCEDA1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Titan Free Dropmaps & Tips", "data": [1536, 1676, 1542], "borderColor": "#F472B6", "backgroundColor": "#F472B61f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Wave Free Dropmaps", "data": [28123, 19210, 16646], "borderColor": "#60A5FA", "backgroundColor": "#60A5FA1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "dropmap.net", "data": [123, 145, 118], "borderColor": "#FBBF24", "backgroundColor": "#FBBF241f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}];
+const RATIO_DATA    = [{"name": "Nova Free Dropmaps & Tips", "ratio": 28.5}, {"name": "DROP MAZTER", "ratio": 24.7}, {"name": "DROPMAPS EHLAN", "ratio": 24.2}, {"name": "Titan Free Dropmaps & Tips", "ratio": 21.1}, {"name": "NA Drops", "ratio": 20.8}, {"name": "Wave Free Dropmaps", "ratio": 15.3}, {"name": "Free Dropmaps", "ratio": 11.5}, {"name": "dropmap.net", "ratio": 10.9}, {"name": "SenanF Improvement Server", "ratio": 6.7}];
+const HM_DATA       = [{"name": "DROP MAZTER", "vals": [3038, 2715, 2497], "raw_vals": [3038, 2674, 2501], "max": 3038}, {"name": "DROPMAPS EHLAN", "vals": [3579, 2533, 2905], "raw_vals": [3585, 2492, 2901], "max": 3579}, {"name": "Free Dropmaps", "vals": [1972, 2224, 1936], "raw_vals": [1967, 2191, 1935], "max": 2224}, {"name": "NA Drops", "vals": [578, 663, 549], "raw_vals": [578, 652, 549], "max": 663}, {"name": "Nova Free Dropmaps & Tips", "vals": [3326, 3683, 3199], "raw_vals": [3330, 3629, 3202], "max": 3683}, {"name": "SenanF Improvement Server", "vals": [121, 148, 121], "raw_vals": [120, 145, 121], "max": 148}, {"name": "Titan Free Dropmaps & Tips", "vals": [1532, 1700, 1542], "raw_vals": [1536, 1676, 1542], "max": 1700}, {"name": "Wave Free Dropmaps", "vals": [28078, 19467, 16627], "raw_vals": [28123, 19210, 16646], "max": 28078}, {"name": "dropmap.net", "vals": [123, 147, 118], "raw_vals": [123, 145, 118], "max": 147}];
+const HM_DATES      = ["2026-06-23", "2026-06-24", "2026-06-25"];
+const RANK_DS       = [{"label": "DROP MAZTER", "data": [1, 1, 1], "borderColor": "#4A9EFF", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 2, "pointHoverRadius": 5, "borderWidth": 2}, {"label": "DROPMAPS EHLAN", "data": [1, 1, 1], "borderColor": "#7C5CFF", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 2, "pointHoverRadius": 5, "borderWidth": 2}, {"label": "Wave Free Dropmaps", "data": [1, 1, 1], "borderColor": "#60A5FA", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 2, "pointHoverRadius": 5, "borderWidth": 2}];
+const RAW_ROWS      = [{"name": "Wave Free Dropmaps", "is_wave": true, "is_us": true, "is_new": true, "tracked_since": "2026-06-12", "members": 108672, "online": 16646, "online_pct": 15.3, "eng_trend": null, "share": 63.3, "mpd": null, "accel": null, "d7": null, "p7": null, "s7": null, "d30": null, "p30": null, "s30": null, "proj": 106287, "pred_label": "108,831 by 2026-07-23", "pred_status": "pending", "last_seen": "2026-06-25 14:05 UTC", "captured_at": "2026-06-25T14:05:52.177485+00:00", "discovery_rank": 1, "share_delta_7d": null, "online_pct_norm": 15.3}, {"name": "Free Dropmaps", "is_wave": false, "is_us": false, "is_new": true, "tracked_since": "2026-06-12", "members": 16838, "online": 1935, "online_pct": 11.5, "eng_trend": null, "share": 9.81, "mpd": null, "accel": null, "d7": null, "p7": null, "s7": null, "d30": null, "p30": null, "s30": null, "proj": 16643, "pred_label": "16,849 by 2026-07-23", "pred_status": "pending", "last_seen": "2026-06-25 14:05 UTC", "captured_at": "2026-06-25T14:05:52.177485+00:00", "discovery_rank": null, "share_delta_7d": null, "online_pct_norm": 11.5}, {"name": "DROPMAPS EHLAN", "is_wave": false, "is_us": false, "is_new": true, "tracked_since": "2026-06-12", "members": 12004, "online": 2901, "online_pct": 24.2, "eng_trend": null, "share": 6.99, "mpd": null, "accel": null, "d7": null, "p7": null, "s7": null, "d30": null, "p30": null, "s30": null, "proj": 11899, "pred_label": "12,011 by 2026-07-23", "pred_status": "pending", "last_seen": "2026-06-25 14:05 UTC", "captured_at": "2026-06-25T14:05:52.177485+00:00", "discovery_rank": 1, "share_delta_7d": null, "online_pct_norm": 24.2}, {"name": "Nova Free Dropmaps & Tips", "is_wave": false, "is_us": false, "is_new": true, "tracked_since": "2026-06-12", "members": 11223, "online": 3202, "online_pct": 28.5, "eng_trend": null, "share": 6.54, "mpd": null, "accel": null, "d7": null, "p7": null, "s7": null, "d30": null, "p30": null, "s30": null, "proj": 11043, "pred_label": "11,237 by 2026-07-23", "pred_status": "pending", "last_seen": "2026-06-25 14:05 UTC", "captured_at": "2026-06-25T14:05:52.177485+00:00", "discovery_rank": null, "share_delta_7d": null, "online_pct_norm": 28.5}, {"name": "DROP MAZTER", "is_wave": false, "is_us": false, "is_new": true, "tracked_since": "2026-06-12", "members": 10110, "online": 2501, "online_pct": 24.7, "eng_trend": null, "share": 5.89, "mpd": null, "accel": null, "d7": null, "p7": null, "s7": null, "d30": null, "p30": null, "s30": null, "proj": 9870, "pred_label": "10,126 by 2026-07-23", "pred_status": "pending", "last_seen": "2026-06-25 14:05 UTC", "captured_at": "2026-06-25T14:05:52.177485+00:00", "discovery_rank": 1, "share_delta_7d": null, "online_pct_norm": 24.7}, {"name": "Titan Free Dropmaps & Tips", "is_wave": false, "is_us": false, "is_new": true, "tracked_since": "2026-06-12", "members": 7308, "online": 1542, "online_pct": 21.1, "eng_trend": null, "share": 4.26, "mpd": null, "accel": null, "d7": null, "p7": null, "s7": null, "d30": null, "p30": null, "s30": null, "proj": 7473, "pred_label": "7,295 by 2026-07-23", "pred_status": "pending", "last_seen": "2026-06-25 14:05 UTC", "captured_at": "2026-06-25T14:05:52.177485+00:00", "discovery_rank": null, "share_delta_7d": null, "online_pct_norm": 21.1}, {"name": "NA Drops", "is_wave": false, "is_us": false, "is_new": true, "tracked_since": "2026-06-12", "members": 2638, "online": 549, "online_pct": 20.8, "eng_trend": null, "share": 1.54, "mpd": null, "accel": null, "d7": null, "p7": null, "s7": null, "d30": null, "p30": null, "s30": null, "proj": 2818, "pred_label": "2,625 by 2026-07-23", "pred_status": "pending", "last_seen": "2026-06-25 14:05 UTC", "captured_at": "2026-06-25T14:05:52.177485+00:00", "discovery_rank": null, "share_delta_7d": null, "online_pct_norm": 20.8}, {"name": "SenanF Improvement Server", "is_wave": false, "is_us": false, "is_new": true, "tracked_since": "2026-06-12", "members": 1802, "online": 121, "online_pct": 6.7, "eng_trend": null, "share": 1.05, "mpd": null, "accel": null, "d7": null, "p7": null, "s7": null, "d30": null, "p30": null, "s30": null, "proj": 1817, "pred_label": "1,801 by 2026-07-23", "pred_status": "pending", "last_seen": "2026-06-25 14:05 UTC", "captured_at": "2026-06-25T14:05:52.177485+00:00", "discovery_rank": null, "share_delta_7d": null, "online_pct_norm": 6.7}, {"name": "dropmap.net", "is_wave": false, "is_us": false, "is_new": true, "tracked_since": "2026-06-12", "members": 1086, "online": 118, "online_pct": 10.9, "eng_trend": null, "share": 0.63, "mpd": null, "accel": null, "d7": null, "p7": null, "s7": null, "d30": null, "p30": null, "s30": null, "proj": 1101, "pred_label": "1,086 by 2026-07-23", "pred_status": "pending", "last_seen": "2026-06-25 14:05 UTC", "captured_at": "2026-06-25T14:05:52.177485+00:00", "discovery_rank": null, "share_delta_7d": null, "online_pct_norm": 10.9}];
+const PRED_DATA     = [{"name": "Titan Free Dropmaps & Tips", "predicted_at": "2026-06-23", "target_date": "2026-07-23", "members_at_prediction": 7295, "predicted_members": 7295, "actual_members": null, "hit": null}, {"name": "Free Dropmaps", "predicted_at": "2026-06-23", "target_date": "2026-07-23", "members_at_prediction": 16849, "predicted_members": 16849, "actual_members": null, "hit": null}, {"name": "NA Drops", "predicted_at": "2026-06-23", "target_date": "2026-07-23", "members_at_prediction": 2625, "predicted_members": 2625, "actual_members": null, "hit": null}, {"name": "Nova Free Dropmaps & Tips", "predicted_at": "2026-06-23", "target_date": "2026-07-23", "members_at_prediction": 11237, "predicted_members": 11237, "actual_members": null, "hit": null}, {"name": "SenanF Improvement Server", "predicted_at": "2026-06-23", "target_date": "2026-07-23", "members_at_prediction": 1801, "predicted_members": 1801, "actual_members": null, "hit": null}, {"name": "dropmap.net", "predicted_at": "2026-06-23", "target_date": "2026-07-23", "members_at_prediction": 1086, "predicted_members": 1086, "actual_members": null, "hit": null}, {"name": "DROP MAZTER", "predicted_at": "2026-06-23", "target_date": "2026-07-23", "members_at_prediction": 10126, "predicted_members": 10126, "actual_members": null, "hit": null}, {"name": "DROPMAPS EHLAN", "predicted_at": "2026-06-23", "target_date": "2026-07-23", "members_at_prediction": 12011, "predicted_members": 12011, "actual_members": null, "hit": null}, {"name": "Wave Free Dropmaps", "predicted_at": "2026-06-23", "target_date": "2026-07-23", "members_at_prediction": 108831, "predicted_members": 108831, "actual_members": null, "hit": null}];
+
+const GRID = {color:'#1F2630'};
+const TICK = {color:'#8B98A6',font:{size:11,family:"'JetBrains Mono',monospace"}};
+const TIP  = {
+  backgroundColor:'#0F1419',borderColor:'#283040',borderWidth:1,
+  titleColor:'#E6EDF3',bodyColor:'#8B98A6',
+  titleFont:{family:"'Inter',sans-serif",size:12},
+  bodyFont:{family:"'JetBrains Mono',monospace",size:12},
+  padding:{x:12,y:8},
+};
+const AXIS = {
+  x:{ticks:{...TICK,maxTicksLimit:14},grid:GRID},
+  y:{ticks:{...TICK,callback:v=>v?.toLocaleString()},grid:GRID},
+};
+const LEG = {labels:{color:'#8B98A6',font:{size:11,family:"'Inter',sans-serif"},usePointStyle:true,pointStyle:'line',boxWidth:20,padding:16}};
+
+/* donut */
+
+new Chart('pieChart',{type:'doughnut',
+  data:{labels:PIE_LABELS,datasets:[{data:PIE_VALUES,_raw:PIE_VALUES,
+    backgroundColor:PIE_COLORS,borderWidth:2,borderColor:'#0F1419',hoverOffset:6}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+    plugins:{
+      legend:{position:'bottom',labels:{color:'#8B98A6',padding:12,font:{size:11},usePointStyle:true,pointStyle:'rect',boxWidth:10},
+        onClick(e,item,legend){
+          const c=legend.chart,idx=item.index;
+          c.toggleDataVisibility(idx);
+          const ds=c.data.datasets[0];
+          let total=0; const vis=[];
+          ds._raw.forEach((v,i)=>{if(c.getDataVisibility(i) && v!=null){total+=v;vis.push({i,v});}});
+          vis.forEach(({i,v})=>{ds.data[i]=total>0?Math.round(v/total*10000)/100:0;});
+          c.update();
+        }
+      },
+      tooltip:{...TIP,callbacks:{label:c=>{
+        const raw=c.dataset._raw[c.dataIndex];
+        const tot=c.dataset._raw.filter((v,i)=>c.chart.getDataVisibility(i)).reduce((a,b)=>a+(b||0),0);
+        return ` ${c.label}: ${(raw||0).toLocaleString()} (${tot?((raw/tot)*100).toFixed(1):0}%)`;
+      }}}
+    }
+  }
+});
+
+
+/* online engagement bar */
+new Chart('ratioChart',{type:'bar',
+  data:{
+    labels:RATIO_DATA.map(r=>r.name),
+    datasets:[{label:'Online %',data:RATIO_DATA.map(r=>r.ratio),
+      backgroundColor:RATIO_DATA.map((_,i)=>COLORS[i%COLORS.length]+'40'),
+      borderColor:RATIO_DATA.map((_,i)=>COLORS[i%COLORS.length]),
+      borderWidth:1,borderRadius:4}]
+  },
+  options:{
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.parsed.x}%`}}},
+    scales:{x:{ticks:{...TICK,callback:v=>v+'%'},grid:GRID},y:{ticks:{color:'#8B98A6',font:{size:11}},grid:{color:'transparent'}}}
+  }
+});
+
+function mkLine(id, ds, extraOpts={}) {
+  new Chart(id, {type:'line',
+    data:{labels:LINE_LABELS,datasets:ds},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:LEG,tooltip:TIP},
+      scales:AXIS,...extraOpts,
+    }
+  });
+}
+
+
+(function(){
+  const wrap=document.getElementById('mcMultiples');
+  const dates=LINE_LABELS;
+  const datasets=LINE_DS;
+  if(!wrap||!datasets.length)return;
+  let ymax=0;
+  datasets.forEach(ds=>{(ds.data||[]).forEach(v=>{if(v!=null&&v>ymax)ymax=v;});});
+  ymax=Math.ceil(ymax*1.05)||1;
+  datasets.forEach((ds,i)=>{
+    const card=document.createElement('div');card.className='multiple-card';
+    const h=document.createElement('h4');h.textContent=ds.label;card.appendChild(h);
+    const cv=document.createElement('canvas');cv.id='mini_'+i;card.appendChild(cv);
+    wrap.appendChild(card);
+    new Chart(cv,{type:'line',data:{labels:dates,datasets:[{...ds,pointRadius:0,borderWidth:1.5,fill:false}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TIP},
+        scales:{x:{display:false},y:{min:0,max:ymax,ticks:{...TICK,maxTicksLimit:4},grid:GRID}}}
+    });
+  });
+})();
+
+mkLine('onlineChart', ONLINE_DS);
+function renormalizeShare(chart){
+  const ds=chart.data.datasets, labels=chart.data.labels;
+  for(let i=0;i<labels.length;i++){
+    let total=0; const vis=[];
+    ds.forEach((d,di)=>{
+      if(chart.getDatasetMeta(di).hidden)return;
+      const raw=d._raw?d._raw[i]:null;
+      if(raw!=null){total+=raw;vis.push({di,raw});}
+    });
+    vis.forEach(({di,raw})=>{ds[di].data[i]=total>0?Math.round(raw/total*10000)/100:null;});
+  }
+  chart.update();
+}
+new Chart('stackedChart',{type:'line',data:{labels:LINE_LABELS,datasets:STACK_DS},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{...LEG,onClick(e,item,legend){
+        const c=legend.chart, idx=item.datasetIndex;
+        c.isDatasetVisible(idx)?c.hide(idx):c.show(idx);
+        renormalizeShare(c);
+      }},
+      tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y?.toFixed(1)}%`}}
+    },
+    scales:{x:AXIS.x,y:{stacked:true,min:0,max:100,ticks:{...TICK,callback:v=>v+'%'},grid:GRID}}
+  }
+});
+mkLine('velChart',    VEL_DS,{
+  plugins:{legend:LEG,tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y?.toFixed(2)}%`}}},
+  scales:{x:AXIS.x,y:{ticks:{...TICK,callback:v=>v+'%'},grid:GRID,afterDataLimits(s){const r=Math.max(Math.abs(s.min),Math.abs(s.max),1);s.min=-r;s.max=r;}}}
+});
+mkLine('engChart',    ENG_DS,{
+  plugins:{legend:LEG,tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y?.toFixed(1)}%`}}},
+  scales:{x:AXIS.x,y:{ticks:{...TICK,callback:v=>v+'%'},grid:GRID}}
+});
+
+/* heatmap */
+(function(){
+  const wrap=document.getElementById('heatmap');
+  if(!HM_DATES.length){wrap.innerHTML='<p style="color:var(--muted-2);padding:8px">Not enough data yet.</p>';return;}
+  const hdr=document.createElement('div');hdr.className='hm-dates';
+  HM_DATES.forEach(d=>{const el=document.createElement('div');el.className='hm-date';el.textContent=d.slice(5);hdr.appendChild(el);});
+  wrap.appendChild(hdr);
+  HM_DATA.forEach(srv=>{
+    const row=document.createElement('div');row.className='hm-row';
+    const lbl=document.createElement('div');lbl.className='hm-label';lbl.textContent=srv.name;row.appendChild(lbl);
+    const cells=document.createElement('div');cells.className='hm-cells';
+    srv.vals.forEach((v,i)=>{
+      const c=document.createElement('div');c.className='hm-cell';
+      if(v===null||v===undefined){c.style.background='#131922';}
+      else{const t=v/srv.max;const raw=srv.raw_vals?srv.raw_vals[i]:v;c.style.background=`rgba(74,158,255,${(.08+t*.65).toFixed(2)})`;c.title=`${srv.name} · ${HM_DATES[i]}: ${(raw??0).toLocaleString()} online (norm display)`;}
+      cells.appendChild(c);
+    });
+    row.appendChild(cells);wrap.appendChild(row);
+  });
+})();
+
+/* discovery rank chart */
+if(RANK_DS.length){
+  new Chart('rankChart',{type:'line',data:{labels:LINE_LABELS,datasets:RANK_DS},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:LEG,tooltip:TIP},
+      scales:{
+        x:AXIS.x,
+        y:{reverse:true,min:1,ticks:{...TICK,precision:0},grid:GRID,title:{display:true,text:'Discover rank (lower=better)',color:'#8B98A6'}}
+      }
+    }
+  });
+}
+
+/* table */
+let sortCol='members',sortDir=-1;
+function fmtN(v,sfx='',dec=0){
+  if(v===null||v===undefined)return'<span class="dim">—</span>';
+  const f=dec>0?Math.abs(v).toFixed(dec):Math.abs(v).toLocaleString();
+  const sign=v>0?'+':v<0?'-':'';const cls=v>0?'pos':v<0?'neg':'';
+  return cls?`<span class="${cls}">${sign}${f}${sfx}</span>`:`${f}${sfx}`;
+}
+function renderTable(rows){
+  const sorted=[...rows].sort((a,b)=>{
+    const av=a[sortCol],bv=b[sortCol];
+    if(av===null||av===undefined)return 1;if(bv===null||bv===undefined)return-1;
+    return(typeof av==='string'?av.localeCompare(bv):av-bv)*sortDir;
+  });
+  document.getElementById('tableBody').innerHTML=sorted.map(r=>{
+    const waveBadge = r.is_wave ? '<span class="badge badge-wave">us</span> ' : '';
+    const newBadge  = r.is_new  ? `<span class="entrant-badge">since ${r.tracked_since||'new'}</span> ` : '';
+    return`<tr>
+      <td><b>${r.name}</b> ${waveBadge}${newBadge}</td>
+      <td style="font-family:var(--mono)">${r.members?r.members.toLocaleString():'—'}</td>
+      <td style="font-family:var(--mono)">${r.share!=null?r.share.toFixed(2)+'%':'—'}</td>
+      <td style="font-family:var(--mono)">${fmtN(r.s7,'pp',2)}</td>
+      <td style="font-family:var(--mono)">${fmtN(r.d7)}</td>
+      <td style="font-family:var(--mono)">${fmtN(r.mpd,'',1)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${r.discovery_rank!=null?'#'+r.discovery_rank:'<span class="dim">—</span>'}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${r.online?r.online.toLocaleString():'—'}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${r.online_pct!=null?r.online_pct.toFixed(1)+'%':'—'}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${fmtN(r.eng_trend,'%',1)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${fmtN(r.accel,'',1)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${fmtN(r.p7,'%',2)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${fmtN(r.d30)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${fmtN(r.p30,'%',2)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${fmtN(r.s30,'pp',2)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${r.proj!=null?r.proj.toLocaleString():'—'}</td>
+      <td class="col-advanced" style="color:var(--muted-2);font-family:var(--mono);font-size:11px">${r.last_seen}</td>
+    </tr>`;
+  }).join('');
+}
+document.querySelectorAll('#mainTable th[data-col]').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const col=th.dataset.col;sortDir=sortCol===col?-sortDir:-1;sortCol=col;
+    document.querySelectorAll('#mainTable th').forEach(t=>{t.classList.remove('sort-asc','sort-desc');t.querySelector('.arr').textContent='↕';});
+    th.classList.add(sortDir===-1?'sort-desc':'sort-asc');th.querySelector('.arr').textContent=sortDir===-1?'↓':'↑';
+    renderTable(RAW_ROWS);
+  });
+});
+renderTable(RAW_ROWS);
+document.querySelector('#mainTable th[data-col="members"]').classList.add('sort-desc');
+document.querySelector('#mainTable th[data-col="members"] .arr').textContent='↓';
+
+/* predictions */
+(function(){
+  const seen=new Set();
+  const rows=PRED_DATA.filter(p=>{if(seen.has(p.name))return false;seen.add(p.name);return true;});
+  document.getElementById('predBody').innerHTML=rows.map(p=>{
+    const badge=p.hit===null?`<span class="badge badge-pend">Pending · due ${p.target_date}</span>`
+      :p.hit===1?`<span class="badge badge-hit">Hit</span>`:`<span class="badge badge-miss">Missed</span>`;
+    const actual=p.actual_members!=null?p.actual_members.toLocaleString():'—';
+    return`<tr><td><b>${p.name}</b></td>
+      <td style="color:var(--muted-2);font-family:var(--mono);font-size:11px">${p.predicted_at}</td>
+      <td style="font-family:var(--mono)">${p.target_date}</td>
+      <td style="font-family:var(--mono)">${p.members_at_prediction.toLocaleString()}</td>
+      <td style="font-family:var(--mono)">${p.predicted_members.toLocaleString()}</td>
+      <td style="font-family:var(--mono)">${actual}</td>
+      <td>${badge}</td></tr>`;
+  }).join('');
+})();
+
+function setupTableExpand(tableId, btnId) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  let expanded = false;
+  btn.addEventListener('click', () => {
+    expanded = !expanded;
+    document.querySelectorAll(`#${tableId} .col-advanced`).forEach(el => {
+      el.style.display = expanded ? '' : 'none';
+    });
+    btn.textContent = expanded ? 'Show fewer columns' : 'Show all columns';
+  });
+}
+
+setupTableExpand('mainTable','expandBtn');
+</script>
+</main>
+</body>
+</html>

@@ -1,0 +1,81 @@
+{
+  "_meta": {
+    "last_updated": "2026-06-12T13:46:50.885350+00:00"
+  },
+  "leaderboard": [],
+  "tasks": [],
+  "duties": [
+    {
+      "code": "SPAWNS",
+      "name": "Managing Spawns Category",
+      "assigned_user_id": null,
+      "assigned_name": null,
+      "assigned_avatar": null,
+      "assigned_at": null
+    },
+    {
+      "code": "SURGE",
+      "name": "Managing Surge Category",
+      "assigned_user_id": null,
+      "assigned_name": null,
+      "assigned_avatar": null,
+      "assigned_at": null
+    },
+    {
+      "code": "CREATIVE",
+      "name": "Managing Creative Map Codes Category",
+      "assigned_user_id": null,
+      "assigned_name": null,
+      "assigned_avatar": null,
+      "assigned_at": null
+    },
+    {
+      "code": "PRONOTES",
+      "name": "Managing Pro Notes & Learn From Pros Category",
+      "assigned_user_id": null,
+      "assigned_name": null,
+      "assigned_avatar": null,
+      "assigned_at": null
+    },
+    {
+      "code": "GAMESTAGES",
+      "name": "Managing Game Stages",
+      "assigned_user_id": null,
+      "assigned_name": null,
+      "assigned_avatar": null,
+      "assigned_at": null
+    },
+    {
+      "code": "LOADOUTS",
+      "name": "Managing Loadouts Category",
+      "assigned_user_id": null,
+      "assigned_name": null,
+      "assigned_avatar": null,
+      "assigned_at": null
+    },
+    {
+      "code": "MECHANICS",
+      "name": "Managing Game Mechanics & Meta",
+      "assigned_user_id": null,
+      "assigned_name": null,
+      "assigned_avatar": null,
+      "assigned_at": null
+    },
+    {
+      "code": "DROPSPOTS",
+      "name": "Managing Dropspots Category",
+      "assigned_user_id": null,
+      "assigned_name": null,
+      "assigned_avatar": null,
+      "assigned_at": null
+    },
+    {
+      "code": "LOOTPOOLS",
+      "name": "Managing Lootpools Category",
+      "assigned_user_id": null,
+      "assigned_name": null,
+      "assigned_avatar": null,
+      "assigned_at": null
+    }
+  ]
+}

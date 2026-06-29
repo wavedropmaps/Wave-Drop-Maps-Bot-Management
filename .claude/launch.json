@@ -1,0 +1,48 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev-server",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["dev_server.py"],
+      "port": 8080,
+      "autoPort": true
+    },
+    {
+      "name": "staff-hub",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["web_api.py"],
+      "port": 5000
+    },
+    {
+      "name": "wave-leaderboard",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8000", "--directory", "C:/Users/kiere/Desktop/wave-leaderboard"],
+      "port": 8000
+    },
+    {
+      "name": "wave-logging-site",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "wave_logging_site"],
+      "port": 8765
+    },
+    {
+      "name": "leaderboard-local",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8099", "--directory", "wave-leaderboard-repo"],
+      "port": 8099
+    },
+    {
+      "name": "diagrams",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8101", "--directory", "/Users/kierenpatel/Downloads"],
+      "port": 8101
+    },
+    {
+      "name": "events-preview",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8123", "--directory", "website"],
+      "port": 8123
+    }
+  ]
+}

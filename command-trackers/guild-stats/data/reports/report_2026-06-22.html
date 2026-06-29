@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wave Guild Stats — 2026-06-22</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0A0E14;--panel:#0F1419;--panel-2:#131922;
+  --border:#1F2630;--border-2:#283040;
+  --text:#E6EDF3;--muted:#8B98A6;--muted-2:#5A6573;
+  --accent:#4A9EFF;--accent-2:#7C5CFF;
+  --good:#3FB68B;--warn:#E8A23B;--bad:#E5484D;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Consolas,monospace;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--sans);font-size:13px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;min-height:100vh;
+}
+header.topbar{
+  display:flex;align-items:center;gap:16px;padding:10px 20px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,var(--panel) 0%,var(--bg) 100%);
+  position:sticky;top:0;z-index:10;
+  backdrop-filter:saturate(180%) blur(8px);
+}
+.topbar .brand{
+  font-weight:600;letter-spacing:-0.01em;font-size:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.topbar .brand::before{
+  content:"";display:inline-block;width:8px;height:8px;
+  background:var(--good);border-radius:2px;box-shadow:0 0 12px var(--good);
+}
+.topbar .pill{
+  padding:4px 10px;border-radius:6px;
+  background:var(--panel-2);border:1px solid var(--border);
+  color:var(--muted);font-size:12px;font-family:var(--mono);
+  margin-left:auto;
+}
+main{padding:24px 20px;max-width:1400px;margin:0 auto}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px}
+.kpi{padding:16px;min-width:0}
+.kpi .label{color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:.08em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .value{font-family:var(--mono);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;margin-top:6px;line-height:1.1;color:var(--accent)}
+.kpi .delta{font-family:var(--mono);font-size:12px;margin-top:4px}
+.kpi .sub{color:var(--muted);font-size:11px;margin-top:4px}
+.row{display:grid;gap:16px;margin-bottom:16px}
+.row.cols-2{grid-template-columns:1fr 1fr}
+.card h2{margin:0 0 14px;font-size:13px;font-weight:600;color:var(--text)}
+.card h3{margin:0 0 4px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.chart-wrap{position:relative;height:280px}
+.chart-tall{position:relative;height:340px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.06em;cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{color:var(--text)}
+th .arr{margin-left:3px;opacity:.3;font-size:.65em}
+th.sort-asc .arr,th.sort-desc .arr{opacity:1;color:var(--accent)}
+tbody tr{transition:background 100ms}
+tbody tr:hover{background:var(--panel-2)}
+td{color:var(--text);white-space:nowrap}
+.pos{color:var(--good)}.neg{color:var(--bad)}.dim{color:var(--muted-2)}
+.tier{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-family:var(--mono);font-weight:500}
+.tier-0{background:rgba(74,158,255,0.05);color:var(--muted-2)}
+.tier-1{background:rgba(63,182,139,0.1);color:var(--good);border:1px solid rgba(63,182,139,0.3)}
+.tier-2{background:rgba(74,158,255,0.1);color:var(--accent);border:1px solid rgba(74,158,255,0.3)}
+.tier-3{background:rgba(124,92,255,0.1);color:var(--accent-2);border:1px solid rgba(124,92,255,0.3)}
+.heatmap{overflow-x:auto}
+.hm-row{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.hm-label{width:180px;min-width:180px;color:var(--muted);text-align:right;padding-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.hm-cells{display:flex;gap:2px}
+.hm-cell{width:14px;height:14px;border-radius:3px;cursor:default;flex-shrink:0}
+.hm-dates{display:flex;gap:2px;margin-left:184px;margin-bottom:4px}
+.hm-date{width:14px;text-align:center;font-size:9px;color:var(--muted-2);transform:rotate(-60deg);transform-origin:bottom left;height:20px}
+@media(max-width:900px){.kpi-row{grid-template-columns:1fr 1fr}.row.cols-2{grid-template-columns:1fr}}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr}}
+
+.alert-bar{background:rgba(229,72,77,0.08);border:1px solid rgba(229,72,77,0.3);border-radius:8px;padding:12px 16px;margin-bottom:16px}
+.alert-bar ul{margin:6px 0 0 18px;color:var(--text);font-size:12px}
+.alert-bar .title{color:var(--bad);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.threat-banner{background:rgba(232,162,59,0.08);border-bottom:1px solid rgba(232,162,59,0.25);padding:10px 20px;font-size:13px;color:var(--text)}
+.threat-banner b{color:var(--warn)}
+.guild-banner{background:rgba(63,182,139,0.06);border-bottom:1px solid rgba(63,182,139,0.2);padding:10px 20px;font-size:13px;color:var(--text)}
+.col-advanced{display:none}
+.table-toolbar{display:flex;justify-content:flex-end;margin-bottom:10px}
+.table-toolbar button{background:var(--panel-2);border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px}
+.table-toolbar button:hover{color:var(--text);border-color:var(--border-2)}
+.multiples-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.multiple-card{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:10px}
+.multiple-card h4{font-size:11px;color:var(--muted);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.multiple-card canvas{width:100%!important;height:100px!important}
+.norm-note{color:var(--muted-2);font-size:11px;margin-top:8px}
+.cross-card{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px}
+.cross-card .label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+.cross-card .val{font-family:var(--mono);font-size:16px;margin-top:4px;color:var(--accent)}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">Wave Guild Stats</div>
+  <div class="pill">2026-06-22 23:55 UTC</div>
+</header>
+<div class="guild-banner"><b>Portfolio:</b> 139,362 members · -468 past 7d</div>
+<main>
+<div class="alert-bar"><div class="title">Alerts</div><ul><li>Wave Free Dropmaps!: -54.3 members/day</li><li>Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks: -12.6 members/day</li></ul></div>
+
+<div class="kpi-row">
+  <div class="card kpi">
+    <div class="label">Total Members</div>
+    <div class="value">139,362</div>
+    <div class="delta neg">-468 past 7d</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Online Now</div>
+    <div class="value" style="color:var(--good)">23,205</div>
+    <div class="sub">16.7% of total</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Total Boosts</div>
+    <div class="value" style="color:var(--warn)">55</div>
+    <div class="sub">across 2 servers</div>
+  </div>
+  <div class="card kpi">
+    <div class="label">Snapshot Window</div>
+    <div class="value" style="font-size:13px;color:var(--muted);font-family:var(--mono);padding-top:4px">2026-06-13<br>→ 2026-06-22</div>
+    <div class="sub">90d window</div>
+  </div>
+</div>
+
+<div class="row cols-2">
+  <div class="card">
+    <h2>Portfolio Split</h2>
+    <h3>Member share across Wave servers</h3>
+    <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Cross-Market Position</h2>
+    <h3>Wave rank in each tracked competitor market</h3>
+    <div class="cross-card"><div class="label">Wave Free Dropmaps! — drop-map market</div><div class="val">#1 · 63.34% share · 108,877 members</div></div>
+<div class="cross-card"><div class="label">Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks — improvement cord market</div><div class="val">#1 · 60.04% share · 30,504 members</div></div>
+
+  </div>
+</div>
+
+<div class="row">
+  <div class="card">
+    <h2>Member Count Over Time — Per Server</h2>
+    <h3>Shared-scale mini charts</h3>
+    <div class="multiples-grid" id="mcMultiples"></div>
+    <p class="norm-note">Online metrics partially time-adjusted toward 14:00 UTC (2/7 canonical days — accuracy improves as 14:05 UTC collects accumulate).</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="card">
+    <h2>Combined Total Members Over Time</h2>
+    <div class="chart-wrap"><canvas id="totalChart"></canvas></div>
+  </div>
+</div>
+
+<div class="row cols-2">
+  <div class="card">
+    <h2>Online Count Over Time</h2>
+    <div class="chart-wrap"><canvas id="ocChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Online Ratio (% of members online)</h2>
+    <div class="chart-wrap"><canvas id="ratioChart"></canvas></div>
+  </div>
+</div>
+
+<div class="row cols-2">
+  <div class="card">
+    <h2>Boost Count Over Time</h2>
+    <div class="chart-wrap"><canvas id="boostChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Growth Velocity (week-over-week %)</h2>
+    <div class="chart-wrap"><canvas id="velChart"></canvas></div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:16px">
+  <h2>Server Summary</h2>
+  <div class="table-toolbar"><button type="button" id="expandBtn">Show all columns</button></div>
+  <div style="overflow-x:auto">
+  <table id="summaryTable" style="min-width:900px">
+    <thead><tr>
+      <th data-col="name"          data-type="str">Guild           <span class="arr">↕</span></th>
+      <th data-col="members"       data-type="num">Members         <span class="arr">↕</span></th>
+      <th data-col="online_pct"    data-type="num">Online %        <span class="arr">↕</span></th>
+      <th data-col="boost_count"   data-type="num">Boosts          <span class="arr">↕</span></th>
+      <th data-col="d7"            data-type="num">7d Δ            <span class="arr">↕</span></th>
+      <th data-col="mpd"           data-type="num">Mem/Day         <span class="arr">↕</span></th>
+      <th data-col="boost_tier"    data-type="num" class="col-advanced">Tier            <span class="arr">↕</span></th>
+      <th data-col="channel_count" data-type="num" class="col-advanced">Channels        <span class="arr">↕</span></th>
+      <th data-col="role_count"    data-type="num" class="col-advanced">Roles           <span class="arr">↕</span></th>
+      <th data-col="d30"           data-type="num" class="col-advanced">30d Δ           <span class="arr">↕</span></th>
+      <th data-col="proj"          data-type="num" class="col-advanced">Proj. 30d       <span class="arr">↕</span></th>
+      <th data-col="market_share"  data-type="num" class="col-advanced">Market Share    <span class="arr">↕</span></th>
+      <th data-col="last_seen"     data-type="str" class="col-advanced">Last Snapshot   <span class="arr">↕</span></th>
+    </tr></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Online Activity Heatmap</h2>
+  <div style="margin-bottom:12px;font-size:11px;color:var(--muted-2)">Darker = more online</div>
+  <div class="heatmap" id="heatmap"></div>
+</div>
+
+<script>
+const COLORS  = ["#4A9EFF", "#7C5CFF", "#3FB68B", "#E8A23B", "#E5484D", "#5BCEDA"];
+const PIE_LABELS = ["Wave Free Dropmaps!", "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks"];
+const PIE_VALUES = [108858, 30504];
+const PIE_COLORS = ["#4A9EFF", "#7C5CFF"];
+const DATES   = ["2026-06-13", "2026-06-15", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-22"];
+const MC_DS   = [{"label": "Wave Free Dropmaps!", "data": [109369, 109238, 109105, 109044, 108994, 108858], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "data": [30621, 30592, 30556, 30546, 30541, 30504], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}];
+const TOT_DS  = [{"label": "Combined", "data": [139990, 139830, 139661, 139590, 139535, 139362], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF1f", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2.5}];
+const OC_DS   = [{"label": "Wave Free Dropmaps!", "data": [11870, 8317, 8234, 18819, 18718, 17773], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "data": [3577, 2510, 2553, 5696, 5829, 5432], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF1f", "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}];
+const VEL_DS  = [{"label": "Wave Free Dropmaps!", "data": [null, null, null, null, -0.34, -0.35], "borderColor": "#4A9EFF", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}, {"label": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "data": [null, null, null, null, -0.26, -0.29], "borderColor": "#7C5CFF", "backgroundColor": "transparent", "tension": 0.4, "fill": false, "spanGaps": false, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 2}];
+const BOOST_DS= [{"label": "Wave Free Dropmaps!", "data": [39, 38, 34, 35, 34, 34], "borderColor": "#4A9EFF", "backgroundColor": "#4A9EFF40", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}, {"label": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "data": [27, 28, 26, 24, 23, 21], "borderColor": "#7C5CFF", "backgroundColor": "#7C5CFF40", "tension": 0.4, "fill": true, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 4, "borderWidth": 1.5}];
+const RATIO   = [{"name": "Wave Free Dropmaps!", "ratio": 17.1}, {"name": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "ratio": 18.7}];
+const HM_DATA = [{"name": "Wave Free Dropmaps!", "vals": [18811, 18898, 18548, 18865, 18529, 18724], "raw_vals": [11870, 8317, 8234, 18819, 18718, 17773], "max": 18898}, {"name": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "vals": [5696, 5690, 5775, 5682, 5772, 5704], "raw_vals": [3577, 2510, 2553, 5696, 5829, 5432], "max": 5775}];
+const HM_DATES= ["2026-06-13", "2026-06-15", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-22"];
+const RAW_ROWS= [{"name": "Wave Free Dropmaps!", "guild_id": "988564962802810961", "members": 108858, "online": 17773, "online_pct": 17.1, "boost_count": 34, "boost_tier": 3, "channel_count": 269, "role_count": 89, "mpd": -54.3, "d7": -380, "p7": -0.35, "d30": null, "p30": null, "proj": 107220, "market_share": 63.34, "eng_trend": null, "last_seen": "2026-06-22 13:42 UTC"}, {"name": "Wave Improvement Cord! | Loot & Surge Routes & Tips & Tricks", "guild_id": "971731167621574666", "members": 30504, "online": 5432, "online_pct": 18.7, "boost_count": 21, "boost_tier": 3, "channel_count": 436, "role_count": 82, "mpd": -12.6, "d7": -88, "p7": -0.29, "d30": null, "p30": null, "proj": 30134, "market_share": 60.04, "eng_trend": null, "last_seen": "2026-06-22 13:42 UTC"}];
+
+const GRID = {color:'#1F2630'};
+const TICK = {color:'#8B98A6',font:{size:11,family:"'JetBrains Mono',monospace"}};
+const TIP  = {
+  backgroundColor:'#0F1419',borderColor:'#283040',borderWidth:1,
+  titleColor:'#E6EDF3',bodyColor:'#8B98A6',
+  titleFont:{family:"'Inter',sans-serif",size:12},
+  bodyFont:{family:"'JetBrains Mono',monospace",size:12},
+  padding:{x:12,y:8},
+};
+const AXIS = {
+  x:{ticks:{...TICK,maxTicksLimit:16},grid:GRID},
+  y:{ticks:{...TICK,callback:v=>v?.toLocaleString()},grid:GRID},
+};
+const LEG = {labels:{color:'#8B98A6',font:{size:11,family:"'Inter',sans-serif"},usePointStyle:true,pointStyle:'line',boxWidth:20,padding:16}};
+
+function mkLine(id, ds, extraOpts={}) {
+  new Chart(id, {type:'line',
+    data:{labels:DATES,datasets:ds},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:LEG,tooltip:TIP},
+      scales:AXIS,...extraOpts,
+    }
+  });
+}
+
+
+new Chart('pieChart',{type:'doughnut',
+  data:{labels:PIE_LABELS,datasets:[{data:PIE_VALUES,_raw:PIE_VALUES,
+    backgroundColor:PIE_COLORS,borderWidth:2,borderColor:'#0F1419',hoverOffset:6}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+    plugins:{
+      legend:{position:'bottom',labels:{color:'#8B98A6',padding:12,font:{size:11},usePointStyle:true,pointStyle:'rect',boxWidth:10},
+        onClick(e,item,legend){
+          const c=legend.chart,idx=item.index;
+          c.toggleDataVisibility(idx);
+          const ds=c.data.datasets[0];
+          let total=0; const vis=[];
+          ds._raw.forEach((v,i)=>{if(c.getDataVisibility(i) && v!=null){total+=v;vis.push({i,v});}});
+          vis.forEach(({i,v})=>{ds.data[i]=total>0?Math.round(v/total*10000)/100:0;});
+          c.update();
+        }
+      },
+      tooltip:{...TIP,callbacks:{label:c=>{
+        const raw=c.dataset._raw[c.dataIndex];
+        const tot=c.dataset._raw.filter((v,i)=>c.chart.getDataVisibility(i)).reduce((a,b)=>a+(b||0),0);
+        return ` ${c.label}: ${(raw||0).toLocaleString()} (${tot?((raw/tot)*100).toFixed(1):0}%)`;
+      }}}
+    }
+  }
+});
+
+
+(function(){
+  const wrap=document.getElementById('mcMultiples');
+  const dates=DATES;
+  const datasets=MC_DS;
+  if(!wrap||!datasets.length)return;
+  let ymax=0;
+  datasets.forEach(ds=>{(ds.data||[]).forEach(v=>{if(v!=null&&v>ymax)ymax=v;});});
+  ymax=Math.ceil(ymax*1.05)||1;
+  datasets.forEach((ds,i)=>{
+    const card=document.createElement('div');card.className='multiple-card';
+    const h=document.createElement('h4');h.textContent=ds.label;card.appendChild(h);
+    const cv=document.createElement('canvas');cv.id='mini_'+i;card.appendChild(cv);
+    wrap.appendChild(card);
+    new Chart(cv,{type:'line',data:{labels:dates,datasets:[{...ds,pointRadius:0,borderWidth:1.5,fill:false}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TIP},
+        scales:{x:{display:false},y:{min:0,max:ymax,ticks:{...TICK,maxTicksLimit:4},grid:GRID}}}
+    });
+  });
+})();
+
+mkLine('totalChart',TOT_DS);
+mkLine('ocChart',   OC_DS);
+mkLine('boostChart',BOOST_DS);
+mkLine('velChart',  VEL_DS, {
+  plugins:{legend:LEG,tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y?.toFixed(2)}%`}}},
+  scales:{x:AXIS.x,y:{ticks:{...TICK,callback:v=>v+'%'},grid:GRID,afterDataLimits(s){const r=Math.max(Math.abs(s.min),Math.abs(s.max),1);s.min=-r;s.max=r;}}}
+});
+
+new Chart('ratioChart',{type:'bar',
+  data:{
+    labels: RATIO.map(r=>r.name),
+    datasets:[{
+      label:'Online %',
+      data: RATIO.map(r=>r.ratio),
+      backgroundColor: RATIO.map((_,i)=>COLORS[i%COLORS.length]+'40'),
+      borderColor: RATIO.map((_,i)=>COLORS[i%COLORS.length]),
+      borderWidth:1,borderRadius:4,
+    }]
+  },
+  options:{
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.parsed.x.toFixed(1)}%`}}},
+    scales:{
+      x:{ticks:{...TICK,callback:v=>v+'%'},grid:GRID},
+      y:{ticks:{color:'#8B98A6',font:{size:11}},grid:{color:'transparent'}},
+    }
+  }
+});
+
+// Heatmap
+(function(){
+  const wrap = document.getElementById('heatmap');
+  if(!HM_DATES.length){wrap.innerHTML='<p style="color:var(--muted-2);padding:8px">Not enough data yet.</p>';return;}
+  const hdr = document.createElement('div'); hdr.className='hm-dates';
+  HM_DATES.forEach(d=>{
+    const el=document.createElement('div'); el.className='hm-date'; el.textContent=d.slice(5); hdr.appendChild(el);
+  });
+  wrap.appendChild(hdr);
+  HM_DATA.forEach(srv=>{
+    const row=document.createElement('div'); row.className='hm-row';
+    const lbl=document.createElement('div'); lbl.className='hm-label'; lbl.textContent=srv.name; row.appendChild(lbl);
+    const cells=document.createElement('div'); cells.className='hm-cells';
+    srv.vals.forEach((v,i)=>{
+      const c=document.createElement('div'); c.className='hm-cell';
+      if(v==null){ c.style.background='#131922'; }
+      else{
+        const intensity=v/srv.max;
+        c.style.background=`rgba(74,158,255,${(.08+intensity*.65).toFixed(2)})`;
+        c.title=`${srv.name} · ${HM_DATES[i]}: ${v.toLocaleString()} online (norm)${srv.raw_vals&&srv.raw_vals[i]!=null?` · raw ${srv.raw_vals[i].toLocaleString()}`:''}`;
+      }
+      cells.appendChild(c);
+    });
+    row.appendChild(cells); wrap.appendChild(row);
+  });
+})();
+
+// Table
+const TIER_LABELS = ['None','Level 1','Level 2','Level 3'];
+const TIER_CSS    = ['tier-0','tier-1','tier-2','tier-3'];
+let sortCol='members', sortDir=-1;
+
+function fmtN(v, sfx='', dec=0) {
+  if(v===null||v===undefined) return '<span class="dim">—</span>';
+  const abs = dec>0 ? Math.abs(v).toFixed(dec) : Math.abs(v).toLocaleString();
+  const sign = v>0?'+':v<0?'-':'';
+  const cls  = v>0?'pos':v<0?'neg':'';
+  return cls ? `<span class="${cls}">${sign}${abs}${sfx}</span>` : `${abs}${sfx}`;
+}
+
+function renderTable(rows) {
+  const sorted = [...rows].sort((a,b)=>{
+    const av=a[sortCol], bv=b[sortCol];
+    if(av==null) return 1; if(bv==null) return -1;
+    return (typeof av==='string' ? av.localeCompare(bv) : av-bv)*sortDir;
+  });
+  document.getElementById('tableBody').innerHTML = sorted.map(r=>{
+    const tier = r.boost_tier ?? 0;
+    return `<tr>
+      <td><b>${r.name}</b></td>
+      <td style="font-family:var(--mono)">${r.members?r.members.toLocaleString():'—'}</td>
+      <td style="font-family:var(--mono)">${r.online_pct!=null?r.online_pct.toFixed(1)+'%':'—'}</td>
+      <td style="font-family:var(--mono)">${r.boost_count??'—'}</td>
+      <td style="font-family:var(--mono)">${fmtN(r.d7)}</td>
+      <td style="font-family:var(--mono)">${fmtN(r.mpd,'',1)}</td>
+      <td class="col-advanced"><span class="tier ${TIER_CSS[tier]}">${TIER_LABELS[tier]}</span></td>
+      <td class="col-advanced" style="font-family:var(--mono)">${r.channel_count??'<span class="dim">—</span>'}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${r.role_count??'<span class="dim">—</span>'}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${fmtN(r.d30)}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${r.proj!=null?r.proj.toLocaleString():'<span class="dim">—</span>'}</td>
+      <td class="col-advanced" style="font-family:var(--mono)">${r.market_share!=null?r.market_share.toFixed(2)+'%':'<span class="dim">—</span>'}</td>
+      <td class="col-advanced" style="color:var(--muted-2);font-family:var(--mono);font-size:11px">${r.last_seen}</td>
+    </tr>`;
+  }).join('');
+}
+
+document.querySelectorAll('#summaryTable th[data-col]').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const col=th.dataset.col;
+    sortDir = sortCol===col ? -sortDir : -1;
+    sortCol = col;
+    document.querySelectorAll('#summaryTable th').forEach(t=>{
+      t.classList.remove('sort-asc','sort-desc');
+      t.querySelector('.arr').textContent='↕';
+    });
+    th.classList.add(sortDir===-1?'sort-desc':'sort-asc');
+    th.querySelector('.arr').textContent = sortDir===-1?'↓':'↑';
+    renderTable(RAW_ROWS);
+  });
+});
+renderTable(RAW_ROWS);
+const dflt = document.querySelector('#summaryTable th[data-col="members"]');
+dflt.classList.add('sort-desc'); dflt.querySelector('.arr').textContent='↓';
+
+function setupTableExpand(tableId, btnId) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  let expanded = false;
+  btn.addEventListener('click', () => {
+    expanded = !expanded;
+    document.querySelectorAll(`#${tableId} .col-advanced`).forEach(el => {
+      el.style.display = expanded ? '' : 'none';
+    });
+    btn.textContent = expanded ? 'Show fewer columns' : 'Show all columns';
+  });
+}
+
+setupTableExpand('summaryTable','expandBtn');
+</script>
+</main>
+</body>
+</html>

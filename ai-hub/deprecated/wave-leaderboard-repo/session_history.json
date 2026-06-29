@@ -1,0 +1,277 @@
+{
+  "sessions": [
+    {
+      "session_id": 1,
+      "open_day": "2026-05-20",
+      "close_day": "2026-05-21",
+      "reviewers": {
+        "boodelashin": 501,
+        "itsdolphin": 198,
+        "nathan.0362": 4,
+        "mahanytt": 24,
+        "notmfl": 42,
+        "zlyzv.": 171,
+        "slaxmgmt": 784,
+        "lozyxwtw": 329
+      }
+    },
+    {
+      "session_id": 2,
+      "open_day": "2026-05-21",
+      "close_day": "2026-05-22",
+      "reviewers": {
+        "boodelashin": 501,
+        "itsdolphin": 198,
+        "nathan.0362": 4,
+        "mahanytt": 24,
+        "notmfl": 48,
+        "zlyzv.": 274,
+        "slaxmgmt": 784,
+        "lozyxwtw": 329
+      }
+    },
+    {
+      "session_id": 3,
+      "open_day": "2026-05-22",
+      "close_day": "2026-05-23",
+      "reviewers": {
+        "boodelashin": 501,
+        "itsdolphin": 198,
+        "nathan.0362": 4,
+        "mahanytt": 24,
+        "notmfl": 84,
+        "zlyzv.": 274,
+        "slaxmgmt": 788.5,
+        "lozyxwtw": 329
+      },
+      "submissions": {
+        "nathan.0362": 2,
+        "notmfl": 6,
+        "slaxmgmt": 1
+      }
+    },
+    {
+      "session_id": 4,
+      "open_day": "2026-05-23",
+      "close_day": "2026-05-24",
+      "reviewers": {
+        "boodelashin": 501,
+        "itsdolphin": 202,
+        "inf1nte8": 15,
+        "nathan.0362": 4,
+        "mahanytt": 24,
+        "notmfl": 187,
+        "zlyzv.": 294,
+        "slaxmgmt": 838.5,
+        "lozyxwtw": 329
+      },
+      "submissions": {
+        "itsdolphin": 1,
+        "inf1nte8": 3,
+        "notmfl": 1,
+        "zlyzv.": 3,
+        "slaxmgmt": 5
+      }
+    },
+    {
+      "session_id": 5,
+      "open_day": "2026-05-24",
+      "close_day": "2026-05-25",
+      "reviewers": {
+        "boodelashin": 481,
+        "itsdolphin": 198,
+        "inf1nte8": 13,
+        "mahanytt": 4,
+        "notmfl": 167,
+        "zlyzv.": 501,
+        "slaxmgmt": 818.5,
+        "lozyxwtw": 309
+      },
+      "submissions": {
+        "itsdolphin": 2,
+        "inf1nte8": 1,
+        "zlyzv.": 9
+      }
+    },
+    {
+      "session_id": 6,
+      "open_day": "2026-05-25",
+      "close_day": "2026-05-26",
+      "reviewers": {
+        "boodelashin": 481,
+        "itsdolphin": 208,
+        "inf1nte8": 13,
+        "nathan.0362": 3,
+        "mahanytt": 4,
+        "notmfl": 167,
+        "zlyzv.": 531,
+        "slaxmgmt": 930.5,
+        "lozyxwtw": 309
+      },
+      "submissions": {
+        "itsdolphin": 2,
+        "nathan.0362": 1,
+        "notmfl": 1,
+        "zlyzv.": 1,
+        "slaxmgmt": 6
+      }
+    },
+    {
+      "session_id": 7,
+      "open_day": "2026-05-26",
+      "close_day": "2026-05-27",
+      "reviewers": {
+        "boodelashin": 361,
+        "itsdolphin": 104,
+        "notmfl": 95,
+        "zlyzv.": 411,
+        "slaxmgmt": 918,
+        "lozyxwtw": 199
+      },
+      "submissions": {
+        "itsdolphin": 1,
+        "notmfl": 1,
+        "slaxmgmt": 6,
+        "lozyxwtw": 3
+      }
+    },
+    {
+      "session_id": 8,
+      "open_day": "2026-05-27",
+      "close_day": "2026-05-28",
+      "reviewers": {
+        "boodelashin": 361,
+        "itsdolphin": 104,
+        "nathan.0362": 16,
+        "notmfl": 95,
+        "zlyzv.": 411,
+        "slaxmgmt": 985,
+        "lozyxwtw": 191
+      },
+      "submissions": {
+        "nathan.0362": 1,
+        "slaxmgmt": 7
+      }
+    },
+    {
+      "session_id": 9,
+      "open_day": "2026-05-28",
+      "close_day": "2026-05-29",
+      "reviewers": {
+        "boodelashin": 361,
+        "itsdolphin": 104,
+        "nathan.0362": 27,
+        "notmfl": 95,
+        "zlyzv.": 411,
+        "slaxmgmt": 1168,
+        "lozyxwtw": 195
+      },
+      "submissions": {
+        "nathan.0362": 1,
+        "slaxmgmt": 4,
+        "lozyxwtw": 1
+      }
+    },
+    {
+      "session_id": 10,
+      "open_day": "2026-05-29",
+      "close_day": "2026-05-30",
+      "reviewers": {
+        "boodelashin": 361,
+        "itsdolphin": 104,
+        "nathan.0362": 27,
+        "yalnif31": 4,
+        "notmfl": 95,
+        "zlyzv.": 457,
+        "slaxmgmt": 1463.5,
+        "lozyxwtw": 195
+      },
+      "submissions": {
+        "yalnif31": 2,
+        "zlyzv.": 1,
+        "slaxmgmt": 2
+      }
+    },
+    {
+      "session_id": 11,
+      "open_day": "2026-05-30",
+      "close_day": "2026-05-31",
+      "reviewers": {
+        "boodelashin": 171,
+        "zlyzv.": 271,
+        "slaxmgmt": 1360,
+        "lozyxwtw": 5
+      },
+      "submissions": {
+        "nathan.0362": 3,
+        "notmfl": 2,
+        "zlyzv.": 3,
+        "slaxmgmt": 4
+      }
+    },
+    {
+      "session_id": 12,
+      "open_day": "2026-05-31",
+      "close_day": "2026-06-01",
+      "reviewers": {
+        "boodelashin": 171,
+        "nathan.0362": 14,
+        "zlyzv.": 402,
+        "slaxmgmt": 1376.5,
+        "lozyxwtw": 5
+      },
+      "submissions": {
+        "nathan.0362": 1,
+        "zlyzv.": 4,
+        "slaxmgmt": 2
+      }
+    },
+    {
+      "session_id": 13,
+      "open_day": "2026-06-01",
+      "close_day": "2026-06-02",
+      "reviewers": {
+        "boodelashin": 171,
+        "nathan.0362": 14,
+        "zlyzv_": 402,
+        "notmfl": 50,
+        "slaxmgmt": 1410.5
+      },
+      "submissions": {
+        "notmfl": 4,
+        "slaxmgmt": 2,
+        "lozyxwtw": 1
+      }
+    },
+    {
+      "session_id": 14,
+      "open_day": "2026-06-02",
+      "close_day": "2026-06-03",
+      "reviewers": {
+        "boodelashin": 161,
+        "nathan.0362": 4,
+        "zlyzv_": 136,
+        "notmfl": 52,
+        "slaxmgmt": 1618.5
+      },
+      "submissions": {
+        "zlyzv_": 3,
+        "notmfl": 1,
+        "slaxmgmt": 2
+      }
+    },
+    {
+      "session_id": 15,
+      "open_day": "2026-06-03",
+      "close_day": "2026-06-04",
+      "reviewers": {
+        "boodelashin": 161,
+        "nathan.0362": 4,
+        "zlyzv_": 151,
+        "notmfl": 52,
+        "slaxmgmt": 1618.5
+      },
+      "submissions": {}
+    }
+  ]
+}

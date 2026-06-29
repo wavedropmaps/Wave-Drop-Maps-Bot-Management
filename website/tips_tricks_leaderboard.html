@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💡 Tips & Tricks Helpers HQ</title>
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wavedropmaps.pages.dev/tips_tricks_leaderboard.html">
+<meta property="og:title" content="Tips & Tricks Helpers HQ">
+<meta property="og:description" content="Live tasks, points leaderboard, and duty assignments for Wave T&T Helpers">
+<meta name="theme-color" content="#FF8C1A">
+<style>
+/* =====================================================================
+   ROOT & RESET
+===================================================================== */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#FF8C1A;
+  --secondary:#FFD700;
+  --accent:#FFAB40;
+  --lucky:#FF6B2B;
+  --bonus:#00E676;
+  --dark-bg:#0a0605;
+  --card-bg:rgba(20,10,5,0.88);
+  --card-border:rgba(255,140,26,0.18);
+  --text-primary:#ffffff;
+  --text-secondary:#b09070;
+  --gold:#FFD700;
+  --silver:#C0C8D8;
+  --bronze:#CD7F32;
+}
+
+/* =====================================================================
+   BASE
+===================================================================== */
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+  background-color:#090503;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(255,140,26,0.15) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%,rgba(255,100,0,0.08) 0%,transparent 55%),
+    radial-gradient(ellipse 50% 30% at 20% 90%,rgba(200,80,0,0.07) 0%,transparent 50%),
+    linear-gradient(160deg,#0a0503 0%,#100805 40%,#080502 100%);
+  color:var(--text-primary);
+  min-height:100vh;
+  padding:30px 20px 60px;
+  position:relative;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(255,140,26,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,140,26,0.025) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+
+.container{max-width:1320px;margin:0 auto;position:relative;z-index:1;}
+
+/* =====================================================================
+   HEADER
+===================================================================== */
+header{text-align:center;margin-bottom:40px;animation:glow-in 0.9s cubic-bezier(0.22,1,0.36,1);}
+header::after{
+  content:'';position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);
+  width:220px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--primary),var(--secondary),transparent);
+  opacity:0.6;
+}
+h1{font-size:2.8em;font-weight:900;letter-spacing:-0.5px;margin-bottom:10px;}
+.title-text{
+  background:linear-gradient(135deg,#FF8C1A 0%,#FFD700 50%,#FF6B2B 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.subtitle{color:var(--text-secondary);font-size:1em;letter-spacing:1px;text-transform:uppercase;}
+.last-updated{color:#5a4030;font-size:0.75em;margin-top:6px;letter-spacing:0.5px;}
+
+/* =====================================================================
+   TABS
+===================================================================== */
+.tabs{
+  display:flex;justify-content:center;gap:10px;margin-bottom:36px;flex-wrap:wrap;
+}
+.tab-btn{
+  padding:11px 28px;border:1.5px solid rgba(255,140,26,0.35);
+  background:rgba(255,140,26,0.06);color:var(--text-secondary);
+  font-size:0.88em;font-weight:600;cursor:pointer;border-radius:50px;
+  transition:all 0.25s cubic-bezier(0.22,1,0.36,1);
+  text-transform:uppercase;letter-spacing:1.5px;
+}
+.tab-btn:hover{
+  border-color:var(--primary);color:var(--text-primary);
+  background:rgba(255,140,26,0.14);transform:translateY(-3px);
+  box-shadow:0 6px 20px rgba(255,140,26,0.18);
+}
+.tab-btn.active{
+  background:linear-gradient(135deg,#FF8C1A 0%,#FFD700 60%,#FF6B2B 100%);
+  border-color:transparent;color:#1a0a00;font-weight:700;
+  box-shadow:0 6px 24px rgba(255,140,26,0.45),0 2px 8px rgba(255,215,0,0.2);
+  transform:translateY(-2px);
+}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;animation:fade-up 0.25s ease;}
+
+/* =====================================================================
+   TASK FILTERS
+===================================================================== */
+.task-filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.filter-btn{
+  padding:6px 18px;border:1px solid var(--card-border);border-radius:20px;
+  background:transparent;color:var(--text-secondary);cursor:pointer;
+  font-size:0.82em;font-weight:600;transition:all 0.2s;
+}
+.filter-btn:hover,.filter-btn.active{
+  background:rgba(255,140,26,0.15);border-color:var(--primary);color:var(--primary);
+}
+
+/* =====================================================================
+   TASK CARDS
+===================================================================== */
+.tasks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;}
+.task-card{
+  background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;
+  padding:18px 20px;position:relative;transition:transform 0.2s,border-color 0.2s;
+  overflow:hidden;
+}
+.task-card:hover{transform:translateY(-2px);border-color:rgba(255,140,26,0.35);}
+.task-card.lucky{border-color:rgba(255,107,43,0.5);box-shadow:0 0 18px rgba(255,107,43,0.15);}
+.task-card.bonus{border-color:rgba(0,230,118,0.4);}
+.task-card.claimed-card{opacity:0.68;}
+.task-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--primary),var(--secondary));opacity:0;
+  transition:opacity 0.2s;
+}
+.task-card:hover::before{opacity:1;}
+.task-card.lucky::before{background:linear-gradient(90deg,var(--lucky),var(--secondary));opacity:1;}
+.task-card.bonus::before{background:linear-gradient(90deg,var(--bonus),#00C8FF);opacity:1;}
+
+.task-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
+.task-id{
+  font-size:0.75em;font-weight:700;color:var(--primary);background:rgba(255,140,26,0.12);
+  border:1px solid rgba(255,140,26,0.25);border-radius:6px;padding:3px 8px;
+  white-space:nowrap;flex-shrink:0;font-family:'Courier New',monospace;
+}
+.task-badges{display:flex;gap:6px;flex-wrap:wrap;}
+.badge{padding:2px 8px;border-radius:10px;font-size:0.72em;font-weight:700;letter-spacing:0.5px;}
+.badge-lucky{background:rgba(255,107,43,0.2);color:#FF8C5A;border:1px solid rgba(255,107,43,0.3);}
+.badge-bonus{background:rgba(0,230,118,0.15);color:#00E676;border:1px solid rgba(0,230,118,0.3);}
+.badge-pts{background:rgba(255,215,0,0.12);color:var(--gold);border:1px solid rgba(255,215,0,0.25);}
+
+.task-desc{font-size:0.93em;color:#d0b090;line-height:1.5;margin-bottom:10px;}
+.task-channels{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.task-ch-link{
+  font-size:0.74em;padding:5px 10px;border-radius:5px;
+  background:rgba(255,140,26,0.15);color:var(--accent);text-decoration:none;
+  transition:background 0.15s;font-weight:600;border:1px solid rgba(255,140,26,0.3);
+}
+.task-ch-link:hover{background:rgba(255,140,26,0.28);color:#fff;}
+
+.task-attachments{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.task-att-img{width:100%;max-height:180px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,140,26,0.15);display:block;}
+.task-att-yt{
+  display:flex;align-items:center;gap:0;border-radius:8px;overflow:hidden;
+  border:1px solid rgba(255,0,0,0.25);text-decoration:none;max-width:240px;width:100%;
+}
+.task-att-yt-thumb{width:120px;height:68px;object-fit:cover;flex-shrink:0;}
+.task-att-yt-label{
+  padding:6px 10px;background:rgba(255,0,0,0.12);font-size:0.75em;font-weight:600;
+  color:#ff6b6b;line-height:1.3;
+}
+.task-att-chip{
+  display:inline-flex;align-items:center;gap:5px;font-size:0.75em;font-weight:600;
+  padding:4px 10px;border-radius:5px;text-decoration:none;transition:background 0.15s;
+}
+.task-att-chip.twitter{background:rgba(29,161,242,0.12);color:#4ea8de;border:1px solid rgba(29,161,242,0.2);}
+.task-att-chip.twitter:hover{background:rgba(29,161,242,0.22);}
+.task-att-chip.url{background:rgba(255,140,26,0.1);color:var(--accent);border:1px solid rgba(255,140,26,0.2);}
+.task-att-chip.url:hover{background:rgba(255,140,26,0.2);}
+
+.task-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.task-status-available{font-size:0.8em;color:#70a060;font-weight:600;}
+.task-status-claimed{font-size:0.8em;color:var(--text-secondary);}
+.task-claimed-by{display:flex;align-items:center;gap:6px;}
+.task-claimed-by img{width:20px;height:20px;border-radius:50%;object-fit:cover;}
+.task-claimed-by span{font-size:0.8em;color:var(--text-secondary);}
+.task-age{font-size:0.72em;color:#5a4030;}
+
+.btn-claim,.btn-unclaim{
+  padding:5px 14px;border-radius:6px;font-size:0.8em;font-weight:600;
+  cursor:pointer;transition:all 0.2s;border:none;
+}
+.btn-claim{
+  background:rgba(255,140,26,0.18);color:var(--primary);
+  border:1px solid rgba(255,140,26,0.4);
+}
+.btn-claim:hover:not(:disabled){
+  background:rgba(255,140,26,0.32);transform:translateY(-1px);
+}
+.btn-unclaim{
+  background:rgba(255,68,68,0.12);color:#ff7070;
+  border:1px solid rgba(255,68,68,0.3);
+}
+.btn-unclaim:hover:not(:disabled){
+  background:rgba(255,68,68,0.22);transform:translateY(-1px);
+}
+.btn-claim:disabled,.btn-unclaim:disabled{opacity:0.4;cursor:not-allowed;}
+
+.no-tasks{text-align:center;padding:60px 20px;color:var(--text-secondary);}
+.no-tasks-icon{font-size:3em;margin-bottom:12px;}
+
+/* =====================================================================
+   LEADERBOARD
+===================================================================== */
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:16px;margin-bottom:36px;flex-wrap:wrap;}
+.podium-slot{text-align:center;padding:20px 24px;border-radius:12px;min-width:160px;
+  border:1px solid var(--card-border);background:var(--card-bg);}
+.podium-slot.p1{
+  border-color:rgba(255,215,0,0.4);background:rgba(255,215,0,0.05);
+  box-shadow:0 0 30px rgba(255,215,0,0.12);padding-bottom:28px;
+}
+.podium-slot.p2{border-color:rgba(192,200,216,0.35);}
+.podium-slot.p3{border-color:rgba(205,127,50,0.35);}
+.podium-rank{font-size:2em;margin-bottom:8px;}
+.podium-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;margin:0 auto 10px;display:block;
+  border:2px solid rgba(255,140,26,0.3);}
+.podium-avatar-placeholder{
+  width:64px;height:64px;border-radius:50%;background:rgba(255,140,26,0.1);
+  border:2px dashed rgba(255,140,26,0.2);margin:0 auto 10px;display:flex;
+  align-items:center;justify-content:center;font-size:1.6em;
+}
+.podium-name{font-size:0.9em;font-weight:700;color:#fff;margin-bottom:4px;}
+.podium-pts{font-size:1.3em;font-weight:900;color:var(--primary);}
+.podium-tasks{font-size:0.72em;color:var(--text-secondary);}
+
+.lb-list{display:flex;flex-direction:column;gap:8px;}
+.lb-row{
+  display:flex;align-items:center;gap:14px;padding:14px 18px;
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:10px;transition:border-color 0.2s;
+}
+.lb-row:hover{border-color:rgba(255,140,26,0.3);}
+.lb-rank{font-size:0.85em;font-weight:700;color:var(--text-secondary);width:28px;flex-shrink:0;text-align:center;}
+.lb-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+.lb-avatar-ph{width:38px;height:38px;border-radius:50%;background:rgba(255,140,26,0.1);
+  display:flex;align-items:center;justify-content:center;font-size:1.1em;flex-shrink:0;}
+.lb-info{flex:1;min-width:0;}
+.lb-name{font-size:0.92em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lb-stats{font-size:0.75em;color:var(--text-secondary);}
+.lb-pts{font-size:1.1em;font-weight:800;color:var(--primary);flex-shrink:0;}
+.lb-delta{font-size:0.72em;flex-shrink:0;width:32px;text-align:center;}
+.delta-up{color:#00E676;}
+.delta-down{color:#ff4455;}
+.delta-same{color:var(--text-secondary);}
+.lucky-count{display:inline-block;margin-left:4px;font-size:0.85em;}
+
+/* =====================================================================
+   DUTIES
+===================================================================== */
+.duties-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:14px;}
+.duty-card{
+  background:#1e1f22;border-left:4px solid var(--primary);border-radius:0 8px 8px 0;
+  padding:14px 16px 14px 16px;transition:border-left-color 0.2s,transform 0.2s;
+}
+.duty-card:hover{border-left-color:var(--secondary);transform:translateX(3px);}
+.duty-card.unassigned{border-left-color:rgba(255,140,26,0.3);}
+.duty-title-row{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-bottom:10px;}
+.duty-name{font-size:0.95em;font-weight:700;color:#fff;}
+.duty-code-badge{
+  font-size:0.68em;font-weight:700;letter-spacing:1px;
+  background:rgba(255,140,26,0.15);color:var(--primary);
+  border:1px solid rgba(255,140,26,0.3);border-radius:4px;padding:1px 7px;flex-shrink:0;
+}
+.duty-assignee-card{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:12px;padding:7px 10px;
+  background:rgba(255,140,26,0.06);
+  border-left:3px solid rgba(255,140,26,0.4);border-radius:0 6px 6px 0;
+}
+.duty-card.unassigned .duty-assignee-card{
+  background:rgba(255,255,255,0.03);border-left-color:rgba(255,255,255,0.08);
+}
+.duty-avatar{
+  width:30px;height:30px;border-radius:50%;flex-shrink:0;
+  background:#FF8C1A33;display:flex;align-items:center;justify-content:center;
+  font-size:0.68em;font-weight:700;color:var(--primary);letter-spacing:0.5px;
+}
+.duty-card.unassigned .duty-avatar{background:rgba(255,255,255,0.06);color:#5d6b7b;}
+.duty-avatar img{width:30px;height:30px;border-radius:50%;object-fit:cover;}
+.duty-avatar-info{display:flex;flex-direction:column;gap:1px;}
+.duty-avatar-label{font-size:0.63em;font-weight:600;letter-spacing:0.8px;color:#5d6b7b;text-transform:uppercase;}
+.duty-avatar-name{font-size:0.86em;font-weight:700;color:#fff;}
+.duty-avatar-none{font-size:0.86em;color:#5d6b7b;font-style:italic;}
+.duty-steps-list{list-style:none;margin:0 0 10px;padding:0;display:flex;flex-direction:column;gap:6px;}
+.duty-steps-list li{font-size:0.83em;color:#b5bac1;line-height:1.5;display:flex;gap:9px;align-items:flex-start;}
+.duty-step-num{
+  min-width:20px;height:20px;border-radius:50%;background:var(--primary);color:#1e1f22;
+  font-size:0.7em;font-weight:700;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:2px;
+}
+.duty-note{
+  font-size:0.78em;color:#8a9a7a;background:rgba(0,200,100,0.05);
+  border-left:2px solid rgba(0,200,100,0.2);padding:5px 10px;border-radius:0 4px 4px 0;
+  margin-bottom:10px;line-height:1.4;
+}
+.duty-channels{display:flex;flex-wrap:wrap;gap:6px;}
+.duty-ch-link{
+  font-size:0.74em;padding:3px 9px;border-radius:4px;
+  background:rgba(88,101,242,0.15);color:#8b9cfb;text-decoration:none;
+  transition:background 0.15s;font-weight:500;border:1px solid rgba(88,101,242,0.2);
+}
+.duty-ch-link::before{content:'# ';}
+.duty-ch-link:hover{background:rgba(88,101,242,0.28);color:#bbc4ff;}
+
+/* =====================================================================
+   ANIMATIONS & MISC
+===================================================================== */
+@keyframes glow-in{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fade-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.section-label{font-size:0.72em;letter-spacing:2px;text-transform:uppercase;
+  color:var(--text-secondary);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,140,26,0.2),transparent);}
+
+.empty-state{text-align:center;padding:48px 20px;color:var(--text-secondary);font-size:0.9em;}
+
+/* =====================================================================
+   YOUR COMMANDS
+===================================================================== */
+.cmd-section{
+  margin-top:32px;
+  background:linear-gradient(145deg,rgba(20,10,5,0.92),rgba(10,5,3,0.88));
+  border:1px solid var(--card-border);border-radius:12px;padding:20px 24px;
+}
+.cmd-section h3{
+  font-size:0.95em;font-weight:700;color:var(--primary);
+  text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.cmd-card{
+  background:rgba(255,140,26,0.05);border-left:4px solid var(--primary);
+  border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:10px;
+  transition:background 0.15s;
+}
+.cmd-card:last-child{margin-bottom:0;}
+.cmd-card:hover{background:rgba(255,140,26,0.1);}
+.cmd-name{
+  font-family:'Courier New',monospace;font-size:1em;
+  color:var(--primary);font-weight:700;display:block;margin-bottom:3px;
+}
+.cmd-desc{font-size:0.9em;color:var(--text-primary);display:block;}
+.cmd-bullets{margin:5px 0 0 4px;padding:0;list-style:none;}
+.cmd-bullets li{
+  font-size:0.82em;color:var(--text-secondary);
+  padding-left:14px;position:relative;line-height:1.5;
+}
+.cmd-bullets li::before{content:'•';position:absolute;left:0;color:var(--primary);}
+
+@media(max-width:700px){
+  h1{font-size:2em;}
+  .container{padding-left:14px;padding-right:14px;box-sizing:border-box;}
+  .tab-btn{padding:9px 18px;font-size:0.8em;}
+  .podium{gap:10px;}
+  .podium-slot{min-width:140px;flex:1;padding:16px 12px;}
+  .duties-grid,.tasks-grid{grid-template-columns:1fr;}
+}
+@media(max-width:420px){
+  h1{font-size:1.55em;}
+  body{padding:16px 10px 60px;}
+  .tab-btn{padding:8px 14px;font-size:0.75em;}
+  .podium{flex-direction:column;align-items:center;}
+  .podium-slot{min-width:unset;width:100%;max-width:340px;}
+}
+</style>
+<style>.wave-logo-inline { width: 1.1em; height: 1.1em; vertical-align: -0.15em; display: inline-block; object-fit: contain; }</style>
+</head>
+<body><a href="/" style="position:fixed;top:14px;left:14px;z-index:99999;display:inline-flex;align-items:center;gap:6px;background:rgba(13,17,23,.88);color:#58a6ff;text-decoration:none;font:600 13px system-ui,-apple-system,sans-serif;padding:8px 14px;border:1px solid rgba(88,166,255,.45);border-radius:999px;backdrop-filter:blur(4px);box-shadow:0 2px 10px rgba(0,0,0,.4)">&#8592; Back to Hub</a>
+<div class="container">
+
+  <!-- ── HEADER ──────────────────────────────────────────────── -->
+  <header>
+    <h1><span style="font-style:normal;">💡</span> <span class="title-text">T&T Helpers HQ</span></h1>
+    <p class="subtitle">Tips &amp; Tricks · Wave Drop Maps</p>
+    <p class="last-updated" id="last-updated">Loading...</p>
+  </header>
+
+  <!-- ── TAB BAR ─────────────────────────────────────────────── -->
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="tasks" role="tab">📋 Tasks</button>
+    <button class="tab-btn" data-tab="leaderboard" role="tab">🏆 Leaderboard</button>
+    <button class="tab-btn" data-tab="duties" role="tab">📌 Duties</button>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TAB: TASKS
+  ══════════════════════════════════════════════════════════ -->
+  <div id="tab-tasks" class="tab-pane active" role="tabpanel">
+    <div class="section-label">Task Board</div>
+
+    <div class="task-filters" id="task-filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="available">✅ Available</button>
+      <button class="filter-btn" data-filter="claimed">🔒 Claimed</button>
+    </div>
+
+    <div class="tasks-grid" id="tasks-grid">
+      <div class="empty-state">Loading tasks…</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TAB: LEADERBOARD
+  ══════════════════════════════════════════════════════════ -->
+  <div id="tab-leaderboard" class="tab-pane" role="tabpanel">
+    <div class="section-label">Top Helpers</div>
+    <div class="podium" id="podium"></div>
+    <div class="section-label">Rankings</div>
+    <div class="lb-list" id="lb-list"></div>
+
+    <!-- ── YOUR COMMANDS ──────────────────────────────────────── -->
+    <div class="cmd-section">
+      <h3>📟 Your Commands</h3>
+      <div class="cmd-card">
+        <span class="cmd-name">&gt;mytttasks</span>
+        <span class="cmd-desc">View your currently claimed tasks</span>
+        <ul class="cmd-bullets">
+          <li>Lists every task you have reserved with its ID and age</li>
+          <li>Use this to find task IDs before completing or unclaiming</li>
+        </ul>
+      </div>
+      <div class="cmd-card">
+        <span class="cmd-name">&gt;claimtttask &lt;id&gt;</span>
+        <span class="cmd-desc">Claim an available task from the board above</span>
+        <ul class="cmd-bullets">
+          <li>Reserves the task so others can't claim it at the same time</li>
+          <li>Complete it with <code style="color:var(--primary);">&gt;completetask &lt;id&gt;</code> to earn the points</li>
+        </ul>
+      </div>
+      <div class="cmd-card">
+        <span class="cmd-name">&gt;unclaim &lt;id&gt;</span>
+        <span class="cmd-desc">Drop a task you claimed — puts it back as available</span>
+        <ul class="cmd-bullets">
+          <li>Only works on tasks you personally claimed</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TAB: DUTIES
+  ══════════════════════════════════════════════════════════ -->
+  <div id="tab-duties" class="tab-pane" role="tabpanel">
+    <div class="section-label">Assigned Duties</div>
+    <div class="duties-grid" id="duties-grid"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TAB: SHOP
+  ══════════════════════════════════════════════════════════ -->
+  <div id="tab-shop" class="tab-pane" role="tabpanel">
+    <div class="section-label">Wave Points Shop</div>
+    <div style="text-align:center;padding:60px 20px;">
+      <div style="font-size:3rem;margin-bottom:16px;">🛒</div>
+      <h2 style="color:#ffaa00;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;"><img src="assets/wave-logo.png" alt="Wave Points" style="height:32px;width:auto;object-fit:contain;display:block;"/><span style="line-height:1;">Wave Points Shop</span></h2>
+      <p style="color:var(--text-secondary);max-width:480px;margin:0 auto 28px;line-height:1.6;">Completing T&amp;T tasks earns <img src="assets/wave-logo.png" alt="Wave Points" style="height:18px;width:auto;vertical-align:text-bottom;"/> <strong style="color:#00d4ff;">Wave Points</strong> directly. Spend them in the unified shop on the Economy page.</p>
+      <a href="economy.html" style="display:inline-block;padding:13px 30px;background:rgba(255,170,0,0.15);border:1px solid rgba(255,170,0,0.7);border-radius:10px;color:#ffaa00;font-weight:700;text-decoration:none;font-size:0.95rem;box-shadow:0 0 20px rgba(255,170,0,0.2);">
+        View Wave Points Shop &rarr;
+      </a>
+    </div>
+  </div>
+
+
+</div><!-- /container -->
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   API LAYER — currently read-only static JSON (GitHub Pages hosting)
+
+   WHEN MOVING TO A REAL SERVER:
+   1. Replace DATA_URL with your live API endpoint
+   2. Add Discord OAuth (discord.com/developers/applications → OAuth2)
+   3. Uncomment the interaction handlers at the bottom of this script
+   4. Implement server endpoints:
+        GET  /api/tt/data                → full JSON (same shape as static file)
+        POST /api/tt/tasks/:id/claim     → claim a task  (Bearer token auth)
+        POST /api/tt/tasks/:id/unclaim   → drop a claim  (Bearer token auth)
+        POST /api/tt/tasks/:id/complete  → earn points   (Bearer token auth)
+   5. The claimTask() / unclaimTask() / completeTask() stubs below are already
+      wired to the button event listeners — just swap the fetch URL and enable
+      the buttons (remove the `disabled` attribute).
+═══════════════════════════════════════════════════════════════════════ */
+
+const DATA_URL = '/api/tips';
+
+/* ── Hardcoded duty descriptions (never fetched — always current) ─── */
+const DUTY_INFO = {
+  SPAWNS: {
+    icon: '🎯',
+    steps: [
+      'Go to <a href="https://fortnite.gg" target="_blank">fortnite.gg</a>',
+      'Enable the Spawn which you are doing',
+      'Take a screenshot of the entire map — cursor must NOT be on the picture',
+      'Post in the respective channel',
+      'Format to use: <a class="duty-ch-link" href="https://discord.com/channels/1041450125391835186/1364637891354951700/1364650691800465431" target="_blank">View Format</a>',
+    ],
+    notes: ['Can also use <a href="https://osirion.gg" target="_blank">osirion.gg</a> for coolers, heatmaps, etc. not on fortnite.gg'],
+    channels: [],
+  },
+  SURGE: {
+    icon: '⚡',
+    steps: [
+      'Update changes to storm surge & tips',
+      'Maintain the surge color code reference',
+    ],
+    notes: [
+      'Color Code for Surge Map — Good: <code style="color:#3cfc1e">#3cfc1e</code> · Medium: <code style="color:#1ecefa">#1ecefa</code>',
+    ],
+    channels: [
+      { label: 'Surge Tips', url: 'https://discord.com/channels/971731167621574666/1126853717333917718' },
+      { label: 'Surge Info', url: 'https://discord.com/channels/971731167621574666/997469360518082601' },
+      { label: 'Surge Map Colors', url: 'https://discord.com/channels/971731167621574666/1174671794939121715' },
+    ],
+  },
+  CREATIVE: {
+    icon: '🗺️',
+    steps: [
+      'Go in-game and find new creative maps',
+      'Check all current maps are useful and functioning properly',
+      'Format to use: <a class="duty-ch-link" href="https://discord.com/channels/1041450125391835186/1364637891354951700/1364657352120336544" target="_blank">View Format</a>',
+      'Make sure to enter the correct map code',
+    ],
+    notes: [],
+    channels: [
+      { label: 'Creative Maps 1', url: 'https://discord.com/channels/971731167621574666/1117941960116813854' },
+      { label: 'Creative Maps 2', url: 'https://discord.com/channels/971731167621574666/1118029737235857448' },
+      { label: 'Creative Maps 3', url: 'https://discord.com/channels/971731167621574666/1117941877296087151' },
+      { label: 'Creative Maps 4', url: 'https://discord.com/channels/971731167621574666/1295660319179280475' },
+    ],
+  },
+  PRONOTES: {
+    icon: '🎓',
+    steps: [
+      'Keep Learn From Pros category updated with relevant personal pro info',
+      'Make sure all Pro Notes contain the most recent information from the pros themselves',
+      'Check their Twitter, YouTube, socials, etc.',
+      'Use the Masterclasses document for additional material',
+    ],
+    notes: [],
+    channels: [
+      { label: 'Learn From Pros 1', url: 'https://discord.com/channels/971731167621574666/1117940788924514467' },
+      { label: 'Learn From Pros 2', url: 'https://discord.com/channels/971731167621574666/1117941327779340418' },
+      { label: 'Learn From Pros 3', url: 'https://discord.com/channels/971731167621574666/1219956298817474630' },
+      { label: 'Masterclasses Doc', url: 'https://discord.com/channels/1041450125391835186/1297151370344005702/1397656021362540597' },
+    ],
+  },
+  GAMESTAGES: {
+    icon: '🎮',
+    steps: [
+      'Update game stages to match current season meta',
+      'Include best playstyles for each stage and their advantages & disadvantages',
+      'Use the meta info channels — crucial to reflect current state of the game',
+    ],
+    notes: [],
+    channels: [
+      { label: 'Game Stages 1', url: 'https://discord.com/channels/971731167621574666/997469383993606314' },
+      { label: 'Game Stages 2', url: 'https://discord.com/channels/971731167621574666/997469385327382578' },
+      { label: 'Game Stages 3', url: 'https://discord.com/channels/971731167621574666/997469386560520272' },
+    ],
+  },
+  LOADOUTS: {
+    icon: '🔫',
+    steps: [
+      'For each mode, find the best loadout for each team size',
+      'Format to use: <a class="duty-ch-link" href="https://discord.com/channels/1041450125391835186/1364637891354951700/1364639761775726642" target="_blank">View Format</a>',
+      'Post for all gamemodes once complete',
+      'Can refer to other sources but find the best and most ideal loadouts',
+    ],
+    notes: [],
+    channels: [
+      { label: 'Loadouts BR', url: 'https://discord.com/channels/971731167621574666/1334876131471527956' },
+      { label: 'Loadouts ZB', url: 'https://discord.com/channels/971731167621574666/1334876820771835914' },
+      { label: 'Loadouts Reload', url: 'https://discord.com/channels/971731167621574666/1334876910676873338' },
+      { label: 'Loadouts Ranked', url: 'https://discord.com/channels/971731167621574666/1334876952418324480' },
+      { label: 'Loadouts OG', url: 'https://discord.com/channels/971731167621574666/1334878595163750420' },
+      { label: 'Loadouts Duos', url: 'https://discord.com/channels/971731167621574666/1334878630530121768' },
+      { label: 'Loadouts Extra', url: 'https://discord.com/channels/971731167621574666/1446873372435677297' },
+    ],
+  },
+  MECHANICS: {
+    icon: '⚙️',
+    steps: [
+      'Update with any new game mechanics added to Fortnite',
+      'Keep the meta channel current with this season\'s meta',
+      'Update the season info channel for the current season',
+    ],
+    notes: [],
+    channels: [
+      { label: 'Game Mechanics', url: 'https://discord.com/channels/971731167621574666/1100890353105649664' },
+      { label: 'Season Meta', url: 'https://discord.com/channels/971731167621574666/1217799476744421448' },
+    ],
+  },
+  DROPSPOTS: {
+    icon: '🪂',
+    steps: [
+      'Land at different places and try out the Drop Spots',
+      'Fill out the message format with info about the dropspot',
+      'Include a fortnite.gg image of the Drop Spot',
+      'Format to use: <a class="duty-ch-link" href="https://discord.com/channels/1041450125391835186/1364637891354951700/1409895625071530086" target="_blank">View Format</a>',
+      'Remember to update number, location, passive/aggressive flag, and all other details',
+    ],
+    notes: ['Update Drop Spots every time you are told to'],
+    channels: [
+      { label: 'Drop Spots 1', url: 'https://discord.com/channels/971731167621574666/997469345179516928' },
+      { label: 'Drop Spots 2', url: 'https://discord.com/channels/971731167621574666/1155341730388910140' },
+      { label: 'Drop Spots 3', url: 'https://discord.com/channels/971731167621574666/1155341835284250674' },
+      { label: 'Drop Spots 4', url: 'https://discord.com/channels/971731167621574666/1294842869709934602' },
+      { label: 'Drop Spots 5', url: 'https://discord.com/channels/971731167621574666/1294842921761374259' },
+    ],
+  },
+  LOOTPOOLS: {
+    icon: '📦',
+    steps: [
+      'Visit <a href="https://osirion.gg/app/lootpool" target="_blank">osirion.gg/app/lootpool</a>',
+      'Take screenshots for each channel using the correct settings:',
+      '→ Tournament channel: <code>Tournament - Duos</code> &amp; <code>Tournament - Zero Build - Duos</code>',
+      '→ Reload channel: <code>Reload - Squad</code> &amp; <code>Reload - Zero Build - Squad</code>',
+      '→ OG channel: <code>OG - Battle Royale - Duos</code> &amp; <code>OG - Zero Build - Duos</code>',
+    ],
+    notes: [],
+    channels: [
+      { label: 'Lootpools BR', url: 'https://discord.com/channels/971731167621574666/1219183460955066449' },
+      { label: 'Lootpools Reload', url: 'https://discord.com/channels/971731167621574666/1302301141895479437' },
+      { label: 'Lootpools OG', url: 'https://discord.com/channels/971731167621574666/1313961289118122024' },
+    ],
+  },
+};
+
+/* ── Data + state ───────────────────────────────────────────────── */
+let appData = null;
+let taskFilter = 'all';
+let currentUserId = null;   // Discord user ID string, loaded from /api/me
+
+/* ── Fetch helpers ──────────────────────────────────────────────── */
+async function fetchData() {
+  const resp = await fetch(DATA_URL + '?t=' + Date.now());
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  return resp.json();
+}
+
+// Lightweight task-only poll — hits /api/tt/tasks every 10 s so claims made by
+// any staff member are visible to everyone almost immediately.
+async function pollTasks() {
+  try {
+    const resp = await fetch('/api/tt/tasks?t=' + Date.now());
+    if (!resp.ok) return;
+    const data = await resp.json();
+    if (!appData) return;
+    appData.tasks = data.tasks || [];
+    renderTasks();
+  } catch (_) {}
+}
+
+async function fetchMe() {
+  try {
+    const resp = await fetch('/api/me');
+    if (resp.ok) {
+      const data = await resp.json();
+      currentUserId = data.user_id ? String(data.user_id) : null;
+    }
+  } catch (_) { /* stays null — buttons just won't show */ }
+}
+
+/* ── Channel link extractor ────────────────────────────────────── */
+function extractChannelLinks(description) {
+  if (!description) return { text: '', channels: [] };
+
+  const channels = [];
+  let text = description;
+
+  // Find Discord URLs and extract context around them for a label
+  const discordUrlRegex = /(?:^|[\s\n])?(.*?)?\s*(https:\/\/discord\.com\/channels\/\d+\/\d+(?:\/\d+)?)\s*(?:$|[\s\n])?/gi;
+
+  let match;
+  while ((match = discordUrlRegex.exec(description)) !== null) {
+    const beforeText = match[1] ? match[1].trim() : '';
+    const url = match[2];
+
+    // Use text before URL as label (e.g., "Drop Spots 1" or "update")
+    // or use text after URL if it's short
+    let label = beforeText || 'Channel Link';
+
+    // Clean up label - if it's a single word like "update", use full context
+    if (label.length < 3) {
+      label = 'Channel Link';
+    }
+
+    channels.push({ url, label });
+  }
+
+  // Remove Discord URLs from text
+  text = description.replace(/https:\/\/discord\.com\/channels\/\d+\/\d+(?:\/\d+)?\s*/gi, '').trim();
+
+  return { text, channels };
+}
+
+/* ── Render task channel links ──────────────────────────────────── */
+function renderTaskChannels(channels) {
+  if (!channels || !channels.length) return '';
+  return `<div class="task-channels">${channels.map((ch) =>
+    `<a class="task-ch-link" href="${escHtml(ch.url)}" target="_blank">📍 ${escHtml(ch.label || 'Channel Link')}</a>`
+  ).join('')}</div>`;
+}
+
+/* ── Utilities ──────────────────────────────────────────────────── */
+function timeAgo(isoStr) {
+  if (!isoStr) return '';
+  const diff = Date.now() - new Date(isoStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
+function avatarImg(url, size, cls) {
+  if (url) return `<img src="${url}" class="${cls}" width="${size}" height="${size}" onerror="this.style.display='none'">`;
+  return `<div class="${cls}-ph" style="width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,140,26,0.1);display:flex;align-items:center;justify-content:center;font-size:${size*0.45}px">💡</div>`;
+}
+
+/* ── Attachment renderer ────────────────────────────────────────── */
+function renderAttachments(attachments) {
+  if (!attachments || !attachments.length) return '';
+  const parts = attachments.map(a => {
+    if (a.type === 'image') {
+      return `<img class="task-att-img" src="${escHtml(a.url)}" alt="${escHtml(a.label)}" loading="lazy">`;
+    }
+    if (a.type === 'youtube') {
+      const m = a.url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+      const vid = m ? m[1] : '';
+      const thumb = vid ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg` : '';
+      return `<a class="task-att-yt" href="${escHtml(a.url)}" target="_blank" rel="noopener">
+        ${thumb ? `<img class="task-att-yt-thumb" src="${thumb}" alt="YouTube thumbnail">` : ''}
+        <span class="task-att-yt-label">▶ YouTube</span>
+      </a>`;
+    }
+    if (a.type === 'twitter') {
+      return `<a class="task-att-chip twitter" href="${escHtml(a.url)}" target="_blank" rel="noopener">𝕏 Tweet</a>`;
+    }
+    return `<a class="task-att-chip url" href="${escHtml(a.url)}" target="_blank" rel="noopener">🔗 ${escHtml(a.label)}</a>`;
+  });
+  return `<div class="task-attachments">${parts.join('')}</div>`;
+}
+
+/* ── Render Tasks ───────────────────────────────────────────────── */
+function renderTasks() {
+  const grid = document.getElementById('tasks-grid');
+  if (!appData || !appData.tasks) { grid.innerHTML = '<div class="empty-state">No task data available.</div>'; return; }
+
+  const tasks = appData.tasks.filter(t => taskFilter === 'all' || t.status === taskFilter);
+  if (!tasks.length) {
+    grid.innerHTML = `<div class="no-tasks"><div class="no-tasks-icon">✅</div><p>No ${taskFilter === 'all' ? '' : taskFilter + ' '}tasks right now.</p></div>`;
+    return;
+  }
+
+  const cards = tasks.map(t => {
+    const isLucky = t.is_lucky;
+    const isBonus = t.bonus_active;
+    const cardClass = isLucky ? 'lucky' : isBonus ? 'bonus' : '';
+    const claimedClass = t.status === 'claimed' ? 'claimed-card' : '';
+
+    const badges = [];
+    if (isLucky) badges.push('<span class="badge badge-lucky">⚡ LUCKY</span>');
+    if (isBonus) badges.push('<span class="badge badge-bonus">🔥 BONUS</span>');
+    const displayPts = isLucky ? t.point_value * 2 : t.point_value;
+    badges.push(`<span class="badge badge-pts">${displayPts}pt${displayPts !== 1 ? 's' : ''}</span>`);
+
+    let footer = '';
+    if (t.status === 'available') {
+      const claimBtn = (currentUserId)
+        ? `<button class="btn-claim" onclick="claimTask(${t.task_id}, this)">Claim</button>`
+        : '';
+      footer = `
+        <span class="task-status-available">● Available</span>
+        <span class="task-age">${timeAgo(t.created_at)}</span>
+        ${claimBtn}
+      `;
+    } else {
+      const avUrl = t.claimed_by_avatar || '';
+      const avImg = avUrl ? `<img src="${avUrl}" width="20" height="20" style="border-radius:50%;vertical-align:middle;margin-right:4px;object-fit:cover;flex-shrink:0;border:1.5px solid #7d99bd;" onerror="this.style.display='none'" alt="">` : `<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1.5px solid #7d99bd;font-size:11px;flex-shrink:0;margin-right:4px;vertical-align:middle;">💡</span>`;
+      const isMine = currentUserId && String(t.claimed_by) === currentUserId;
+      const unclaimBtn = (isMine)
+        ? `<button class="btn-unclaim" onclick="unclaimTask(${t.task_id}, this)">Unclaim</button>`
+        : '';
+      footer = `
+        <span class="task-status-claimed">${avImg}${escHtml(t.claimed_by_name || 'Unknown')}</span>
+        <span class="task-age">${timeAgo(t.claimed_at)}</span>
+        ${unclaimBtn}
+      `;
+    }
+
+    const atts = (() => { try { return typeof t.attachments === 'string' ? JSON.parse(t.attachments) : (t.attachments || []); } catch(e) { return []; } })();
+    const resolvedChannels = atts.filter(a => a.type === 'channel');
+    const { text: cleanDesc, channels: extractedChannels } = extractChannelLinks(t.description || '');
+    const channels = resolvedChannels.length ? resolvedChannels : extractedChannels;
+    const nonChannelAtts = atts.filter(a => a.type !== 'channel');
+
+    return `
+      <div class="task-card ${cardClass} ${claimedClass}" id="task-card-${t.task_id}">
+        <div class="task-header">
+          <span class="task-id">#${t.task_id}</span>
+          <div class="task-badges">${badges.join('')}</div>
+        </div>
+        ${cleanDesc ? `<p class="task-desc">${escHtml(cleanDesc)}</p>` : ''}
+        ${renderTaskChannels(channels)}
+        ${renderAttachments(nonChannelAtts)}
+        <div class="task-footer">${footer}</div>
+      </div>`;
+  }).join('');
+
+  grid.innerHTML = cards;
+}
+
+/* ── Claim / Unclaim ────────────────────────────────────────────── */
+async function claimTask(taskId, btn) {
+  if (!currentUserId) return;
+  if (!confirm('Claim this task? You\'ll be responsible for completing it.')) return;
+  btn.disabled = true;
+  btn.textContent = 'Claiming…';
+  try {
+    const resp = await fetch(`/api/tt/tasks/${taskId}/claim`, { method: 'POST' });
+    if (resp.ok) {
+      await init();  // re-fetch so the card shows the claimer's name
+    } else {
+      const data = await resp.json().catch(() => ({}));
+      btn.disabled = false;
+      btn.textContent = 'Claim';
+      alert(data.error === 'not_available' ? 'Task was just claimed by someone else.' : 'Could not claim — try again.');
+    }
+  } catch (_) {
+    btn.disabled = false;
+    btn.textContent = 'Claim';
+    alert('Network error — check your connection.');
+  }
+}
+
+async function unclaimTask(taskId, btn) {
+  if (!currentUserId) return;
+  if (!confirm('Release this task? It will go back to available for anyone to claim.')) return;
+  btn.disabled = true;
+  btn.textContent = 'Releasing…';
+  try {
+    const resp = await fetch(`/api/tt/tasks/${taskId}/unclaim`, { method: 'POST' });
+    if (resp.ok) {
+      await init();
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Unclaim';
+      alert('Could not unclaim — you may not own this task.');
+    }
+  } catch (_) {
+    btn.disabled = false;
+    btn.textContent = 'Unclaim';
+    alert('Network error — check your connection.');
+  }
+}
+
+/* ── Render Leaderboard ─────────────────────────────────────────── */
+function renderLeaderboard() {
+  const podiumEl = document.getElementById('podium');
+  const listEl   = document.getElementById('lb-list');
+  const lb = appData && appData.leaderboard ? appData.leaderboard : [];
+
+  if (!lb.length) {
+    podiumEl.innerHTML = '';
+    listEl.innerHTML = '<div class="empty-state">No helpers on the leaderboard yet.</div>';
+    return;
+  }
+
+  const rankEmoji = ['🥇','🥈','🥉'];
+  const podiumOrder = [1, 0, 2]; // 2nd left, 1st center, 3rd right
+  const podiumClasses = ['p2','p1','p3'];
+
+  podiumEl.innerHTML = podiumOrder.slice(0, Math.min(3, lb.length)).map((idx, i) => {
+    const p = lb[idx];
+    if (!p) return '';
+    const av = p.avatar_url ? `<img src="${p.avatar_url}" class="podium-avatar" width="64" height="64">` : `<div class="podium-avatar-placeholder">💡</div>`;
+    const lucky = p.lucky_tasks_completed ? `<span class="lucky-count">⚡${p.lucky_tasks_completed}</span>` : '';
+    return `
+      <div class="podium-slot ${podiumClasses[i]}" ${p.user_id ? 'style="cursor:pointer;" onclick="window.location.href=\'profile.html?id=' + p.user_id + '\'"' : ''}>
+        <div class="podium-rank">${rankEmoji[idx]}</div>
+        ${av}
+        <div class="podium-name">${escHtml(p.name)}</div>
+        <div class="podium-pts">${fmtPts(p.total_points)}<small style="font-size:0.55em;color:var(--text-secondary)"> pts</small></div>
+        <div class="podium-tasks">${p.tasks_completed} task${p.tasks_completed !== 1 ? 's' : ''}${lucky}</div>
+      </div>`;
+  }).join('');
+
+  listEl.innerHTML = lb.slice(3).map((p, i) => {
+    const rank = i + 4;
+    const av = p.avatar_url ? `<img src="${p.avatar_url}" class="lb-avatar" width="38" height="38">` : `<div class="lb-avatar-ph">💡</div>`;
+    const delta = p.rank_delta;
+    const deltaHtml = delta > 0
+      ? `<span class="lb-delta delta-up">▲${delta}</span>`
+      : delta < 0
+      ? `<span class="lb-delta delta-down">▼${Math.abs(delta)}</span>`
+      : `<span class="lb-delta delta-same">—</span>`;
+    const lucky = p.lucky_tasks_completed ? ` ⚡${p.lucky_tasks_completed}` : '';
+    return `
+      <div class="lb-row" ${p.user_id ? 'style="cursor:pointer;" onclick="window.location.href=\'profile.html?id=' + p.user_id + '\'"' : ''}>
+        <span class="lb-rank">#${rank}</span>
+        ${av}
+        <div class="lb-info">
+          <div class="lb-name">${escHtml(p.name)}</div>
+          <div class="lb-stats">${p.tasks_completed} tasks${lucky}</div>
+        </div>
+        <span class="lb-pts">${fmtPts(p.total_points)}</span>
+        ${deltaHtml}
+      </div>`;
+  }).join('');
+}
+
+/* ── Render Duties ──────────────────────────────────────────────── */
+function renderDuties() {
+  const grid = document.getElementById('duties-grid');
+  const duties = appData && appData.duties ? appData.duties : [];
+  const assignMap = {};
+  duties.forEach(d => { assignMap[d.code] = d; });
+
+  const DUTY_NAMES = {
+    SPAWNS:'Managing Spawns Category',SURGE:'Managing Surge Category',
+    CREATIVE:'Managing Creative Map Codes Category',PRONOTES:'Managing Pro Notes & Learn From Pros',
+    GAMESTAGES:'Managing Game Stages',LOADOUTS:'Managing Loadouts Category',
+    MECHANICS:'Managing Game Mechanics & Meta',DROPSPOTS:'Managing Dropspots Category',
+    LOOTPOOLS:'Managing Lootpools Category'
+  };
+
+  grid.innerHTML = Object.entries(DUTY_INFO).map(([code, info]) => {
+    const dyn = assignMap[code] || {};
+    const assignees = dyn.assignees || [];
+    const isAssigned = assignees.length > 0;
+
+    let assigneeCardHtml;
+    if (isAssigned) {
+      assigneeCardHtml = assignees.map(a => {
+        const initials = (a.name || '??').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+        const avatarInner = a.avatar
+          ? `<img src="${escHtml(a.avatar)}" alt="">`
+          : initials;
+        return `
+          <div class="duty-assignee-card">
+            <div class="duty-avatar">${avatarInner}</div>
+            <div class="duty-avatar-info">
+              <span class="duty-avatar-label">Assigned Helper</span>
+              <span class="duty-avatar-name">${escHtml(a.name || 'Unknown')}</span>
+            </div>
+          </div>`;
+      }).join('');
+    } else {
+      assigneeCardHtml = `
+        <div class="duty-assignee-card">
+          <div class="duty-avatar">?</div>
+          <div class="duty-avatar-info">
+            <span class="duty-avatar-label">Assigned Helper</span>
+            <span class="duty-avatar-none">Unassigned</span>
+          </div>
+        </div>`;
+    }
+
+    const stepsHtml = info.steps.map((s, i) =>
+      `<li><span class="duty-step-num">${i+1}</span><span>${s}</span></li>`
+    ).join('');
+
+    const notesHtml = info.notes.map(n =>
+      `<div class="duty-note">${n}</div>`
+    ).join('');
+
+    const chHtml = info.channels.length
+      ? `<div class="duty-channels">${info.channels.map(c =>
+          `<a class="duty-ch-link" href="${c.url}" target="_blank">#${escHtml(c.label)}</a>`
+        ).join('')}</div>`
+      : '';
+
+    return `
+      <div class="duty-card${isAssigned ? '' : ' unassigned'}">
+        <div class="duty-title-row">
+          <span style="font-size:1.4em;line-height:1;flex-shrink:0;">${info.icon}</span>
+          <span class="duty-name">${escHtml(DUTY_NAMES[code])}</span>
+          <span class="duty-code-badge">${code}</span>
+        </div>
+        ${assigneeCardHtml}
+        <ul class="duty-steps-list">${stepsHtml}</ul>
+        ${notesHtml}
+        ${chHtml}
+      </div>`;
+  }).join('');
+}
+
+/* ── Escape HTML ────────────────────────────────────────────────── */
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtPts(n) {
+  return Number.isInteger(n) ? n : parseFloat(n).toFixed(n % 1 === 0 ? 0 : 1);
+}
+
+/* ── Tab switching ──────────────────────────────────────────────── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ── Task filter switching ──────────────────────────────────────── */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    taskFilter = btn.dataset.filter;
+    renderTasks();
+  });
+});
+
+/* ── Boot ───────────────────────────────────────────────────────── */
+async function init() {
+  try {
+    appData = await fetchData();
+    const lastUp = appData._meta && appData._meta.last_updated;
+    document.getElementById('last-updated').textContent = lastUp
+      ? 'Updated ' + timeAgo(lastUp)
+      : '';
+    renderTasks();
+    renderLeaderboard();
+    renderDuties();
+  } catch (e) {
+    appData = { tasks: [], leaderboard: [], duties: [] };
+    renderTasks();
+    renderLeaderboard();
+    renderDuties();
+    document.getElementById('last-updated').textContent = 'Bot not yet connected';
+  }
+}
+
+// Load who the logged-in user is, then render tasks (so claim/unclaim buttons appear).
+fetchMe().then(() => init());
+// Tasks: live poll every 10 s — claims by any staff member appear almost instantly.
+setInterval(pollTasks, 10_000);
+// Full refresh (leaderboard + duties) every 2 minutes.
+setInterval(init, 120_000);
+</script>
+<style>
+.ucf-ticker-wrap{position:fixed;bottom:0;left:0;right:0;z-index:9999;overflow:hidden;background:rgba(5,12,22,0.97);border-top:1px solid rgba(0,212,255,0.2);height:36px;display:flex;align-items:center;box-shadow:0 -8px 24px rgba(0,0,0,0.6);backdrop-filter:blur(16px);}
+.ucf-ticker-label{flex-shrink:0;display:flex;align-items:center;gap:7px;padding:0 16px;height:100%;background:rgba(0,212,255,0.07);border-right:1px solid rgba(0,212,255,0.18);font-family:'Orbitron',monospace;font-size:0.56rem;font-weight:700;letter-spacing:2.5px;color:#00d4ff;text-transform:uppercase;white-space:nowrap;}
+.ucf-ticker-dot{width:5px;height:5px;border-radius:50%;background:#00d4ff;box-shadow:0 0 6px #00d4ff;animation:ucf-pulse 1.8s ease-in-out infinite;}
+@keyframes ucf-pulse{0%,100%{opacity:1}50%{opacity:0.25}}
+.ucf-ticker-scroll{flex:1;overflow:hidden;height:100%;display:flex;align-items:center;}
+.ucf-ticker{display:inline-flex;align-items:center;white-space:nowrap;animation:ucf-scroll 30s linear infinite;font-family:'JetBrains Mono',monospace;font-size:0.68rem;letter-spacing:2px;color:#00d4ff;font-weight:700;padding:0 60px;}
+.ucf-ticker:hover{animation-play-state:paused;}
+@keyframes ucf-scroll{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+.ucf-ticker-code{text-shadow:0 0 8px rgba(0,212,255,0.55);}
+.ucf-ticker-wrap{padding-bottom:env(safe-area-inset-bottom,0px);height:calc(36px + env(safe-area-inset-bottom,0px));}
+body{padding-bottom:calc(60px + env(safe-area-inset-bottom,0px));}
+</style>
+<div class="ucf-ticker-wrap">
+  <div class="ucf-ticker-label"><div class="ucf-ticker-dot"></div>LIVE</div>
+  <div class="ucf-ticker-scroll"><div class="ucf-ticker">Use code &nbsp;<span class="ucf-ticker-code">Wavedropmaps</span>&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;in the Fortnite item shop&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;Use code &nbsp;<span class="ucf-ticker-code">Wavedropmaps</span>&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;in the Fortnite item shop</div></div>
+</div>
+<script src="wave-nav.js"></script>
+<script src="wave-guide.js"></script>
+</body>
+</html>

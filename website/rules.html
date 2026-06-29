@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Rules — Wave Staff Hub</title>
+<style>
+/* ── Page layout ─────────────────────────────────────────────────────── */
+#rules-page {
+  padding: 32px 24px 60px;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: 'JetBrains Mono', monospace;
+  color: #cdd9e8;
+  animation: fadeRise 0.6s ease-out both;
+}
+
+@keyframes fadeRise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ──────────────────────────────────────────────────────────── */
+.rules-header {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 400;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 36px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 60px rgba(0,212,255,0.1);
+  letter-spacing: 0.02em;
+}
+
+/* ── Sub-tab navigation ──────────────────────────────────────────────── */
+.rules-tab-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 32px;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 20px;
+}
+
+.rules-tab {
+  background: rgba(4,11,20,0.3);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: rgba(205,217,232,0.6);
+  padding: 8px 18px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.18s ease-out;
+  min-height: 40px;
+}
+
+.rules-tab:hover {
+  background: rgba(0,212,255,0.08);
+  border-color: rgba(0,212,255,0.25);
+  color: #cdd9e8;
+}
+
+.rules-tab.active {
+  background: rgba(0,212,255,0.15);
+  border-color: rgba(0,212,255,0.6);
+  color: #fff;
+}
+
+/* ── Tab panels ──────────────────────────────────────────────────────── */
+.rules-panel {
+  display: none;
+}
+
+.rules-panel.active {
+  display: block;
+  animation: fadeRise 0.3s ease-out both;
+}
+
+/* ── Preamble / authority cards ──────────────────────────────────────── */
+.rules-preamble {
+  background: rgba(0,212,255,0.04);
+  border: 1px solid rgba(0,212,255,0.15);
+  border-radius: 8px;
+  padding: 18px 22px;
+  margin-bottom: 24px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: rgba(205,217,232,0.75);
+}
+
+.rules-authority {
+  background: rgba(4,11,20,0.5);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-top: 2px solid rgba(0,212,255,0.3);
+  border-radius: 8px;
+  padding: 20px 22px;
+  margin-top: 24px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: rgba(205,217,232,0.7);
+}
+
+.rules-authority strong {
+  color: #cdd9e8;
+  font-weight: 700;
+}
+
+.rules-footer-sig {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 11px;
+  color: rgba(122,152,176,0.5);
+  letter-spacing: 1px;
+  font-style: italic;
+}
+
+/* ── Search input ────────────────────────────────────────────────────── */
+.rules-search {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+#rules-search-input {
+  width: 100%;
+  max-width: 420px;
+  display: inline-block;
+  background: rgba(4,11,20,0.55);
+  border: 1px solid rgba(0,212,255,0.25);
+  padding: 12px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  color: #cdd9e8;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+#rules-search-input::placeholder {
+  color: rgba(122,152,176,0.5);
+}
+
+#rules-search-input:focus {
+  outline: none;
+  border-color: #00d4ff;
+  box-shadow: 0 0 20px rgba(0,212,255,0.15);
+}
+
+.rules-no-results {
+  display: none;
+  text-align: center;
+  padding: 40px 24px;
+  color: rgba(122,152,176,0.5);
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+/* ── Rules list ──────────────────────────────────────────────────────── */
+.rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Rule card ───────────────────────────────────────────────────────── */
+.rule-item {
+  background: rgba(4,11,20,0.5);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 20px 22px;
+  backdrop-filter: blur(12px);
+  transition: border-color 0.2s ease;
+}
+
+.rule-item:hover {
+  border-color: rgba(255,255,255,0.14);
+}
+
+.rule-number {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #00d4ff;
+  margin-bottom: 5px;
+}
+
+.rule-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rule-content {
+  line-height: 1.7;
+  font-size: 13px;
+  color: rgba(205,217,232,0.85);
+}
+
+.rule-content p {
+  margin-bottom: 8px;
+}
+
+.rule-content p:last-child {
+  margin-bottom: 0;
+}
+
+.rule-content ul {
+  margin: 8px 0 8px 4px;
+  list-style: none;
+  padding: 0;
+}
+
+.rule-content ul li {
+  padding: 3px 0 3px 20px;
+  position: relative;
+}
+
+.rule-content ul li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: #00d4ff;
+  font-weight: 700;
+}
+
+.rule-content ul li.sub {
+  padding-left: 36px;
+}
+
+.rule-content ul li.sub::before {
+  content: "–";
+  left: 22px;
+  color: rgba(122,152,176,0.6);
+}
+
+/* ── Ban rule (immediate ban — :no_entry_sign:) ───────────────────────── */
+.ban-rule {
+  border-left: 3px solid #FF0080;
+  background: rgba(255,0,128,0.04);
+}
+
+.ban-rule:hover {
+  border-color: #FF0080;
+  border-left-color: #FF0080;
+}
+
+.ban-rule .rule-number {
+  color: #FF0080;
+}
+
+.ban-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,0,128,0.12);
+  border: 1px solid rgba(255,0,128,0.3);
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #FF0080;
+}
+
+/* ── Generic prose sections (Goals / Mission / Stories / Comms) ────── */
+.prose-container {
+  background: rgba(4,11,20,0.5);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 32px;
+  backdrop-filter: blur(12px);
+}
+
+.prose-container + .prose-container {
+  margin-top: 20px;
+}
+
+.prose-section-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: #fff;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0,212,255,0.15);
+}
+
+.prose-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #00d4ff;
+  margin-bottom: 8px;
+}
+
+.prose-body {
+  line-height: 1.85;
+  font-size: 13px;
+  color: rgba(205,217,232,0.85);
+}
+
+.prose-body p {
+  margin-bottom: 16px;
+}
+
+.prose-body p:last-child {
+  margin-bottom: 0;
+}
+
+.prose-body h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #00d4ff;
+  margin: 22px 0 10px;
+}
+
+.prose-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 16px;
+}
+
+.prose-body ul li {
+  padding: 5px 0 5px 22px;
+  position: relative;
+  color: rgba(205,217,232,0.85);
+}
+
+.prose-body ul li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: #00d4ff;
+  font-weight: 700;
+}
+
+/* ── Goals list ──────────────────────────────────────────────────────── */
+.goals-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.goals-list li {
+  background: rgba(0,212,255,0.05);
+  border: 1px solid rgba(0,212,255,0.12);
+  border-radius: 6px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(205,217,232,0.9);
+}
+
+.goals-list li::before {
+  content: "▸";
+  color: #00d4ff;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Story card ──────────────────────────────────────────────────────── */
+.story-card {
+  background: rgba(4,11,20,0.5);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 32px;
+  backdrop-filter: blur(12px);
+  margin-bottom: 20px;
+}
+
+.story-card:last-child {
+  margin-bottom: 0;
+}
+
+.story-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #a855f7;
+  margin-bottom: 8px;
+}
+
+.story-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 24px;
+  font-weight: 400;
+  color: #fff;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(168,85,247,0.2);
+}
+
+.story-body {
+  line-height: 1.85;
+  font-size: 13px;
+  color: rgba(205,217,232,0.85);
+}
+
+.story-body p {
+  margin-bottom: 16px;
+}
+
+.story-body p:last-child {
+  margin-bottom: 0;
+}
+
+.story-highlight {
+  background: rgba(168,85,247,0.08);
+  border-left: 3px solid #a855f7;
+  border-radius: 0 6px 6px 0;
+  padding: 12px 16px;
+  margin: 18px 0;
+  font-style: italic;
+  color: rgba(205,217,232,0.9);
+}
+
+/* ── Comms policy ────────────────────────────────────────────────────── */
+.comms-highlight {
+  background: rgba(0,212,255,0.05);
+  border: 1px solid rgba(0,212,255,0.15);
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin: 18px 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.comms-highlight strong {
+  color: #00d4ff;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  #rules-page {
+    padding: 24px 16px 60px;
+  }
+
+  .rules-tab {
+    font-size: 10px;
+    padding: 7px 12px;
+  }
+
+  .prose-container,
+  .story-card,
+  .rule-item {
+    padding: 20px 16px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="rules-page">
+
+  <div class="rules-header">⚜ Wave Rules &amp; Guidelines ⚜</div>
+
+  <!-- Sub-tab navigation -->
+  <div class="rules-tab-nav" role="tablist">
+    <button class="rules-tab active" role="tab" aria-selected="true"  data-tab="rules-tab">Rules &amp; Guidelines</button>
+    <button class="rules-tab"        role="tab" aria-selected="false" data-tab="goals-tab">Goals</button>
+    <button class="rules-tab"        role="tab" aria-selected="false" data-tab="mission-tab">Mission Statement</button>
+    <button class="rules-tab"        role="tab" aria-selected="false" data-tab="stories-tab">Wave Stories</button>
+    <button class="rules-tab"        role="tab" aria-selected="false" data-tab="comms-tab">Communication Policy</button>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB 1 — Rules & Guidelines
+  ════════════════════════════════════════════════════════════════════════ -->
+  <div id="rules-tab" class="rules-panel active" role="tabpanel">
+
+    <div class="rules-preamble">
+      By being in this server, you agree to these rules without exception. Ignorance is not an excuse. All leadership decisions are final.
+    </div>
+
+    <div class="rules-search">
+      <input type="text" id="rules-search-input" placeholder="Search rules..." autocomplete="off"/>
+    </div>
+
+    <div class="rules-list" id="rules-list">
+
+      <!-- I -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule I</div>
+        <div class="rule-title">Discord Terms of Service</div>
+        <div class="rule-content">
+          <p>All Discord TOS and Community Guidelines apply at all times, no exceptions.</p>
+        </div>
+      </div>
+
+      <!-- II -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule II</div>
+        <div class="rule-title">Respect All Members</div>
+        <div class="rule-content">
+          <ul>
+            <li>No death threats, hate speech, sexism, or racism</li>
+            <li>The N-word and all variants (including soft N) are strictly prohibited</li>
+            <li>No doxxing, swatting, or witch hunting</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- III -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule III</div>
+        <div class="rule-title">No NSFW Content</div>
+        <div class="rule-content">
+          <ul>
+            <li>No gore, sexual content, or anything Not Safe for Work in any channel, profile, or media</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- IV -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule IV</div>
+        <div class="rule-title">No Spamming</div>
+        <div class="rule-content">
+          <ul>
+            <li>No message flooding, soundboard abuse, voice changers, or earrape in any channel</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- V -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule V</div>
+        <div class="rule-title">No Sensitive Topics</div>
+        <div class="rule-content">
+          <ul>
+            <li>This is not a debate server. Keep political, religious, and divisive topics out entirely</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- VI — BAN -->
+      <div class="rule-item ban-rule" data-rule>
+        <div class="rule-number">Rule VI</div>
+        <div class="rule-title">⛔ No Malicious Content <span class="ban-badge">Immediate Ban</span></div>
+        <div class="rule-content">
+          <ul>
+            <li>No Grabify or IP-grabbing links</li>
+            <li>No viruses, crash videos, or token grabbers</li>
+            <li>Violations result in an <strong>immediate automated ban</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- VII — BAN -->
+      <div class="rule-item ban-rule" data-rule>
+        <div class="rule-number">Rule VII</div>
+        <div class="rule-title">⛔ No Self-Bots <span class="ban-badge">Immediate Ban</span></div>
+        <div class="rule-content">
+          <ul>
+            <li>Nitro snipers, Nighty, auto-status changers, and all similar tools are banned</li>
+            <li>Violations result in an <strong>immediate ban</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- VIII -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule VIII</div>
+        <div class="rule-title">Profile &amp; Emoji Standards</div>
+        <div class="rule-content">
+          <ul>
+            <li>No NSFW, racist, or discriminatory profile pictures, banners, or emoji</li>
+            <li>No flashing imagery that could trigger epileptic seizures</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- IX — BAN -->
+      <div class="rule-item ban-rule" data-rule>
+        <div class="rule-number">Rule IX</div>
+        <div class="rule-title">⛔ No Content Theft <span class="ban-badge">Immediate Ban</span></div>
+        <div class="rule-content">
+          <ul>
+            <li>Do not steal, copy, or distribute server drop maps under any circumstances</li>
+            <li>Do not share maps with anyone outside the server or without proper access</li>
+            <li>Do not reproduce markers onto external links (e.g. fn.gg)</li>
+            <li>Violations result in an <strong>immediate ban</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- X -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule X</div>
+        <div class="rule-title">Maintain a Positive Attitude</div>
+        <div class="rule-content">
+          <ul>
+            <li>No negativity, toxic behaviour, or complaints toward members, staff, the server, its operations, pay, or contracts</li>
+            <li>Keep your energy constructive. If you have a problem, handle it privately and professionally</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- XI — BAN -->
+      <div class="rule-item ban-rule" data-rule>
+        <div class="rule-number">Rule XI</div>
+        <div class="rule-title">⛔ Respect Leadership <span class="ban-badge">Immediate Ban</span></div>
+        <div class="rule-content">
+          <ul>
+            <li>Harassment of fruss or any staff member results in an <strong>immediate ban, no exceptions</strong></li>
+            <li>Follow all instructions issued by fruss. His word is final</li>
+            <li>Do not speak negatively about the server, the team, jobs, pay, terminations, or operations in any channel</li>
+            <li>All disputes are handled privately, not publicly</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- XII -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule XII</div>
+        <div class="rule-title">Payment Confidentiality</div>
+        <div class="rule-content">
+          <p>Discussing your pay or contract terms with anyone other than fruss will result in immediate removal from the team. Keep payment discussions confidential.</p>
+        </div>
+      </div>
+
+      <!-- XIII — BAN -->
+      <div class="rule-item ban-rule" data-rule>
+        <div class="rule-number">Rule XIII</div>
+        <div class="rule-title">⛔ No Alt Account Misuse / Content Theft via Alts <span class="ban-badge">Immediate Ban</span></div>
+        <div class="rule-content">
+          <ul>
+            <li>Using alternate accounts to infiltrate the server, extract maps, leak content, or bypass bans is strictly prohibited</li>
+            <li>Any member found operating an alt for the purpose of theft, leaking, or bypassing bans will face the harshest penalties</li>
+            <li>If discovered, consequences include:
+              <ul>
+                <li class="sub">Forfeiture of all prizes, rewards, and pending payouts</li>
+                <li class="sub">Immediate termination of all contracts with no payout</li>
+                <li class="sub">Permanent removal from the team and full server ban across all known accounts</li>
+              </ul>
+            </li>
+            <li>Associates or accomplices who knowingly assist alt-account theft will receive the same penalties</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- XIV — BAN -->
+      <div class="rule-item ban-rule" data-rule>
+        <div class="rule-number">Rule XIV</div>
+        <div class="rule-title">⛔ Confidentiality &amp; NDA <span class="ban-badge">Immediate Ban</span></div>
+        <div class="rule-content">
+          <ul>
+            <li>All server content, internal discussions, drop strategies, and work-in-progress materials are strictly confidential</li>
+            <li>Do not screenshot, screen-record, or share any internal channels with non-members</li>
+            <li>Sharing previews, leaks, or unreleased content outside the server results in immediate ban and contract termination with no payout</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- XV -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule XV</div>
+        <div class="rule-title">No Impersonation</div>
+        <div class="rule-content">
+          <ul>
+            <li>Do not impersonate fruss, staff, members, or any external brand or creator</li>
+            <li>Do not use misleading usernames, profile pictures, or display names designed to mimic leadership</li>
+            <li>Violations result in an immediate ban</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- XVI -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule XVI</div>
+        <div class="rule-title">Channel Usage</div>
+        <div class="rule-content">
+          <ul>
+            <li>Use the correct channels for their intended purpose. No off-topic spam in work or announcement channels</li>
+            <li>Keep DM solicitations, advertising, and self-promotion out of the server unless approved by fruss</li>
+            <li>Read pinned messages before asking questions already answered</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- XVII -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule XVII</div>
+        <div class="rule-title">No Begging or Solicitation</div>
+        <div class="rule-content">
+          <ul>
+            <li>No begging for roles, paid positions, prizes, giveaways, or access to maps</li>
+            <li>Do not DM staff requesting promotions or paid work. Applications go through proper channels only</li>
+            <li>No advertising other servers, services, or content without permission</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- XVIII -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule XVIII</div>
+        <div class="rule-title">English Only (Public Channels)</div>
+        <div class="rule-content">
+          <ul>
+            <li>Keep all public channel communication in English so staff can moderate effectively</li>
+            <li>Other languages are fine in DMs between members</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- XIX -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule XIX</div>
+        <div class="rule-title">Account Security &amp; Verification</div>
+        <div class="rule-content">
+          <ul>
+            <li>All paid roles require an account in good standing (verified email, 2FA recommended, account age requirements may apply)</li>
+            <li>Compromised accounts must be reported to fruss immediately</li>
+            <li>Suspicious or newly-created accounts may be denied access to sensitive channels at staff discretion</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- XX -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule XX</div>
+        <div class="rule-title">AI-Generated Content Disclosure</div>
+        <div class="rule-content">
+          <ul>
+            <li>Do not pass off AI-generated maps, markers, or work as your own original output for paid contracts</li>
+            <li>If AI tools are used in your workflow, disclose this to fruss before submission</li>
+            <li>Undisclosed AI submissions may result in contract termination</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- XXI -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule XXI</div>
+        <div class="rule-title">Reporting Violations</div>
+        <div class="rule-content">
+          <ul>
+            <li>If you witness a rule violation, report it privately to fruss or staff. Do not call out members publicly</li>
+            <li>False or malicious reports made in bad faith will themselves be treated as a violation</li>
+            <li>Retaliation against reporters is strictly prohibited</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- XXII -->
+      <div class="rule-item" data-rule>
+        <div class="rule-number">Rule XXII</div>
+        <div class="rule-title">Server Departure &amp; Re-entry</div>
+        <div class="rule-content">
+          <ul>
+            <li>Members who leave the server forfeit any pending unpaid contracts or credits or rewards unless otherwise agreed in writing with fruss</li>
+            <li>Banned members may not rejoin under new accounts (see Rule XIII)</li>
+            <li>Voluntary departure does not entitle the member to refunds, payouts, or continued access to maps</li>
+          </ul>
+        </div>
+      </div>
+
+    </div><!-- /rules-list -->
+
+    <div class="rules-no-results" id="rules-no-results">No rules match your search.</div>
+
+    <div class="rules-authority">
+      <strong>📋 Management Authority</strong><br>
+      Management may create or amend rules at any time within Discord TOS, as granted by fruss. All paid contracts and agreements may be terminated without payout for any rule violation, at the sole discretion of leadership.
+    </div>
+
+    <div class="rules-footer-sig">⚜ Issued by fruss. All rights reserved ⚜</div>
+
+  </div><!-- /rules-tab -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB 2 — Goals
+  ════════════════════════════════════════════════════════════════════════ -->
+  <div id="goals-tab" class="rules-panel" role="tabpanel">
+    <div class="prose-container">
+      <div class="prose-eyebrow">Brand Vision</div>
+      <div class="prose-section-title">Goals</div>
+      <ul class="goals-list">
+        <li>1 million server members in the main drop map server</li>
+        <li>100k server members in the improvement cord server</li>
+        <li>Ensure every member's concerns are met and have fast response time</li>
+        <li>Ensure a friendly community for all server members</li>
+      </ul>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB 3 — Mission Statement
+  ════════════════════════════════════════════════════════════════════════ -->
+  <div id="mission-tab" class="rules-panel" role="tabpanel">
+    <div class="prose-container">
+      <div class="prose-eyebrow">From the Founder</div>
+      <div class="prose-section-title">Mission Statement</div>
+      <div class="prose-body">
+        <p>Many of you want to understand my personal motive for starting the server. It's quite simple. I saw people with nothing earned, and fellow comp players blowing ludicrous amounts of money on drop maps with little to no gain, being sold the dream by master manipulators like DestinyJesus and other prominent Fortnite figures preaching about how you need a paid drop map.</p>
+        <p>In knowledge of this, I set out to make high-quality free drop maps that are even better than the paid drop map garbage you hear about. I also aimed to make Fortnite tips and tricks free, instead of sitting behind massive pay walls of $100–$150 for a Fortnite course. Asking many buyers at the time if they ever made their money back. The short answer was no.</p>
+        <p>This is the reason for Wave, and why I spend all my spare time on this server, for the ultimate goal.</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB 4 — Wave Stories
+  ════════════════════════════════════════════════════════════════════════ -->
+  <div id="stories-tab" class="rules-panel" role="tabpanel">
+
+    <div class="story-card">
+      <div class="story-tag">The Origin Story</div>
+      <div class="story-title">Year 9: How Wave Was Built</div>
+      <div class="story-body">
+        <p>Year 9. Server was sitting at 2,000–5,000 members. I was spending 6 hours every day after school testing and building Drop Maps. Weekends I'd grind 12 hours straight. That was my whole life for months, no joke.</p>
+        <p>Meanwhile some 30 year old man is stealing every map I made, slapping his name on it, watching his server blow up to 10,000–12,000 members off MY work. I got nothing. He got everything. Didn't lift a finger.</p>
+        <p>I called him out. His response: "they're free."</p>
+        <div class="story-highlight">Free. Like that makes it ok to take something I poured hundreds of hours into and use it to build his own empire while I'm stuck at a fraction of his size.</div>
+        <p>Just because the park is free doesn't mean you get to start charging people at the gate. That's literally what he was doing. Free to use isn't free to steal and profit off. Simple as that.</p>
+        <p>There were nights my mouse was sitting right on the delete server button. Staring at my numbers next to his. Wondering if any of the grinding even mattered when some grown man could just take it all without doing any of the work.</p>
+        <p>Didn't delete it though.</p>
+        <p>My thought was simple: I spend 6 hours and make more maps than his fingers can even copy, since the man is lazy. That's exactly what I did.</p>
+        <p>Kept building. Kept competing. Outworked him.</p>
+        <p>We hit 100,000 members. Ten times what he ever got from stealing.</p>
+        <p>Keep in mind, imagine being right at 3–5k members, seeing someone at 10–12k. Keep in mind the Drop Map market at that time: the max server was his server. I was competing against the number one guy, starting with nothing. Because I started with nothing.</p>
+      </div>
+    </div>
+
+  </div><!-- /stories-tab -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB 5 — Communication Policy
+  ════════════════════════════════════════════════════════════════════════ -->
+  <div id="comms-tab" class="rules-panel" role="tabpanel">
+    <div class="prose-container">
+      <div class="prose-eyebrow">Staff Expectations</div>
+      <div class="prose-section-title">Communication &amp; Time Zone Policy</div>
+      <div class="prose-body">
+        <p>We operate across different time zones. Messages may be sent while you are at school, asleep, working, or otherwise unavailable.</p>
+
+        <h3>Response Expectations</h3>
+        <p>You are not expected to respond or begin a task immediately. Review messages when you are available, acknowledge them, and complete the task as soon as reasonably possible when you are free.</p>
+
+        <div class="comms-highlight">
+          <strong>A response is expected within 24 hours</strong> of the message being sent. This allows for time zone differences and other commitments.
+        </div>
+
+        <h3>Example</h3>
+        <p>If a message is sent while you are at school, there is no expectation that you check your phone or start the task immediately. When you are available, acknowledge the message (e.g., "Got it, I'm on it") and complete the task as soon as reasonably possible, provided you have responded within 24 hours.</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /rules-page -->
+
+<script>
+(function () {
+  /* ── Tab switching ─────────────────────────────────────────────────── */
+  var tabBtns   = document.querySelectorAll('.rules-tab');
+  var tabPanels = document.querySelectorAll('.rules-panel');
+
+  tabBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = btn.dataset.tab;
+
+      tabBtns.forEach(function (b) {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      tabPanels.forEach(function (p) { p.classList.remove('active'); });
+
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      var panel = document.getElementById(target);
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  /* ── Search / filter (Rules tab only) ─────────────────────────────── */
+  var searchInput = document.getElementById('rules-search-input');
+  var rulesList   = document.getElementById('rules-list');
+  var noResults   = document.getElementById('rules-no-results');
+
+  if (searchInput && rulesList) {
+    searchInput.addEventListener('input', function () {
+      var q        = searchInput.value.toLowerCase().trim();
+      var items    = rulesList.querySelectorAll('[data-rule]');
+      var anyVisible = false;
+
+      items.forEach(function (item) {
+        var match = !q || item.textContent.toLowerCase().indexOf(q) !== -1;
+        item.style.display = match ? '' : 'none';
+        if (match) anyVisible = true;
+      });
+
+      noResults.style.display = (!q || anyVisible) ? 'none' : 'block';
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

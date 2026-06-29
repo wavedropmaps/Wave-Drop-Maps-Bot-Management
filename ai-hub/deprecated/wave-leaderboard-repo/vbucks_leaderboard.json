@@ -1,0 +1,51 @@
+{
+  "_meta": {
+    "last_updated": "2026-06-14T08:23:59.800677+00:00"
+  },
+  "role": [
+    {
+      "name": "fantastic2",
+      "vbucks": 2800,
+      "uid": 871517104753479680,
+      "avatar_url": "https://cdn.discordapp.com/avatars/871517104753479680/985c27fe148ba96dd9bf87400cd9a2bf.png?size=1024"
+    },
+    {
+      "name": "tayurboy111_222",
+      "vbucks": 900,
+      "uid": 1407405613239238719,
+      "avatar_url": "https://cdn.discordapp.com/avatars/1407405613239238719/a4157601b16dc3d81a33952f2ed5c2ea.png?size=1024"
+    },
+    {
+      "name": "slaxmgmt",
+      "vbucks": 495,
+      "uid": 1458092102322880672,
+      "avatar_url": "https://cdn.discordapp.com/avatars/1458092102322880672/fef7ab4bc011028b3f08003d2a6e3000.png?size=1024"
+    },
+    {
+      "name": "zlyzv_",
+      "vbucks": 200,
+      "uid": 1309847186137157653,
+      "avatar_url": "https://cdn.discordapp.com/avatars/1309847186137157653/9624df7bcccaf710fb0f471a90e39ac4.png?size=1024"
+    }
+  ],
+  "req": [
+    {
+      "name": "xenoborg_",
+      "vbucks": 900,
+      "uid": 327850147969236994,
+      "avatar_url": "https://cdn.discordapp.com/avatars/327850147969236994/14cfc9b8f6531bd4a94808ec2c4fdac3.png?size=1024"
+    },
+    {
+      "name": "tayurboy111_222",
+      "vbucks": 650,
+      "uid": 1407405613239238719,
+      "avatar_url": "https://cdn.discordapp.com/avatars/1407405613239238719/a4157601b16dc3d81a33952f2ed5c2ea.png?size=1024"
+    },
+    {
+      "name": "fantastic2",
+      "vbucks": 200,
+      "uid": 871517104753479680,
+      "avatar_url": "https://cdn.discordapp.com/avatars/871517104753479680/985c27fe148ba96dd9bf87400cd9a2bf.png?size=1024"
+    }
+  ]
+}

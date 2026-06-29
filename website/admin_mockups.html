@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Admin Panel - Final Concept (Polished)</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+  body { padding: 40px; color: #cdd9e8; font-family: 'JetBrains Mono', monospace; }
+  h1 { font-family: 'Instrument Serif', serif; font-size: 48px; color: #fff; margin-bottom: 10px; }
+  p { margin-bottom: 40px; color: rgba(205,217,232,0.6); }
+
+  /* Option 4: Liquid Sync Track */
+  .duty-matrix-row {
+    background: rgba(4,11,20,0.4);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .duty-matrix-row:hover {
+    background: rgba(4,11,20,0.6);
+    transform: translateY(-2px);
+  }
+
+  /* The ambient glow based on state */
+  .duty-matrix-row::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+    transition: opacity 0.4s ease; z-index: 0;
+  }
+  .duty-matrix-row[data-state="0"]::before { box-shadow: inset 0 0 50px rgba(0,255,0,0.08); opacity: 1; }
+  .duty-matrix-row[data-state="1"]::before { box-shadow: inset 0 0 50px rgba(255,204,0,0.08); opacity: 1; }
+  .duty-matrix-row[data-state="2"]::before { box-shadow: inset 0 0 50px rgba(168,85,247,0.08); opacity: 1; }
+  .duty-matrix-row[data-state="3"]::before { box-shadow: inset 0 0 50px rgba(239,68,68,0.08); opacity: 1; }
+
+  .duty-matrix-row[data-state="0"] { border-color: rgba(0,255,0,0.4); }
+  .duty-matrix-row[data-state="1"] { border-color: rgba(255,204,0,0.4); }
+  .duty-matrix-row[data-state="2"] { border-color: rgba(168,85,247,0.4); }
+  .duty-matrix-row[data-state="3"] { border-color: rgba(239,68,68,0.4); }
+
+  .matrix-info { flex: 1; position: relative; z-index: 1; }
+  .matrix-title { font-size: 15px; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 12px; }
+  .matrix-desc { font-size: 11px; color: rgba(205,217,232,0.5); margin-top: 6px; }
+
+  /* Tag styling */
+  .diff-tag {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 1px; padding: 2px 6px; border-radius: 4px;
+    border: 1px solid;
+  }
+  .diff-easy { color: #00d4ff; border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.05); }
+  .diff-med { color: #ff0080; border-color: rgba(255,0,128,0.4); background: rgba(255,0,128,0.05); }
+
+  /* Sync Track */
+  .sync-track-wrap { flex: 1.5; position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
+  .sync-track-labels { display: flex; justify-content: space-between; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+  
+  .sync-track-labels span {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: center bottom;
+  }
+  .sync-track-labels span.active-label {
+    transform: scale(1.15);
+    font-weight: bold;
+    text-shadow: 0 0 8px currentColor;
+  }
+
+  .lbl-0 { color: #00ff00; }
+  .lbl-1 { color: #ffcc00; }
+  .lbl-2 { color: #a855f7; }
+  .lbl-3 { color: #ef4444; }
+
+  /* Custom Range Slider */
+  .sync-slider {
+    -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.05);
+    border-radius: 3px; outline: none; position: relative; cursor: pointer;
+  }
+  
+  .sync-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(255,255,255,0.9); cursor: pointer; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 2px solid #040b14;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.5); /* Glass bead inner shadow */
+  }
+  
+  .sync-slider:active::-webkit-slider-thumb {
+    transform: scale(0.85); /* Compress when pressed */
+  }
+
+  /* Thumb Glows */
+  .duty-matrix-row[data-state="0"] .sync-slider::-webkit-slider-thumb { box-shadow: 0 0 20px #00ff00, 0 0 8px #00ff00 inset; border-color: rgba(0,255,0,0.2); }
+  .duty-matrix-row[data-state="1"] .sync-slider::-webkit-slider-thumb { box-shadow: 0 0 20px #ffcc00, 0 0 8px #ffcc00 inset; border-color: rgba(255,204,0,0.2); }
+  .duty-matrix-row[data-state="2"] .sync-slider::-webkit-slider-thumb { box-shadow: 0 0 20px #a855f7, 0 0 8px #a855f7 inset; border-color: rgba(168,85,247,0.2); }
+  .duty-matrix-row[data-state="3"] .sync-slider::-webkit-slider-thumb { box-shadow: 0 0 20px #ef4444, 0 0 8px #ef4444 inset; border-color: rgba(239,68,68,0.2); }
+
+  /* Track Fill logic */
+  .track-fill {
+    position: absolute; top: 18px; left: 0; height: 6px; border-radius: 3px;
+    pointer-events: none; transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.4s;
+  }
+  .duty-matrix-row[data-state="0"] .track-fill { background: #00ff00; box-shadow: 0 0 12px #00ff00; }
+  .duty-matrix-row[data-state="1"] .track-fill { background: #ffcc00; box-shadow: 0 0 12px #ffcc00; }
+  .duty-matrix-row[data-state="2"] .track-fill { background: #a855f7; box-shadow: 0 0 12px #a855f7; }
+  .duty-matrix-row[data-state="3"] .track-fill { background: #ef4444; box-shadow: 0 0 12px #ef4444; }
+
+  /* Track Nodes */
+  .track-nodes {
+    position: absolute; top: 18px; left: 0; right: 0; height: 6px; display: flex; justify-content: space-between; pointer-events: none;
+  }
+  .track-node { 
+    width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.15);
+    transition: all 0.3s;
+  }
+  .duty-matrix-row:hover .track-node { background: rgba(255,255,255,0.3); }
+
+</style>
+</head>
+<body>
+
+  <!-- Background Orbs from styles.css -->
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="scanlines"></div>
+
+  <div style="position:relative; z-index:2; max-width: 900px; margin: 0 auto;">
+    <h1>Duty Config: The Cyber-Matrix Concept</h1>
+    <p>A unique blend of clean data rows and interactive sliders, fully immersed in the Wave aesthetic.</p>
+
+    <!-- Row 1 -->
+    <div class="duty-matrix-row" data-state="0" id="row1">
+      <div class="matrix-info">
+        <div class="matrix-title">@Loot Route Maker <span class="diff-tag diff-easy">Easy</span></div>
+        <div class="matrix-desc">Makes loot routes for wave</div>
+      </div>
+      <div class="sync-track-wrap">
+        <div class="sync-track-labels">
+          <span class="lbl-0 active-label" style="opacity:1;" id="lbl1-0">Need ASAP</span>
+          <span class="lbl-1" style="opacity:0.3;" id="lbl1-1">Open (DM)</span>
+          <span class="lbl-2" style="opacity:0.3;" id="lbl1-2">Almost Full</span>
+          <span class="lbl-3" style="opacity:0.3;" id="lbl1-3">Closed</span>
+        </div>
+        <div style="position:relative; padding: 6px 0;">
+          <div class="track-fill" id="fill1" style="width: 0%;"></div>
+          <div class="track-nodes">
+            <div class="track-node"></div><div class="track-node"></div><div class="track-node"></div><div class="track-node"></div>
+          </div>
+          <input type="range" class="sync-slider" min="0" max="3" step="1" value="0" oninput="updateRow('row1', this.value, 'fill1', 'lbl1')" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="duty-matrix-row" data-state="1" id="row2">
+      <div class="matrix-info">
+        <div class="matrix-title">@Map Request Helper <span class="diff-tag diff-med">Medium</span></div>
+        <div class="matrix-desc">Helps members find drop maps</div>
+      </div>
+      <div class="sync-track-wrap">
+        <div class="sync-track-labels">
+          <span class="lbl-0" style="opacity:0.3;" id="lbl2-0">Need ASAP</span>
+          <span class="lbl-1 active-label" style="opacity:1;" id="lbl2-1">Open (DM)</span>
+          <span class="lbl-2" style="opacity:0.3;" id="lbl2-2">Almost Full</span>
+          <span class="lbl-3" style="opacity:0.3;" id="lbl2-3">Closed</span>
+        </div>
+        <div style="position:relative; padding: 6px 0;">
+          <div class="track-fill" id="fill2" style="width: 33.33%;"></div>
+          <div class="track-nodes">
+            <div class="track-node"></div><div class="track-node"></div><div class="track-node"></div><div class="track-node"></div>
+          </div>
+          <input type="range" class="sync-slider" min="0" max="3" step="1" value="1" oninput="updateRow('row2', this.value, 'fill2', 'lbl2')" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3 -->
+    <div class="duty-matrix-row" data-state="3" id="row3">
+      <div class="matrix-info">
+        <div class="matrix-title">@Promoters <span class="diff-tag diff-med">Skill Needed</span></div>
+        <div class="matrix-desc">Makes vfx or gfx or gets partnerships</div>
+      </div>
+      <div class="sync-track-wrap">
+        <div class="sync-track-labels">
+          <span class="lbl-0" style="opacity:0.3;" id="lbl3-0">Need ASAP</span>
+          <span class="lbl-1" style="opacity:0.3;" id="lbl3-1">Open (DM)</span>
+          <span class="lbl-2" style="opacity:0.3;" id="lbl3-2">Almost Full</span>
+          <span class="lbl-3 active-label" style="opacity:1;" id="lbl3-3">Closed</span>
+        </div>
+        <div style="position:relative; padding: 6px 0;">
+          <div class="track-fill" id="fill3" style="width: 100%;"></div>
+          <div class="track-nodes">
+            <div class="track-node"></div><div class="track-node"></div><div class="track-node"></div><div class="track-node"></div>
+          </div>
+          <input type="range" class="sync-slider" min="0" max="3" step="1" value="3" oninput="updateRow('row3', this.value, 'fill3', 'lbl3')" />
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function updateRow(rowId, val, fillId, lblPrefix) {
+      document.getElementById(rowId).setAttribute('data-state', val);
+      document.getElementById(fillId).style.width = (val * 33.33) + '%';
+      
+      for(let i=0; i<=3; i++) {
+        const lbl = document.getElementById(lblPrefix + '-' + i);
+        if (i == val) {
+          lbl.style.opacity = '1';
+          lbl.classList.add('active-label');
+        } else {
+          lbl.style.opacity = '0.3';
+          lbl.classList.remove('active-label');
+        }
+      }
+    }
+  </script>
+</body>
+</html>
+

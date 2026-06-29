@@ -1,0 +1,12 @@
+---
+description: Cursor routing shim — points to the master project rules in AGENTS.md
+alwaysApply: true
+---
+
+# Cursor Rules Shim
+
+> **Cursor routing file.**
+> This file exists only so Cursor natively loads project-scoped rules from `.cursor/rules/`.
+>
+> The actual, single source of truth for all rules is located at the repository root.
+> You **MUST ALWAYS** read and follow the master rules here: [AGENTS.md](../../AGENTS.md)

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Market Research — Improvement Cord Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cyan:#00C8FF;--gold:#FFD700;--accent:#7DF9FF;
+  --bg:#07050f;--card:#0c1220;--card2:rgba(8,16,30,0.85);
+  --text:#ffffff;--muted:#8aa0c0;--border:rgba(0,200,255,0.12);
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(0,200,255,0.14) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%,rgba(30,90,220,0.1) 0%,transparent 55%),
+    linear-gradient(160deg,#050a16 0%,#07101f 40%,#06101a 100%);
+  color:var(--text);min-height:100vh;padding:32px 24px;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(0,200,255,0.025) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(0,200,255,0.025) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+.wrap{max-width:1400px;margin:0 auto;position:relative;z-index:1}
+.header{text-align:center;margin-bottom:36px}
+.header h1{
+  font-size:2.2rem;font-weight:800;letter-spacing:.04em;
+  background:linear-gradient(90deg,var(--cyan),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  text-transform:uppercase;
+}
+.header p{color:var(--muted);font-size:.85rem;margin-top:6px}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{
+  background:var(--card2);border:1px solid var(--border);border-radius:14px;
+  padding:20px 24px;position:relative;overflow:hidden;
+}
+.stat-card::before{
+  content:'';position:absolute;inset:0;border-radius:14px;
+  background:linear-gradient(135deg,rgba(0,200,255,0.05) 0%,transparent 60%);
+  pointer-events:none;
+}
+.stat-card .label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.stat-card .value{font-size:2rem;font-weight:700;color:var(--cyan);letter-spacing:-.02em}
+.stat-card .value.gold{color:var(--gold)}
+.stat-card .delta{font-size:.82rem;margin-top:6px;color:var(--muted)}
+.pos{color:#4ade80}.neg{color:#f87171}.dim{color:#555}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.card{
+  background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:20px;
+}
+.card h2{
+  font-size:.78rem;color:var(--cyan);margin-bottom:16px;
+  text-transform:uppercase;letter-spacing:.1em;font-weight:600;
+}
+.full{grid-column:1/-1}
+.chart-wrap{position:relative;height:280px}
+.chart-tall{position:relative;height:340px}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:900px}
+th{
+  text-align:left;padding:10px 12px;color:var(--muted);
+  border-bottom:1px solid var(--border);font-weight:500;
+  text-transform:uppercase;font-size:.7rem;letter-spacing:.07em;
+  cursor:pointer;user-select:none;white-space:nowrap;
+}
+th:hover{color:var(--cyan)}
+th .arr{margin-left:3px;opacity:.3;font-size:.65rem}
+th.sort-asc .arr,th.sort-desc .arr{opacity:1;color:var(--cyan)}
+td{padding:10px 12px;border-bottom:1px solid rgba(0,200,255,0.06);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(0,200,255,0.04)}
+.you-badge{
+  display:inline-block;padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:700;
+  background:rgba(0,200,255,0.15);color:var(--cyan);border:1px solid rgba(0,200,255,0.3);
+  margin-left:6px;text-transform:uppercase;letter-spacing:.06em;
+}
+.invite-link{color:var(--cyan);text-decoration:none;font-size:.8rem;opacity:.6}
+.invite-link:hover{opacity:1}
+.bar-wrap{width:100%;background:rgba(255,255,255,0.06);border-radius:4px;height:6px;margin-top:4px}
+.bar-fill{height:6px;border-radius:4px;background:linear-gradient(90deg,var(--cyan),var(--gold))}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.full{grid-column:1}.stat-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.stat-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="header">
+  <h1>Improvement Cord Market</h1>
+  <p>Generated 2026-06-14 14:57 UTC &nbsp;·&nbsp; 2026-06-14 → 2026-06-14 (90d window)</p>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="label">Wave Members</div>
+    <div class="value">30,614</div>
+    <div class="delta">#1 in market</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Competitor Total</div>
+    <div class="value gold">117,896</div>
+    <div class="delta">across 6 servers</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Online Now (all)</div>
+    <div class="value">10,354</div>
+    <div class="delta">7.0% avg online rate</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Snapshot Window</div>
+    <div class="value" style="font-size:1rem;padding-top:4px;color:var(--muted)">2026-06-14<br><span style="color:#333">→</span><br>2026-06-14</div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card full">
+    <h2>Member Count Over Time</h2>
+    <div class="chart-tall"><canvas id="mcChart" role="img" aria-label="Member count trends for all tracked improvement cord servers"></canvas></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Online Count Over Time</h2>
+    <div class="chart-wrap"><canvas id="ocChart" role="img" aria-label="Online count trends for all tracked servers"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Online Ratio % (engagement)</h2>
+    <div class="chart-wrap"><canvas id="ratioChart" role="img" aria-label="Online ratio percentage per server"></canvas></div>
+  </div>
+</div>
+
+<div class="card full" style="margin-bottom:20px">
+  <h2>Server Comparison</h2>
+  <div class="tbl-wrap">
+  <table id="mainTable">
+    <thead><tr>
+      <th data-col="name"       data-type="str">Server             <span class="arr">↕</span></th>
+      <th data-col="members"    data-type="num">Members            <span class="arr">↕</span></th>
+      <th data-col="online"     data-type="num">Online             <span class="arr">↕</span></th>
+      <th data-col="online_pct" data-type="num">Online %           <span class="arr">↕</span></th>
+      <th data-col="mpd"        data-type="num">Members/Day        <span class="arr">↕</span></th>
+      <th data-col="d7"         data-type="num">7d Change          <span class="arr">↕</span></th>
+      <th data-col="p7"         data-type="num">7d %               <span class="arr">↕</span></th>
+      <th data-col="d30"        data-type="num">30d Change         <span class="arr">↕</span></th>
+      <th data-col="ratio"      data-type="num">vs Wave            <span class="arr">↕</span></th>
+      <th data-col="last_seen"  data-type="str">Last Snapshot      <span class="arr">↕</span></th>
+    </tr></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  </div>
+</div>
+
+</div>
+
+<script>
+const COLORS  = ["#00C8FF", "#FFD700", "#7DF9FF", "#FF6B6B", "#A78BFA", "#34D399", "#FB923C"];
+const DATES   = ["2026-06-14"];
+const MC_DS   = [{"label": "Virtuous Improvement Cord", "data": [100000], "borderColor": "#00C8FF", "backgroundColor": "#00C8FF18", "borderWidth": 1.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}, {"label": "Wave Improvement Cord", "data": [30614], "borderColor": "#FFD700", "backgroundColor": "#FFD70018", "borderWidth": 3, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}, {"label": "The Pro Reality", "data": [8490], "borderColor": "#7DF9FF", "backgroundColor": "#7DF9FF18", "borderWidth": 1.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}, {"label": "Cloud Improvement", "data": [5890], "borderColor": "#FF6B6B", "backgroundColor": "#FF6B6B18", "borderWidth": 1.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}, {"label": "XR Improvement Cord", "data": [2640], "borderColor": "#A78BFA", "backgroundColor": "#A78BFA18", "borderWidth": 1.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}, {"label": "Improvement HUB", "data": [876], "borderColor": "#34D399", "backgroundColor": "#34D39918", "borderWidth": 1.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}, {"label": "Fortnite Competitive Improvement", "data": [null], "borderColor": "#FB923C", "backgroundColor": "#FB923C18", "borderWidth": 1.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}];
+const OC_DS   = [{"label": "Virtuous Improvement Cord", "data": [null], "borderColor": "#00C8FF", "backgroundColor": "#00C8FF18", "borderWidth": 1.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}, {"label": "Wave Improvement Cord", "data": [7220], "borderColor": "#FFD700", "backgroundColor": "#FFD70018", "borderWidth": 3, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}, {"label": "The Pro Reality", "data": [1329], "borderColor": "#7DF9FF", "backgroundColor": "#7DF9FF18", "borderWidth": 1.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}, {"label": "Cloud Improvement", "data": [1518], "borderColor": "#FF6B6B", "backgroundColor": "#FF6B6B18", "borderWidth": 1.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}, {"label": "XR Improvement Cord", "data": [171], "borderColor": "#A78BFA", "backgroundColor": "#A78BFA18", "borderWidth": 1.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}, {"label": "Improvement HUB", "data": [116], "borderColor": "#34D399", "backgroundColor": "#34D39918", "borderWidth": 1.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}, {"label": "Fortnite Competitive Improvement", "data": [null], "borderColor": "#FB923C", "backgroundColor": "#FB923C18", "borderWidth": 1.5, "tension": 0.4, "fill": false, "spanGaps": true, "pointRadius": 0, "pointHoverRadius": 5}];
+const RATIO   = [{"name": "Virtuous Improvement Cord", "ratio": 0.0}, {"name": "Wave Improvement Cord", "ratio": 23.6}, {"name": "The Pro Reality", "ratio": 15.7}, {"name": "Cloud Improvement", "ratio": 25.8}, {"name": "XR Improvement Cord", "ratio": 6.5}, {"name": "Improvement HUB", "ratio": 13.2}, {"name": "Fortnite Competitive Improvement", "ratio": 0.0}];
+const ROWS    = [{"name": "Virtuous Improvement Cord", "is_us": false, "invite": "https://discord.gg/fortnitetrainingpro", "members": 100000, "online": 0, "online_pct": 0.0, "mpd": null, "d7": null, "p7": null, "d30": null, "p30": null, "ratio": 0.3, "last_seen": "2026-06-14 14:51 UTC"}, {"name": "Wave Improvement Cord", "is_us": true, "invite": "https://discord.gg/dropmaps", "members": 30614, "online": 7220, "online_pct": 23.6, "mpd": null, "d7": null, "p7": null, "d30": null, "p30": null, "ratio": null, "last_seen": "2026-06-14 14:57 UTC"}, {"name": "The Pro Reality", "is_us": false, "invite": "https://discord.com/invite/the-pro-reality-1-free-fn-improvement-hub-1120390152343269409", "members": 8490, "online": 1329, "online_pct": 15.7, "mpd": null, "d7": null, "p7": null, "d30": null, "p30": null, "ratio": 3.6, "last_seen": "2026-06-14 14:57 UTC"}, {"name": "Cloud Improvement", "is_us": false, "invite": "https://discord.gg/yR325b8nyE", "members": 5890, "online": 1518, "online_pct": 25.8, "mpd": null, "d7": null, "p7": null, "d30": null, "p30": null, "ratio": 5.2, "last_seen": "2026-06-14 14:57 UTC"}, {"name": "XR Improvement Cord", "is_us": false, "invite": "https://discord.com/invite/N4eZxPxrF9", "members": 2640, "online": 171, "online_pct": 6.5, "mpd": null, "d7": null, "p7": null, "d30": null, "p30": null, "ratio": 11.6, "last_seen": "2026-06-14 14:57 UTC"}, {"name": "Improvement HUB", "is_us": false, "invite": "https://discord.com/invite/improvement-hub-1306006683306426388", "members": 876, "online": 116, "online_pct": 13.2, "mpd": null, "d7": null, "p7": null, "d30": null, "p30": null, "ratio": 34.9, "last_seen": "2026-06-14 14:57 UTC"}, {"name": "Fortnite Competitive Improvement", "is_us": false, "invite": "https://disboard.org/server/999133722886549564", "members": 0, "online": 0, "online_pct": 0.0, "mpd": null, "d7": null, "p7": null, "d30": null, "p30": null, "ratio": null, "last_seen": "\u2014"}];
+const MAX_MC  = 100000;
+
+const AXIS = {
+  x:{ticks:{color:'#8aa0c0',maxTicksLimit:14,font:{size:10}},grid:{color:'rgba(0,200,255,0.06)'}},
+  y:{ticks:{color:'#8aa0c0',font:{size:10}},grid:{color:'rgba(0,200,255,0.06)'}},
+};
+const LEG = {labels:{color:'#ccc',font:{size:11},usePointStyle:true,pointStyle:'line',boxWidth:28,padding:16}};
+
+function mkLine(id, ds, extraOpts={}) {
+  new Chart(id, {type:'line',
+    data:{labels:DATES,datasets:ds},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:LEG},
+      scales:{...AXIS,y:{...AXIS.y,ticks:{color:'#8aa0c0',callback:v=>v?.toLocaleString(),font:{size:10}}}},
+      ...extraOpts,
+    }
+  });
+}
+mkLine('mcChart', MC_DS);
+mkLine('ocChart', OC_DS);
+
+new Chart('ratioChart',{type:'bar',
+  data:{
+    labels:RATIO.map(r=>r.name),
+    datasets:[{
+      label:'Online %',data:RATIO.map(r=>r.ratio),
+      backgroundColor:RATIO.map((_,i)=>COLORS[i%COLORS.length]+'aa'),
+      borderRadius:6,
+    }]
+  },
+  options:{
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.x.toFixed(1)}%`}}},
+    scales:{
+      x:{ticks:{color:'#8aa0c0',callback:v=>v+'%',font:{size:10}},grid:{color:'rgba(0,200,255,0.06)'}},
+      y:{ticks:{color:'#ccc',font:{size:10}},grid:{color:'rgba(0,200,255,0.06)'}},
+    }
+  }
+});
+
+let sortCol='members', sortDir=-1;
+
+function fmtN(v, sfx='', dec=0) {
+  if(v===null||v===undefined) return '<span class="dim">—</span>';
+  const abs = dec>0 ? Math.abs(v).toFixed(dec) : Math.abs(v).toLocaleString();
+  const sign = v>0?'+':v<0?'-':'';
+  const cls  = v>0?'pos':v<0?'neg':'';
+  return cls ? `<span class="${cls}">${sign}${abs}${sfx}</span>` : `${abs}${sfx}`;
+}
+
+function renderTable(rows) {
+  const sorted = [...rows].sort((a,b)=>{
+    const av=a[sortCol], bv=b[sortCol];
+    if(av==null) return 1; if(bv==null) return -1;
+    return (typeof av==='string' ? av.localeCompare(bv) : av-bv)*sortDir;
+  });
+  const maxM = Math.max(...sorted.map(r=>r.members||0), 1);
+  document.getElementById('tableBody').innerHTML = sorted.map(r=>{
+    const pct = Math.round((r.members||0)/maxM*100);
+    const badge = r.is_us ? '<span class="you-badge">you</span>' : '';
+    const link  = `<a class="invite-link" href="${r.invite}" target="_blank">↗</a>`;
+    return `<tr>
+      <td><b>${r.name}</b>${badge} ${link}</td>
+      <td>
+        ${r.members?r.members.toLocaleString():'—'}
+        <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div>
+      </td>
+      <td>${r.online?r.online.toLocaleString():'—'}</td>
+      <td>${r.online_pct!=null?r.online_pct.toFixed(1)+'%':'—'}</td>
+      <td>${fmtN(r.mpd,'',1)}</td>
+      <td>${fmtN(r.d7)}</td>
+      <td>${fmtN(r.p7,'%',2)}</td>
+      <td>${fmtN(r.d30)}</td>
+      <td>${r.ratio!=null&&!r.is_us?'<span class="dim">'+r.ratio+'×</span>':'<span class="dim">—</span>'}</td>
+      <td>${r.last_seen}</td>
+    </tr>`;
+  }).join('');
+}
+
+document.querySelectorAll('#mainTable th[data-col]').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const col=th.dataset.col;
+    sortDir = sortCol===col ? -sortDir : -1;
+    sortCol = col;
+    document.querySelectorAll('#mainTable th').forEach(t=>{
+      t.classList.remove('sort-asc','sort-desc');
+      t.querySelector('.arr').textContent='↕';
+    });
+    th.classList.add(sortDir===-1?'sort-desc':'sort-asc');
+    th.querySelector('.arr').textContent=sortDir===-1?'↓':'↑';
+    renderTable(ROWS);
+  });
+});
+renderTable(ROWS);
+const dflt = document.querySelector('#mainTable th[data-col="members"]');
+dflt.classList.add('sort-desc'); dflt.querySelector('.arr').textContent='↓';
+</script>
+</body>
+</html>

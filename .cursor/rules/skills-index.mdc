@@ -1,0 +1,32 @@
+---
+description: Index of all repo-local skills in ai-hub/skills/ — Cursor equivalent of .agents/skills.json
+alwaysApply: true
+---
+
+# Repo-Local Skills Index
+
+All skills live in `ai-hub/skills/<name>/SKILL.md`. To use one, read its SKILL.md and follow the instructions inside.
+
+| Skill | Path | When to use |
+|---|---|---|
+| wave-analyst | `ai-hub/skills/wave-analyst/SKILL.md` | Rigorous analysis framework for decisions, feature proposals, architecture changes, or any choice with hidden assumptions. Use when evaluating code changes, DB schemas, API design, or "should we..." questions. |
+| session-summary | `ai-hub/skills/session-summary/SKILL.md` | Write an end-of-session summary for the Wave Management Bot project. |
+| session-handoff | `ai-hub/skills/session-handoff/SKILL.md` | Structured end-of-session handoff before clearing context. Use when wrapping up, handing off, or starting fresh. |
+| update-memory | `ai-hub/skills/update-memory/SKILL.md` | Save a lesson to persistent memory. Use when told "update your memory", "remember this", or "learn from this". |
+| consolidate-memory | `ai-hub/skills/consolidate-memory/SKILL.md` | Reflective pass over memory files — merge duplicates, fix stale facts, prune the index. |
+| checkpoint | `ai-hub/skills/checkpoint/SKILL.md` | Save progress to `.claude/progress.json` so work survives a session-limit interruption. |
+| resume | `ai-hub/skills/resume/SKILL.md` | Resume an interrupted session by reading `.claude/progress.json` and continuing. |
+| gsd | `ai-hub/skills/gsd/SKILL.md` | Get Shit Done — structured context-engineering and spec-driven dev. Use when starting a new project, planning a feature, or when context is getting too long. |
+| superpowers | `ai-hub/skills/superpowers/SKILL.md` | Structured agentic dev framework — brainstorm, debug, TDD, build with subagents, verify. Triggers on /brainstorm, /debug, /tdd, /build, /verify. |
+| code-sparring | `ai-hub/skills/code-sparring/SKILL.md` | Aggressive devil's-advocate sparring to stress-test code decisions and architecture. Use when asked to "poke holes in this", "fight me on this", or debate a design. |
+| frontend-design | `ai-hub/skills/frontend-design/SKILL.md` | UI/UX specialist for production-grade frontend code (React, Vue, HTML/CSS). Use for any visual UI, dashboard, or component work. |
+| prompt-engineering-deep-dive | `ai-hub/skills/prompt-engineering-deep-dive/SKILL.md` | Deep questioning and pushback for prompt engineering. Append "95" to any message with a prompt to activate. |
+| skill-creator | `ai-hub/skills/skill-creator/SKILL.md` | Create new skills, modify existing skills, run evals, benchmark performance. |
+| agent-reach | `ai-hub/skills/agent-reach/SKILL.md` | Research/search/look-up tasks via web or external sources. |
+| setup-cowork | `ai-hub/skills/setup-cowork/SKILL.md` | Guided Cowork setup — install role-matched plugins, connect tools, try a skill. |
+| schedule | `ai-hub/skills/schedule/SKILL.md` | Create or update a scheduled task. Use when asked for "every day", "each morning", "remind me in an hour", etc. |
+| likec4 | `ai-hub/skills/likec4/SKILL.md` | Model and visualize software architecture with LikeC4. Use for architecture diagrams, C4 models, showing how services/bots/DBs connect. |
+| pdf | `ai-hub/skills/pdf/SKILL.md` | Anything with PDF files — read, extract, merge, split, fill forms, OCR, encrypt. |
+| docx | `ai-hub/skills/docx/SKILL.md` | Create, read, edit Word documents (.docx). Use for reports, memos, letters, templates. |
+| pptx | `ai-hub/skills/pptx/SKILL.md` | Anything involving .pptx — create decks, parse/extract, edit, combine slides. |
+| xlsx | `ai-hub/skills/xlsx/SKILL.md` | Anything with spreadsheets (.xlsx, .csv, .tsv) — open, read, edit, create, convert. |

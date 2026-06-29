@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style data-spa-page="team">
+  .cyber-hierarchy {
+    padding: 20px 20px 80px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #cdd9e8;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    animation: fadeUp 0.5s ease;
+    position: relative;
+  }
+  .cyber-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-style: italic;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+    margin-bottom: 5px;
+    line-height: 1;
+  }
+  .cyber-subtitle {
+    font-size: 0.85rem;
+    color: #7a98b0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 60px;
+  }
+
+  /* SVG connector overlay — drawn by JS from real card positions */
+  .tree-lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: visible;
+  }
+  .tree-lines line,
+  .tree-lines path {
+    stroke: #1f85a6;
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: square;
+  }
+
+  /* Node Styling */
+  .cyber-node {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    background: rgba(10, 16, 28, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    z-index: 2;
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
+    height: 64px;
+    min-height: 64px;
+    max-height: 64px;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-align: left;
+  }
+  .cyber-node:hover {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  }
+  .cyber-node.neon-purple:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.5), 0 0 22px rgba(186, 85, 211, 0.45) inset; }
+  .cyber-node.neon-green:hover  { box-shadow: 0 2px 12px rgba(0,0,0,0.5), 0 0 22px rgba(0, 255, 128, 0.45) inset; }
+  .cyber-node.neon-orange:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.5), 0 0 22px rgba(255, 140, 0, 0.45) inset; }
+  .cyber-node.neon-cyan:hover   { box-shadow: 0 2px 12px rgba(0,0,0,0.5), 0 0 22px rgba(0, 212, 255, 0.45) inset; }
+  .cyber-node.neon-gold:hover   { box-shadow: 0 2px 12px rgba(0,0,0,0.5), 0 0 22px rgba(255, 215, 0, 0.45) inset; }
+
+  .cyber-node.mini {
+    padding: 6px 12px;
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
+    height: 52px;
+    min-height: 52px;
+    max-height: 52px;
+    gap: 8px;
+    background: rgba(10, 16, 28, 0.92);
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+  .cyber-node.mini:hover {
+    filter: brightness(1.15);
+  }
+  .cyber-node.mini .node-avatar { width: 24px; height: 24px; border-width: 1px; }
+  .cyber-node.mini .node-role { font-size: 0.65rem; color: rgba(255,255,255,0.8); }
+  .cyber-node.mini .node-name { font-size: 0.7rem; }
+
+  .neon-purple { border-color: rgba(186, 85, 211, 0.5); box-shadow: 0 0 15px rgba(186, 85, 211, 0.2) inset; }
+  .neon-green  { border-color: rgba(0, 255, 128, 0.5);  box-shadow: 0 0 15px rgba(0, 255, 128, 0.2) inset; }
+  .neon-orange { border-color: rgba(255, 140, 0, 0.5);  box-shadow: 0 0 15px rgba(255, 140, 0, 0.2) inset; }
+  .neon-cyan   { border-color: rgba(0, 212, 255, 0.5);  box-shadow: 0 0 15px rgba(0, 212, 255, 0.2) inset; }
+  .neon-gold   { border-color: rgba(255, 215, 0, 0.5);  box-shadow: 0 0 15px rgba(255, 215, 0, 0.2) inset; }
+
+  .node-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #1a2235;
+    border: 2px solid;
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+  }
+  .neon-purple .node-avatar, .neon-purple.mini .node-avatar { border-color: #ba55d3; }
+  .neon-green .node-avatar, .neon-green.mini .node-avatar  { border-color: #00ff80; }
+  .neon-orange .node-avatar, .neon-orange.mini .node-avatar { border-color: #ff8c00; }
+  .neon-cyan .node-avatar, .neon-cyan.mini .node-avatar   { border-color: #00d4ff; }
+  .neon-gold .node-avatar, .neon-gold.mini .node-avatar   { border-color: #ffd700; }
+
+  .node-role { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .node-name {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.7);
+    margin-top: 2px;
+    line-height: 1.25;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .cyber-node > div:not(.node-avatar) {
+    min-width: 0;
+    flex: 1;
+  }
+
+  /* Tree layout — spacing only; lines are SVG */
+  .tree-level {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    padding-top: 48px;
+    margin-top: 0;
+    gap: 40px;
+    z-index: 2;
+  }
+  .tree-level:first-of-type { padding-top: 0; }
+
+  /* Ops spine centered; wings symmetric with equal edge gaps from ops */
+  .heads-grid {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding-top: 0;
+    --wing-gap: 80px;
+  }
+  .heads-grid .branch-col--ops {
+    position: relative;
+    width: max-content;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 2;
+    align-items: center;
+  }
+  .heads-grid .branch-col--staff {
+    position: absolute;
+    top: 48px;
+    right: calc(50% + 120px + var(--wing-gap));
+    z-index: 2;
+    align-items: center;
+  }
+  .heads-grid .branch-col--marketing {
+    position: absolute;
+    top: 48px;
+    left: calc(50% + 120px + var(--wing-gap));
+    z-index: 2;
+    align-items: center;
+  }
+  .heads-grid .branch-head {
+    min-height: 62px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  #executive-level {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 48px;
+  }
+
+  #heads-level {
+    padding-top: 48px;
+  }
+
+  .branch-col {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Head row only — sibling brackets anchor here, not full column width */
+  .branch-head {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    z-index: 2;
+  }
+
+  .merge-parents {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 0;
+    padding-bottom: 48px;
+    position: relative;
+    z-index: 2;
+  }
+  .founder-col {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .branch-subs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin-top: 48px;
+    position: relative;
+    z-index: 2;
+  }
+  .branch-subs > .cyber-node-wrapper {
+    margin-bottom: 48px;
+  }
+  .branch-subs > .cyber-node-wrapper:last-child {
+    margin-bottom: 0;
+  }
+
+  .cyber-node-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Multi-person role row — mirrors founder-level layout */
+  .role-row {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 32px;
+    position: relative;
+    z-index: 2;
+    width: max-content;
+    margin: 0 auto;
+  }
+  .role-slot {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    z-index: 2;
+  }
+  .role-slot > .cyber-node {
+    flex: none;
+  }
+
+  .multi-member-stack {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    position: relative;
+    width: 100%;
+    z-index: 2;
+  }
+  .stack-col {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+  }
+
+  .management-block {
+    padding-top: 48px;
+    position: relative;
+    z-index: 2;
+  }
+
+  @media (max-width: 900px) {
+    .tree-level { flex-direction: column; align-items: center; gap: 24px; }
+    .heads-grid {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+    .heads-grid .branch-col--staff,
+    .heads-grid .branch-col--ops,
+    .heads-grid .branch-col--marketing {
+      position: static;
+      top: auto;
+      margin: 0;
+      align-items: center;
+    }
+    .merge-parents { flex-direction: column; gap: 24px; padding-bottom: 24px; }
+    .branch-subs { margin-top: 32px; }
+    .tree-level { padding-top: 32px; }
+    .management-block { padding-top: 32px; }
+  }
+
+  @media (max-width: 560px) {
+    .cyber-hierarchy { padding: 20px 12px 80px; overflow-x: auto; }
+    .cyber-node, .cyber-node.mini {
+      width: 200px; min-width: 200px; max-width: 200px;
+    }
+    .cyber-node.mini { width: 180px; min-width: 180px; max-width: 180px; }
+    .cyber-title { font-size: clamp(1.8rem, 7vw, 3rem); }
+    .cyber-subtitle { font-size: 0.75rem; margin-bottom: 40px; }
+    .role-row { gap: 16px; }
+    .merge-parents { gap: 16px; }
+    .multi-member-stack { gap: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="cyber-hierarchy" id="team-hierarchy-root">
+  <svg class="tree-lines" id="team-tree-lines" aria-hidden="true"></svg>
+
+  <h1 class="cyber-title">Team Hierarchy</h1>
+  <div class="cyber-subtitle">Wave Staff Roles & Structure</div>
+
+  <!-- LEVEL 0: Founders -->
+  <div id="founder-level" class="merge-parents" style="display:none;"></div>
+
+  <!-- LEVEL 1: Executive -->
+  <div id="executive-level" class="tree-level" style="display:flex; justify-content:center;">
+    <div class="branch-col">
+      <div class="branch-head">
+        <div class="cyber-node-wrapper" data-role="executive_director" data-connector="executive_director">
+          <div class="cyber-node neon-cyan">
+            <div class="node-avatar"></div>
+            <div>
+              <div class="node-role">Executive Director</div>
+              <div class="node-name" data-bind="name">Loading...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL 2: The 3 Heads + Their Sub-roles -->
+  <div class="tree-level heads-grid" id="heads-level">
+    <!-- HR BRANCH -->
+    <div class="branch-col branch-col--staff">
+      <div class="branch-head">
+        <div class="cyber-node-wrapper" data-role="head_staff" data-connector="head_staff">
+          <div class="cyber-node neon-purple">
+            <div class="node-avatar"></div>
+            <div><div class="node-role">Head Staff</div><div class="node-name" data-bind="name">Loading...</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="branch-subs" data-chain="hr">
+        <div class="cyber-node-wrapper" data-role="head_recruiter" data-connector="head_recruiter">
+          <div class="cyber-node mini neon-purple">
+            <div class="node-avatar"></div>
+            <div><div class="node-role">Head Recruiter</div><div class="node-name" data-bind="name">Loading...</div></div>
+          </div>
+        </div>
+        <div class="cyber-node-wrapper" data-role="head_ld" data-connector="head_ld">
+          <div class="cyber-node mini neon-purple">
+            <div class="node-avatar"></div>
+            <div><div class="node-role">Head L&D</div><div class="node-name" data-bind="name">Loading...</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPS BRANCH -->
+    <div class="branch-col branch-col--ops">
+      <div class="branch-head">
+        <div class="cyber-node-wrapper" data-role="head_operations" data-connector="head_operations">
+          <div class="cyber-node neon-green">
+            <div class="node-avatar"></div>
+            <div><div class="node-role">Head Operations</div><div class="node-name" data-bind="name">Loading...</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="branch-subs" data-chain="ops">
+        <div class="cyber-node-wrapper" data-role="head_logistics" data-connector="head_logistics">
+          <div class="cyber-node mini neon-green">
+            <div class="node-avatar"></div>
+            <div><div class="node-role">Head Logistics</div><div class="node-name" data-bind="name">Loading...</div></div>
+          </div>
+        </div>
+        <div class="cyber-node-wrapper" data-role="head_loot_routes" data-connector="head_loot_routes">
+          <div class="cyber-node mini neon-green">
+            <div class="node-avatar"></div>
+            <div><div class="node-role">Head Loot Routes</div><div class="node-name" data-bind="name">Loading...</div></div>
+          </div>
+        </div>
+        <div class="cyber-node-wrapper" data-role="head_tips_tricks" data-connector="head_tips_tricks">
+          <div class="cyber-node mini neon-green">
+            <div class="node-avatar"></div>
+            <div><div class="node-role">Head Tips & Tricks</div><div class="node-name" data-bind="name">Loading...</div></div>
+          </div>
+        </div>
+        <div class="cyber-node-wrapper" data-role="head_surge_routes" data-connector="head_surge_routes">
+          <div class="cyber-node mini neon-green">
+            <div class="node-avatar"></div>
+            <div><div class="node-role">Head Surge Routes</div><div class="node-name" data-bind="name">Loading...</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MARKETING BRANCH -->
+    <div class="branch-col branch-col--marketing">
+      <div class="branch-head">
+        <div class="cyber-node-wrapper" data-role="head_marketing" data-connector="head_marketing">
+          <div class="cyber-node neon-orange">
+            <div class="node-avatar"></div>
+            <div><div class="node-role">Head Marketing</div><div class="node-name" data-bind="name">Loading...</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="branch-subs" data-chain="mkt">
+        <div class="cyber-node-wrapper" data-role="head_promoting" data-connector="head_promoting">
+          <div class="cyber-node mini neon-orange">
+            <div class="node-avatar"></div>
+            <div><div class="node-role">Head Promotions</div><div class="node-name" data-bind="name">Loading...</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL 3: Management Core -->
+  <div class="management-block" id="management-block">
+    <div class="tree-level" style="padding-top:0;">
+      <div class="branch-col">
+        <div class="branch-head">
+          <div class="cyber-node-wrapper" data-role="management" data-connector="management">
+            <div class="cyber-node neon-cyan">
+              <div class="node-avatar"></div>
+              <div><div class="node-role">Management</div><div class="node-name" data-bind="name">Loading...</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="branch-subs" data-chain="mgmt">
+          <div class="cyber-node-wrapper" data-role="head_admin" data-connector="head_admin">
+            <div class="cyber-node mini neon-cyan">
+              <div class="node-avatar" style="width:30px;height:30px;"></div>
+              <div><div class="node-role" style="font-size:0.65rem;">Head Admin</div><div class="node-name" style="font-size:0.7rem;" data-bind="name">Loading...</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const root = document.getElementById('team-hierarchy-root');
+  const svg = document.getElementById('team-tree-lines');
+  let resizeTimer = null;
+
+  function roleGroupEl(roleKey) {
+    var wrapper = document.querySelector('.cyber-node-wrapper[data-role="' + roleKey + '"]');
+    if (!wrapper) return null;
+    return wrapper.querySelector('.role-row')
+      || wrapper.querySelector('.cyber-node');
+  }
+
+  function roleAnchorEl(roleKey) {
+    return roleGroupEl(roleKey);
+  }
+
+  function memberLeaves(roleKey) {
+    var wrapper = document.querySelector('.cyber-node-wrapper[data-role="' + roleKey + '"]');
+    if (!wrapper) return [];
+    var row = wrapper.querySelector('.role-row');
+    if (row) {
+      return Array.from(row.querySelectorAll('.role-slot .cyber-node'));
+    }
+    var single = wrapper.querySelector('.cyber-node');
+    return single ? [single] : [];
+  }
+
+  function anchor(el, side) {
+    const box = el.getBoundingClientRect();
+    const origin = root.getBoundingClientRect();
+    const x = box.left + box.width / 2 - origin.left;
+    const midY = box.top + box.height / 2 - origin.top;
+    if (side === 'bottom') return { x, y: box.bottom - origin.top };
+    if (side === 'top') return { x, y: box.top - origin.top };
+    if (side === 'middle') return { x, y: midY };
+    if (side === 'left') return { x: box.left - origin.left, y: midY };
+    if (side === 'right') return { x: box.right - origin.left, y: midY };
+    return { x, y: midY };
+  }
+
+  function connectorEl(id) {
+    return roleAnchorEl(id) || document.querySelector('[data-connector="' + id + '"]');
+  }
+
+  function deptTopPoint(roleKey) {
+    var leaves = memberLeaves(roleKey);
+    if (!leaves.length) return null;
+    var tops = leaves.map(function (c) { return anchor(c, 'top'); });
+    return {
+      x: tops.reduce(function (s, t) { return s + t.x; }, 0) / tops.length,
+      y: tops[0].y,
+      leaves: leaves
+    };
+  }
+
+  function rowSpineX(leaves) {
+    if (!leaves.length) return 0;
+    return leaves.reduce(function (s, el) { return s + anchor(el, 'top').x; }, 0) / leaves.length;
+  }
+
+  /** Trunk through middle → horizontal bar L/R at card middle → taps to card sides */
+  function spineForkIn(fromY, spineX, childLeaves) {
+    if (!childLeaves.length) return;
+    if (childLeaves.length === 1) {
+      var t = anchor(childLeaves[0], 'top');
+      if (Math.abs(spineX - t.x) < 2) line(spineX, fromY, spineX, t.y);
+      else columnDrop(fromY, spineX, childLeaves[0]);
+      return;
+    }
+    var mids = childLeaves.map(function (c) { return anchor(c, 'middle'); });
+    var forkY = mids[0].y;
+    var leftCard = childLeaves[0];
+    var rightCard = childLeaves[childLeaves.length - 1];
+    var leftSide = anchor(leftCard, 'left');
+    var rightSide = anchor(rightCard, 'right');
+    var midX = (leftSide.x + rightSide.x) / 2;
+    line(spineX, fromY, spineX, forkY);
+    if (Math.abs(spineX - midX) > 2) {
+      line(spineX, forkY, midX, forkY);
+    }
+    line(leftSide.x, forkY, rightSide.x, forkY);
+    line(leftSide.x, forkY, leftSide.x, leftSide.y);
+    line(rightSide.x, forkY, rightSide.x, rightSide.y);
+  }
+
+  /** Single parent → multi-card row (through-spine fork in at card middle) */
+  function spineForkInFromParent(parentEl, childLeaves) {
+    if (!parentEl || !childLeaves.length) return;
+    if (childLeaves.length === 1) {
+      verticalChain(parentEl, childLeaves);
+      return;
+    }
+    var p = anchor(parentEl, 'bottom');
+    var mids = childLeaves.map(function (c) { return anchor(c, 'middle'); });
+    var leftCard = childLeaves[0];
+    var rightCard = childLeaves[childLeaves.length - 1];
+    var leftSide = anchor(leftCard, 'left');
+    var rightSide = anchor(rightCard, 'right');
+    var midX = (leftSide.x + rightSide.x) / 2;
+    var forkY = mids[0].y;
+    line(p.x, p.y, p.x, forkY);
+    if (Math.abs(p.x - midX) > 2) {
+      line(p.x, forkY, midX, forkY);
+    }
+    line(leftSide.x, forkY, rightSide.x, forkY);
+  }
+
+  /** Multi-card row → single child via center spine only (through-spine pattern) */
+  function spineForkOut(parentLeaves, childTarget) {
+    if (!parentLeaves.length || !childTarget) return;
+    if (parentLeaves.length === 1) {
+      verticalChain(parentLeaves[0], [childTarget]);
+      return;
+    }
+    var mids = parentLeaves.map(function (el) { return anchor(el, 'middle'); });
+    var childTop = anchor(childTarget, 'top');
+    var midY = mids[0].y;
+    var leftCard = parentLeaves[0];
+    var rightCard = parentLeaves[parentLeaves.length - 1];
+    var leftSide = anchor(leftCard, 'left');
+    var rightSide = anchor(rightCard, 'right');
+    var midX = (leftSide.x + rightSide.x) / 2;
+    // horizontal bar across parent cards + taps from each side
+    line(leftSide.x, midY, rightSide.x, midY);
+    // spine down from bar center to child
+    line(midX, midY, midX, childTop.y);
+    if (Math.abs(midX - childTop.x) > 2) {
+      line(midX, childTop.y, childTop.x, childTop.y);
+    }
+  }
+
+  /** Multi-card row → multi-card row (mgmt → admin) - through-spine at card middle */
+  function spineForkThrough(parentLeaves, childLeaves) {
+    if (!parentLeaves.length || !childLeaves.length) return;
+    var pMids = parentLeaves.map(function (el) { return anchor(el, 'middle'); });
+    var leftCard = parentLeaves[0];
+    var rightCard = parentLeaves[parentLeaves.length - 1];
+    var leftSide = anchor(leftCard, 'left');
+    var rightSide = anchor(rightCard, 'right');
+    var midX = (leftSide.x + rightSide.x) / 2;
+    var forkY1 = pMids[0].y;
+
+    if (childLeaves.length === 1) {
+      var ct = anchor(childLeaves[0], 'top');
+      line(midX, forkY1, ct.x, ct.y);
+      return;
+    }
+    var cMids = childLeaves.map(function (c) { return anchor(c, 'middle'); });
+    var forkY2 = cMids[0].y;
+    line(midX, forkY1, midX, forkY2);
+    var cLeftCard = childLeaves[0];
+    var cRightCard = childLeaves[childLeaves.length - 1];
+    var cLeftSide = anchor(cLeftCard, 'left');
+    var cRightSide = anchor(cRightCard, 'right');
+    var cMidX = (cLeftSide.x + cRightSide.x) / 2;
+    if (Math.abs(midX - cMidX) > 2) {
+      line(midX, forkY2, cMidX, forkY2);
+    }
+    line(cLeftSide.x, forkY2, cRightSide.x, forkY2);
+  }
+
+  /** Straight column drop for single-card roles */
+  function columnDrop(fromY, spineX, targetEl) {
+    if (!targetEl) return;
+    var top = anchor(targetEl, 'top');
+    if (Math.abs(spineX - top.x) < 2) {
+      line(spineX, fromY, spineX, top.y);
+      return;
+    }
+    var midY = fromY + Math.max(16, (top.y - fromY) * 0.5);
+    line(spineX, fromY, spineX, midY);
+    line(spineX, midY, top.x, midY);
+    line(top.x, midY, top.x, top.y);
+  }
+
+  function connectExecToDepartments(execNode) {
+    var depts = ['head_staff', 'head_operations', 'head_marketing'].map(deptTopPoint).filter(Boolean);
+    if (!execNode || !depts.length) return;
+    var p = anchor(execNode, 'bottom');
+    var minY = Math.min.apply(null, depts.map(function (d) { return d.y; }));
+    var bracketY = p.y + Math.max(16, (minY - p.y) * 0.5);
+    line(p.x, p.y, p.x, bracketY);
+    var xs = depts.map(function (d) { return d.x; }).sort(function (a, b) { return a - b; });
+    line(xs[0], bracketY, xs[xs.length - 1], bracketY);
+    depts.forEach(function (d) {
+      if (d.leaves.length > 1) {
+        var mids = d.leaves.map(function (c) { return anchor(c, 'middle'); });
+        var forkY = mids[0].y;
+        var leftCard = d.leaves[0];
+        var rightCard = d.leaves[d.leaves.length - 1];
+        var leftSide = anchor(leftCard, 'left');
+        var rightSide = anchor(rightCard, 'right');
+        var midX = (leftSide.x + rightSide.x) / 2;
+        line(d.x, bracketY, d.x, forkY);
+        if (Math.abs(d.x - midX) > 2) {
+          line(d.x, forkY, midX, forkY);
+        }
+        line(leftSide.x, forkY, rightSide.x, forkY);
+      } else {
+        columnDrop(bracketY, d.x, d.leaves[0]);
+      }
+    });
+  }
+
+  function connectHeadToFirstSub(roleKey, firstSubEl) {
+    if (!firstSubEl) return;
+    var leaves = memberLeaves(roleKey);
+    if (leaves.length > 1) spineForkOut(leaves, firstSubEl);
+    else if (leaves.length === 1) verticalChain(leaves[0], [firstSubEl]);
+  }
+
+  function connectSubChain(subKeys, subEls) {
+    for (var i = 1; i < subEls.length; i++) {
+      var prevKey = subKeys[i - 1];
+      var prevLeaves = memberLeaves(prevKey);
+      var nextLeaves = memberLeaves(subKeys[i]);
+      if (prevLeaves.length > 1) {
+        spineForkOut(prevLeaves, subEls[i]);
+      } else if (nextLeaves.length > 1) {
+        spineForkInFromParent(subEls[i - 1], nextLeaves);
+      } else {
+        verticalChain(subEls[i - 1], [subEls[i]]);
+      }
+    }
+  }
+
+  function line(x1, y1, x2, y2) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    el.setAttribute('x1', x1.toFixed(1));
+    el.setAttribute('y1', y1.toFixed(1));
+    el.setAttribute('x2', x2.toFixed(1));
+    el.setAttribute('y2', y2.toFixed(1));
+    svg.appendChild(el);
+  }
+
+  /** Branch tails converge → through-spine fork into child row at card middle */
+  function convergeToGroup(sources, childLeaves) {
+    if (!childLeaves.length) return;
+    var cMids = childLeaves.map(function (c) { return anchor(c, 'middle'); });
+    var leftCard = childLeaves[0];
+    var rightCard = childLeaves[childLeaves.length - 1];
+    var leftSide = anchor(leftCard, 'left');
+    var rightSide = anchor(rightCard, 'right');
+    var cMidX = (leftSide.x + rightSide.x) / 2;
+    var bracketY = cMids[0].y;
+    var bottoms = sources.map(function (src) { return anchor(src, 'bottom'); });
+    var maxBottomY = Math.max.apply(null, bottoms.map(function (b) { return b.y; }));
+    var forkY = maxBottomY + 24;
+    var bxs = bottoms.map(function (b) { return b.x; }).sort(function (a, b) { return a - b; });
+    var midX = (bxs[0] + bxs[bxs.length - 1]) / 2;
+    // Draw verticals from each branch tail down to forkY
+    bottoms.forEach(function (b) { line(b.x, b.y, b.x, forkY); });
+    // Horizontal bar connecting all tails at forkY
+    if (bxs.length > 1) line(bxs[0], forkY, bxs[bxs.length - 1], forkY);
+    // Shift to management center if needed
+    if (Math.abs(cMidX - midX) > 1) {
+      line(midX, forkY, cMidX, forkY);
+    }
+    if (childLeaves.length === 1) {
+      line(cMidX, forkY, cMidX, bracketY);
+      return;
+    }
+    line(cMidX, forkY, cMidX, bracketY);
+    line(leftSide.x, bracketY, rightSide.x, bracketY);
+  }
+
+  function syncSvgSize() {
+    var w = root.scrollWidth;
+    var h = root.scrollHeight;
+    svg.setAttribute('width', String(w));
+    svg.setAttribute('height', String(h));
+    svg.style.width = w + 'px';
+    svg.style.height = h + 'px';
+  }
+
+  function verticalChain(parentEl, childEls) {
+    if (!parentEl || !childEls.length) return;
+    var prev = parentEl;
+    childEls.forEach(function (child) {
+      var a = anchor(prev, 'bottom');
+      var b = anchor(child, 'top');
+      var gap = b.y - a.y;
+      if (gap <= 4) {
+        var stubY = a.y + 12;
+        line(a.x, a.y, a.x, stubY);
+        line(a.x, stubY, b.x, stubY);
+        line(b.x, stubY, b.x, b.y);
+      } else if (Math.abs(a.x - b.x) < 20) {
+        // Nearly aligned (same column, sub-pixel/rounding drift) — straight vertical at child X
+        line(b.x, a.y, b.x, b.y);
+      } else {
+        var midY = a.y + gap * 0.5;
+        line(a.x, a.y, a.x, midY);
+        line(a.x, midY, b.x, midY);
+        line(b.x, midY, b.x, b.y);
+      }
+      prev = child;
+    });
+  }
+
+  function branchTailEl(headKey, subKeys) {
+    for (var i = 0; i < subKeys.length; i++) {
+      var leaves = memberLeaves(subKeys[i]);
+      if (leaves.length) return leaves[leaves.length - 1];
+      var el = roleGroupEl(subKeys[i]);
+      if (el) return el;
+    }
+    var headLeaves = memberLeaves(headKey);
+    if (headLeaves.length) return headLeaves[headLeaves.length - 1];
+    return roleGroupEl(headKey);
+  }
+
+  function drawTreeLines() {
+    if (!root || !svg) return;
+    svg.innerHTML = '';
+    syncSvgSize();
+
+    var founderLevel = document.getElementById('founder-level');
+    var founderNodes = founderLevel
+      ? Array.from(founderLevel.querySelectorAll('.founder-col .cyber-node'))
+      : [];
+
+    var execNode = connectorEl('executive_director');
+    if (founderNodes.length && execNode && founderLevel.style.display !== 'none') {
+      if (founderNodes.length === 1) {
+        verticalChain(founderNodes[0], [execNode]);
+      } else {
+        spineForkOut(founderNodes, execNode);
+      }
+    }
+
+    if (execNode) {
+      connectExecToDepartments(execNode);
+    }
+
+    [
+      { head: 'head_staff', subs: ['head_recruiter', 'head_ld'] },
+      { head: 'head_operations', subs: ['head_logistics', 'head_loot_routes', 'head_tips_tricks', 'head_surge_routes'] },
+      { head: 'head_marketing', subs: ['head_promoting'] }
+    ].forEach(function (branch) {
+      var subEls = branch.subs.map(roleGroupEl).filter(Boolean);
+      connectHeadToFirstSub(branch.head, subEls[0]);
+      connectSubChain(branch.subs, subEls);
+    });
+
+    var branchTails = [
+      branchTailEl('head_staff', ['head_ld', 'head_recruiter']),
+      branchTailEl('head_operations', ['head_surge_routes', 'head_tips_tricks', 'head_loot_routes', 'head_logistics']),
+      branchTailEl('head_marketing', ['head_promoting'])
+    ].filter(Boolean);
+
+    var mgmtLeaves = memberLeaves('management');
+    if (branchTails.length && mgmtLeaves.length) {
+      convergeToGroup(branchTails, mgmtLeaves);
+    }
+
+    var adminLeaves = memberLeaves('head_admin');
+    if (mgmtLeaves.length && adminLeaves.length) {
+      spineForkThrough(mgmtLeaves, adminLeaves);
+    }
+  }
+
+  function scheduleRedraw() {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(drawTreeLines);
+    });
+  }
+
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(scheduleRedraw, 100);
+  });
+
+  function applyMember(node, entry) {
+    var nameEl = node.querySelector('[data-bind="name"]');
+    var avatarEl = node.querySelector('.node-avatar');
+    if (nameEl) nameEl.textContent = entry.name || 'N/A';
+    if (avatarEl && entry.avatar_url) avatarEl.style.backgroundImage = "url('" + entry.avatar_url + "')";
+    if (entry.user_id) {
+      node.style.cursor = 'pointer';
+      node.onclick = function () { window.location.href = 'profile.html?id=' + entry.user_id; };
+    }
+  }
+
+  function buildFounderLevel(founders) {
+    var founderWrapper = document.getElementById('founder-level');
+    var execNode = document.getElementById('executive-level');
+    if (!founderWrapper) return;
+
+    if (!founders || !founders.length) {
+      founderWrapper.style.display = 'none';
+      if (execNode) execNode.style.paddingTop = '0';
+      return;
+    }
+
+    founderWrapper.innerHTML = '';
+    founders.forEach(function (entry) {
+      var col = document.createElement('div');
+      col.className = 'founder-col';
+      col.innerHTML =
+        '<div class="cyber-node-wrapper" data-connector="founder-' + entry.user_id + '">' +
+          '<div class="cyber-node neon-gold">' +
+            '<div class="node-avatar"></div>' +
+            '<div><div class="node-role">Founder</div><div class="node-name" data-bind="name"></div></div>' +
+          '</div>' +
+        '</div>';
+      applyMember(col.querySelector('.cyber-node'), entry);
+      founderWrapper.appendChild(col);
+    });
+    founderWrapper.style.display = 'flex';
+    if (execNode) execNode.classList.add('tree-level');
+  }
+
+  function fillRole(roleKey, members, templateNode) {
+    var wrapperNode = document.querySelector('.cyber-node-wrapper[data-role="' + roleKey + '"]');
+    if (!wrapperNode) return;
+    var node = wrapperNode.querySelector('.cyber-node');
+    if (!node) return;
+
+    if (!members || !members.length) {
+      var nameEl = node.querySelector('[data-bind="name"]');
+      if (nameEl) nameEl.textContent = 'N/A';
+      return;
+    }
+
+    if (members.length === 1) {
+      applyMember(node, members[0]);
+      return;
+    }
+
+    var row = document.createElement('div');
+    row.className = 'role-row';
+    row.setAttribute('data-connector', roleKey);
+
+    var isMini = node.classList.contains('mini');
+    var cardW = isMini ? '220px' : '240px';
+    var cardH = isMini ? '52px' : '64px';
+    members.forEach(function (entry) {
+      var slot = document.createElement('div');
+      slot.className = 'role-slot';
+      slot.style.width = cardW;
+      slot.style.height = cardH;
+      slot.style.flexShrink = '0';
+      var card = node.cloneNode(true);
+      card.style.width = cardW;
+      card.style.minWidth = cardW;
+      card.style.maxWidth = cardW;
+      card.style.height = cardH;
+      card.style.minHeight = cardH;
+      card.style.maxHeight = cardH;
+      applyMember(card, entry);
+      slot.appendChild(card);
+      row.appendChild(slot);
+    });
+
+    wrapperNode.innerHTML = '';
+    wrapperNode.removeAttribute('data-connector');
+    wrapperNode.appendChild(row);
+
+  }
+
+  function loadTeamData() {
+    return fetch('/api/team_hierarchy')
+      .then(function (res) {
+        if (!res.ok) throw new Error('JSON not generated yet');
+        return res.json();
+      })
+      .then(function (data) {
+        buildFounderLevel(data.founder || []);
+
+        Object.keys(data).forEach(function (roleKey) {
+          if (roleKey === 'founder') return;
+          fillRole(roleKey, data[roleKey]);
+        });
+
+        scheduleRedraw();
+      })
+      .catch(function () {
+        fetch('data/team_hierarchy.json')
+          .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+          .then(function (data) {
+            buildFounderLevel(data.founder || []);
+            Object.keys(data).forEach(function (roleKey) {
+              if (roleKey === 'founder') return;
+              fillRole(roleKey, data[roleKey]);
+            });
+            scheduleRedraw();
+          })
+          .catch(function () {
+            document.querySelectorAll('[data-bind="name"]').forEach(function (el) {
+              if (el.textContent === 'Loading...') el.textContent = 'Awaiting Bot Data';
+            });
+            scheduleRedraw();
+          });
+      });
+  }
+
+  loadTeamData();
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(scheduleRedraw);
+  }
+  window.addEventListener('load', scheduleRedraw);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+specification {
+  element agent { style { shape person; color blue } }
+  element config { style { shape rectangle; color amber } }
+  element folder { style { shape rectangle; color muted } }
+  element system { style { shape rectangle; color slate } }
+}
+
+model {
+  claude = agent 'Claude Code'
+  gemini = agent 'Antigravity (Gemini)'
+  
+  root = system 'Repo Root' {
+    agents_md = config 'AGENTS.md (HQ)' 'The single source of truth router for every agent'
+    mcp_json = config '.mcp.json' 'Shared MCP tools definition'
+    
+    claude_configs = folder '.claude/' 'Claude native configs'
+    agents_dir = folder '.agents/' 'Antigravity native configs'
+  }
+
+  ai_hub = system 'ai-hub/ Folder' 'The central AI workspace' {
+    memory = folder 'memory/' 'The Unified AI Brain' {
+      bot_infra = folder 'bot-infrastructure/' 'Bot systems & core files'
+      global = folder 'global-memory/' 'Rules & lessons learned'
+      sessions = folder 'session-summaries/' 'Past session summaries'
+    }
+    skills = folder 'skills/' 'Cross-agent skill .md files'
+    docs = folder 'docs/' 'Important general docs & AI context models'
+    plans = folder 'plans/' 'Forward-looking plans & specs' {
+      old_plans = folder 'old-plans/' 'Superseded plans'
+    }
+    research = folder 'research/' 'Data-gathering output'
+    deprecated = folder 'deprecated/' 'The attic (retired code)'
+    scratch = folder 'scratch/' 'Throwaway experiments'
+  }
+  
+  src = system 'Live Codebase' {
+    bot = folder 'commands/, tasks/, core/'
+    site = folder 'website/'
+    trackers = folder 'command-trackers/'
+  }
+  
+  // The simple redirect flow
+  claude -> root.claude_configs 'reads native configs'
+  root.claude_configs -> root.agents_md 'redirects to HQ'
+  
+  gemini -> root.agents_dir 'reads native configs'
+  root.agents_dir -> root.agents_md 'redirects to HQ'
+  
+  // Shared Tools
+  claude -> root.mcp_json 'auto-reads tools'
+  gemini -> root.mcp_json 'auto-reads tools'
+  
+  // HQ Routing
+  root.agents_md -> ai_hub.skills 'routes to find skills in'
+  root.agents_md -> ai_hub.memory.bot_infra 'routes to understand codebase in'
+  root.agents_md -> ai_hub.memory.global 'routes to learn from mistakes in'
+  
+  // Code connections
+  ai_hub.memory.bot_infra -> src 'documents how it works today'
+  ai_hub.plans -> src 'proposes what to build/change'
+}
+
+views {
+  view index {
+    title 'Wave AI Documentation & Context Architecture'
+    include *
+    include root.*
+    include ai_hub.*
+    include ai_hub.memory.*
+    include src.*
+    autoLayout TopBottom
+  }
+}

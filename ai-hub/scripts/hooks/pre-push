@@ -1,0 +1,30 @@
+#!/bin/sh
+# Wave repo pre-push safety gate (tracked in repo; installed per-machine via:
+#   python ai-hub/scripts/wave_sync.py install-hook
+#
+# Runs on every `git push`. Allows safe pushes (in sync / ahead), but BLOCKS a
+# push when you're behind origin — which would need a careful merge and, on the
+# Windows runtime box, protection of the live bot_database.db. When blocked it
+# points you at the `website-sync` skill instead of a dangerous force-push.
+#
+# This gate never merges or touches the DB itself — that's the skill's job.
+
+# Find python (python3 on Mac, python on Windows git-bash).
+PY=$(command -v python3 2>/dev/null || command -v python 2>/dev/null)
+if [ -z "$PY" ]; then
+    echo "[pre-push] python not found — skipping safety check."
+    exit 0
+fi
+
+ROOT=$(git rev-parse --show-toplevel)
+# git feeds ref data on the hook's stdin. To let the script prompt a human y/N,
+# point stdin at the terminal — but ONLY when one can actually be OPENED. The
+# device node /dev/tty can exist yet be unopenable (no controlling terminal, e.g.
+# an agent/CI push); test by actually trying to open it, then fall back to
+# /dev/null so the script sees non-interactive stdin and blocks safely.
+if (exec 3</dev/tty) 2>/dev/null; then
+    "$PY" "$ROOT/ai-hub/scripts/wave_sync.py" pre-push-check </dev/tty
+else
+    "$PY" "$ROOT/ai-hub/scripts/wave_sync.py" pre-push-check </dev/null
+fi
+exit $?
